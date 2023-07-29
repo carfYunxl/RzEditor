@@ -15,10 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="RazelLibrary.hpp">
+    <ClInclude Include="RzLibrary.hpp">
       <Filter>源文件</Filter>
     </ClInclude>
-    <ClInclude Include="File\RazelFile.hpp">
+    <ClInclude Include="File\FileTraveler.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Core\Core.hpp">
@@ -30,12 +30,18 @@
     <ClInclude Include="Core\Log.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="File\IniTraveler.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="File\RazelFile.cpp">
+    <ClCompile Include="File\FileTraveler.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="File\IniTraveler.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

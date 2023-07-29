@@ -1,7 +1,7 @@
 #include "pch.hpp"
-#include "File/RazelFile.hpp"
+#include "File/FileTraveler.hpp"
 
-namespace Razel
+namespace RzLib
 {
     /** move constructor */
     FileTraveler::FileTraveler(std::string&& filepath)

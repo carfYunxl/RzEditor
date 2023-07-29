@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "RazelLibrary.hpp"
+#include "RzLibrary.hpp"
 #include "Core/Log.hpp"
 #include "Core/Core.hpp"
 

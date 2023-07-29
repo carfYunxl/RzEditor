@@ -7,7 +7,7 @@
 #include "fmt/color.h"
 #include <type_traits>
 #include <iostream>
-namespace Razel
+namespace RzLib
 {
     enum class LogLevel
     {

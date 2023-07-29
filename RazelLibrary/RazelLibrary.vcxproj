@@ -21,12 +21,14 @@
   <ItemGroup>
     <ClInclude Include="Core\Core.hpp" />
     <ClInclude Include="Core\Log.hpp" />
+    <ClInclude Include="File\IniTraveler.hpp" />
     <ClInclude Include="pch.hpp" />
-    <ClInclude Include="File\RazelFile.hpp" />
-    <ClInclude Include="RazelLibrary.hpp" />
+    <ClInclude Include="File\FileTraveler.hpp" />
+    <ClInclude Include="RzLibrary.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="File\RazelFile.cpp" />
+    <ClCompile Include="File\FileTraveler.cpp" />
+    <ClCompile Include="File\IniTraveler.cpp" />
     <ClCompile Include="pch.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
