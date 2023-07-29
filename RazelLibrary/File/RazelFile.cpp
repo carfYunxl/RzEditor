@@ -1,5 +1,5 @@
-#include "pch.h"
-#include "File/RazelFile.h"
+#include "pch.hpp"
+#include "File/RazelFile.hpp"
 
 namespace Razel
 {

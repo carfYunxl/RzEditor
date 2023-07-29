@@ -1,8 +1,8 @@
 #include <iostream>
 
-#include "RazelLibrary.h"
-#include "Core/Log.h"
-#include "Core/Core.h"
+#include "RazelLibrary.hpp"
+#include "Core/Log.hpp"
+#include "Core/Core.hpp"
 
 int main()
 {

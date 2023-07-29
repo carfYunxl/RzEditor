@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/Core.h"
-#include "Core/Log.h"
+#include "Core/Core.hpp"
+#include "Core/Log.hpp"
 #include <string>
 
 namespace Razel

@@ -19,11 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Core\Core.h" />
-    <ClInclude Include="Core\Log.h" />
-    <ClInclude Include="pch.h" />
-    <ClInclude Include="File\RazelFile.h" />
-    <ClInclude Include="RazelLibrary.h" />
+    <ClInclude Include="Core\Core.hpp" />
+    <ClInclude Include="Core\Log.hpp" />
+    <ClInclude Include="pch.hpp" />
+    <ClInclude Include="File\RazelFile.hpp" />
+    <ClInclude Include="RazelLibrary.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="File\RazelFile.cpp" />
@@ -104,7 +104,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;RAZELLIBRARY_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);RZ_PALTFORM_WINDOWS;RZ_DYNAMIC_LINK;RZ_BUILD_DLL</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Create</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>pch.hpp</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)RazelLibrary\;$(SolutionDir);</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -123,7 +123,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;RAZELLIBRARY_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);RZ_PALTFORM_WINDOWS;RZ_DYNAMIC_LINK;RZ_BUILD_DLL</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Create</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>pch.hpp</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)RazelLibrary\;$(SolutionDir);</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -142,7 +142,7 @@
       <PreprocessorDefinitions>_DEBUG;RAZELLIBRARY_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);RZ_PALTFORM_WINDOWS;RZ_DYNAMIC_LINK;RZ_BUILD_DLL</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Create</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>pch.hpp</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)RazelLibrary\;$(SolutionDir);</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -161,7 +161,7 @@
       <PreprocessorDefinitions>NDEBUG;RAZELLIBRARY_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);RZ_PALTFORM_WINDOWS;RZ_DYNAMIC_LINK;RZ_BUILD_DLL</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Create</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>pch.hpp</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>$(SolutionDir)RazelLibrary\;$(SolutionDir);</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>

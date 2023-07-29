@@ -20,7 +20,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="tmp.h">
+    <ClInclude Include="tmp.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
