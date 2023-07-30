@@ -1,12 +1,21 @@
+/*****************************************************************//**
+ * @file   FileTraveler.hpp
+ * @brief  
+ * 
+ * @author yxl
+ * @date   July 2023
+ *********************************************************************/
 #pragma once
 
 #include "Core/Core.hpp"
 #include "Core/Log.hpp"
 #include <string>
 
+#pragma warning(disable:4251)
+
 namespace RzLib
 {
-    class RazelAPI FileTraveler
+    class RzAPI FileTraveler
     {
     public:
         explicit FileTraveler(std::string&& filepath);
@@ -22,24 +31,23 @@ namespace RzLib
 
         virtual bool open();
 
-        virtual void replace                ( const char* key, const char* text, size_t count = 1);
-        virtual void replace_all            ( const char* key, const char* text );
-        virtual void replace_the_first_of   ( const char* key, const char* text );
-        virtual void replace_the_last_of    ( const char* key, const char* text );
-        virtual void replace_reverse        ( const char* key, const char* text, size_t count = 1);
+        void replace                ( const char* key, const char* text, size_t count = 1);
+        void replace_all            ( const char* key, const char* text );
+        void replace_the_first_of   ( const char* key, const char* text );
+        void replace_the_last_of    ( const char* key, const char* text );
+        void replace_reverse        ( const char* key, const char* text, size_t count = 1);
 
-        virtual void insert_front(const char* key, const char* text);
-        virtual void insert_after(const char* key, const char* text);
+        void insert_front(const char* key, const char* text);
+        void insert_after(const char* key, const char* text);
 
-        virtual void append(const char* text);
-        virtual void close();
+        void append(const char* text);
+        void close();
 
-        virtual void swap(FileTraveler& rhs);
+        void swap(FileTraveler& rhs);
 
         const std::string GetFileContent() const;
-    private:
+    protected:
         std::string m_filepath;
         std::string m_fileCache;
     };
-
 }

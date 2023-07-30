@@ -8,11 +8,14 @@
 
 #pragma once
 
+#pragma warning(disable:4251)
+
 #include "FileTraveler.hpp"
+#include <vector>
 
 namespace RzLib
 {
-    class IniTraveler : public FileTraveler
+    class RzAPI IniTraveler : public FileTraveler
     {
     public:
         explicit IniTraveler(std::string&& filepath);
@@ -20,7 +23,10 @@ namespace RzLib
 
         virtual bool open() override;
 
+        bool section_exists(const std::string& section);
     private:
-
+        void parser_sections();
+    private:
+        std::vector<std::string> m_vecSections;
     };
 }
