@@ -36,7 +36,7 @@ namespace RzLib
             std::ofstream out(m_filepath, std::ofstream::out);
             if (!out.is_open())
             {
-                Log(LogLevel::ERROR, "Couldn't create file : ", m_filepath);
+                Log(LogLevel::ERR, "Couldn't create file : ", m_filepath);
                 return false;
             }
             out.close();
@@ -46,7 +46,7 @@ namespace RzLib
         inf.open(m_filepath, std::fstream::in);
         if (!inf.is_open())
         {
-            Log(LogLevel::ERROR, "Couldn't open file : ", m_filepath);
+            Log(LogLevel::ERR, "Couldn't open file : ", m_filepath);
             return false;
         }
 
@@ -55,7 +55,7 @@ namespace RzLib
         std::size_t size = inf.tellg();
         if (size == -1)
         {
-            Log(LogLevel::ERROR, "Couldn't read from file : ", m_filepath);
+            Log(LogLevel::ERR, "Couldn't read from file : ", m_filepath);
             return false;
         }
 
@@ -80,7 +80,7 @@ namespace RzLib
         std::ofstream out(m_filepath, std::ofstream::out | std::ofstream::app);
         if (!out.is_open())
         {
-            Log(LogLevel::ERROR,"Couldn't create file : ", m_filepath);
+            Log(LogLevel::ERR,"Couldn't create file : ", m_filepath);
             return;
         }
 

@@ -7,13 +7,14 @@
 #include "fmt/color.h"
 #include <type_traits>
 #include <iostream>
+
 namespace RzLib
 {
     enum class LogLevel
     {
         INFO = 0,
         WARN,
-        ERROR
+        ERR
     };
 
     template<typename T, char SEPERATOR>
@@ -42,7 +43,7 @@ namespace RzLib
         case LogLevel::WARN:
             fmt::print(fg(fmt::color::yellow), "WARN : ");
             break;
-        case LogLevel::ERROR:
+        case LogLevel::ERR:
             fmt::print(fg(fmt::color::red), "ERROR : ");
             break;
         }
