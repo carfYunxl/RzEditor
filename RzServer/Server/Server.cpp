@@ -1,11 +1,13 @@
 #include "Server.hpp"
 #include "Log.hpp"
+#include <thread>
 
 namespace RzLib
 {
 	Server::Server(std::string&& ip, int port)
 		: m_ip(std::move(ip))
 		, m_port(std::move(port))
+		, m_listen_socket(INVALID_SOCKET)
 	{
 	}
 	Server::~Server()
@@ -80,13 +82,48 @@ namespace RzLib
 		FD_ZERO(&m_All_FD);
 		FD_SET(m_listen_socket, &m_All_FD);
 
+		Log(LogLevel::INFO, "Server is listening ...\n");
+
+		std::thread thread([&]() {
+
+			std::string strSend;
+			strSend.resize(128);
+			while (1)
+			{
+				std::cin.getline(&strSend[0], 128);
+
+				if (strSend.empty())
+				{
+					continue;
+				}
+
+				if (strSend.starts_with("Send"))
+				{
+					int index1 = strSend.find(" ",0);
+					int index2 = strSend.find(" ",index1+1);
+
+					std::string sock = strSend.substr(index1 + 1, index2 - index1-1);
+
+					int soc = 0;
+					if(!sock.empty())
+						soc = stoi(sock);
+					SOCKET socket = static_cast<SOCKET>(soc);
+
+					std::string info = strSend.substr(index2+1,strSend.size()-index2-1);
+					send(socket,info.c_str(),info.size(),0);
+				}
+			}
+		});
+
+		thread.detach();
+
 		while (1)
 		{
 			fd_set tmp = m_All_FD;
 			int res = select(0, &tmp, NULL, NULL, 0);
 			if (res == SOCKET_ERROR)
 			{
-				Log(LogLevel::ERR, "Socket error : ", WSAGetLastError());
+				Log(LogLevel::ERR, " select error, error code : ", WSAGetLastError());
 				return false;
 			}
 			else if (res == 0)
@@ -108,11 +145,11 @@ namespace RzLib
 						{
 							continue;
 						}
-						Log(LogLevel::INFO, "客户端已连接, socket : ", socket_client, " port : ", ntohs(clientaddr.sin_port));
+						Log(LogLevel::INFO, "客户端已连接, socket : ", socket_client, " port : ", ntohs(clientaddr.sin_port), "\n");
 						client.emplace_back(socket_client, ntohs(clientaddr.sin_port));
 
 						FD_SET(socket_client, &m_All_FD);
-						if (SOCKET_ERROR == send(socket_client, "成功连接到服务器！", 10, 0))
+						if (SOCKET_ERROR == send(socket_client, "成功连接到服务器！", 20, 0))
 						{
 							Log(LogLevel::ERR, " error occured,error code : ", WSAGetLastError());
 							return false;
@@ -126,22 +163,65 @@ namespace RzLib
 						if (nRecv == 0)
 						{
 							//连接被正常关闭
-							Log(LogLevel::WARN, "客户端 ：", tmp.fd_array[i], " 已断开连接！ ");
+							Log(LogLevel::INFO, "Client ", tmp.fd_array[i], " offline...!\n");
 							closesocket(tmp.fd_array[i]);
 							FD_CLR(tmp.fd_array[i], &m_All_FD);
+
+							std::erase_if(client, [=](const std::pair<SOCKET,int>& cli) 
+								{
+									return cli.first == tmp.fd_array[i];
+								});
+							continue;
 						}
 						else if (SOCKET_ERROR == nRecv)
 						{
-							//出错
-							Log(LogLevel::ERR, "recv error : error code : ", WSAGetLastError());
+							res = WSAGetLastError();
+							if (res == WSAECONNRESET)
+							{
+								Log(LogLevel::INFO, "client ", tmp.fd_array[i], " offline...!\n");
+								closesocket(tmp.fd_array[i]);
+								FD_CLR(tmp.fd_array[i], &m_All_FD);
+
+								std::erase_if(client, [=](const std::pair<SOCKET, int>& cli)
+									{
+										return cli.first == tmp.fd_array[i];
+									});
+								continue;
+							}
+							Log(LogLevel::ERR, "recv error : error code : ", res);
 							return false;
 						}
 						//接收到了数据
-						Log(LogLevel::INFO, "Read from client : ", tmp.fd_array[i], " success! ");
-						Log(LogLevel::INFO, readBuf);
+						Log(LogLevel::INFO, "Client ", tmp.fd_array[i], " Say:", readBuf, "\n");
 					}
 				}
 			}
 		}
+	}
+
+	void Server::ListClient()
+	{
+		Log(LogLevel::ERR,"[ list client : ]");
+		for (size_t i = 0;i < client.size();++i)
+		{
+			std::cout << client.at(i).first << std::endl;
+		}
+
+		std::cout << std::endl;
+	}
+
+	int Server::GetPort(SOCKET socket)
+	{
+		auto itr = std::find_if(client.begin(), client.end(), [=](const std::pair<SOCKET,int>& cli) 
+			{
+				return cli.first == socket;
+			});
+
+		if (itr != client.end())
+		{
+			return (*itr).second;
+		}
+
+		return -1;
 	}
 }

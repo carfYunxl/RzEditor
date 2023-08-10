@@ -18,6 +18,9 @@ namespace RzLib
         bool Init();
         bool Listen();
         bool Accept();
+
+        void ListClient();
+        int GetPort(SOCKET socket);
     private:
         std::string m_ip;
         int m_port;
