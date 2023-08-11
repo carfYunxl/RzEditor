@@ -2,9 +2,7 @@
 
 #define FMT_HEADER_ONLY
 
-#include "fmt/core.h"
-#include "fmt/format.h"
-#include "fmt/color.h"
+#include "FmtLayer.h"
 #include <type_traits>
 #include <iostream>
 
@@ -38,13 +36,13 @@ namespace RzLib
         switch (level)
         {
         case LogLevel::INFO:
-            fmt::print(fg(fmt::color::steel_blue), "INFO : ");
+            fmt::print(fg(fmt::color::steel_blue), "[INFO] ");
             break;
         case LogLevel::WARN:
-            fmt::print(fg(fmt::color::yellow), "WARN : ");
+            fmt::print(fg(fmt::color::yellow), "[WARN] ");
             break;
         case LogLevel::ERR:
-            fmt::print(fg(fmt::color::red), "ERROR : ");
+            fmt::print(fg(fmt::color::red), "[ERROR] ");
             break;
         }
 

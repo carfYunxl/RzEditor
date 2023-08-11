@@ -22,10 +22,18 @@ namespace RzLib
         void ListClient();
         int GetPort(SOCKET socket);
     private:
+        void HandleServerCMD();
+        void HandleClientCMD(SOCKET socket, const char* CMD);
+
+        void AcceptClient();
+        bool GetClientMsg(SOCKET socket, char* buf);
+
+        bool SendFileToClient(SOCKET socket, const std::string& path);
+    private:
         std::string m_ip;
         int m_port;
         SOCKET m_listen_socket;
-        std::vector<std::pair<SOCKET, int>> client;
+        std::vector<std::pair<SOCKET, int>> m_client;
         fd_set m_All_FD;
     };
 }

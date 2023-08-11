@@ -1,6 +1,7 @@
 #include "Server.hpp"
 #include "Log.hpp"
 #include <thread>
+#include <fstream>
 
 namespace RzLib
 {
@@ -13,9 +14,9 @@ namespace RzLib
 	Server::~Server()
 	{
 		closesocket(m_listen_socket);
-		for (size_t i = 0; i < client.size(); ++i)
+		for (size_t i = 0; i < m_client.size(); ++i)
 		{
-			closesocket(client.at(i).first);
+			closesocket(m_client.at(i).first);
 		}
 		WSACleanup();
 	}
@@ -77,14 +78,11 @@ namespace RzLib
 		return true;
 	}
 
-	bool Server::Accept()
+	// 响应服务端的相关CMD
+	void Server::HandleServerCMD()
 	{
-		FD_ZERO(&m_All_FD);
-		FD_SET(m_listen_socket, &m_All_FD);
-
-		Log(LogLevel::INFO, "Server is listening ...\n");
-
-		std::thread thread([&]() {
+		std::thread thread([&]()
+		{
 
 			std::string strSend;
 			strSend.resize(128);
@@ -99,23 +97,71 @@ namespace RzLib
 
 				if (strSend.starts_with("Send"))
 				{
-					int index1 = strSend.find(" ",0);
-					int index2 = strSend.find(" ",index1+1);
+					size_t index1 = strSend.find(" ", 0);
+					size_t index2 = strSend.find(" ", index1 + 1);
 
-					std::string sock = strSend.substr(index1 + 1, index2 - index1-1);
+					std::string sock = strSend.substr(index1 + 1, index2 - index1 - 1);
 
 					int soc = 0;
-					if(!sock.empty())
+					if (!sock.empty())
 						soc = stoi(sock);
 					SOCKET socket = static_cast<SOCKET>(soc);
 
-					std::string info = strSend.substr(index2+1,strSend.size()-index2-1);
-					send(socket,info.c_str(),info.size(),0);
+					std::string info = strSend.substr(index2 + 1, strSend.size() - index2 - 1);
+					send(socket, info.c_str(), static_cast<int>(info.size()), 0);
+				}
+				else if (strSend.starts_with("client"))
+				{
+					ListClient();
+				}
+				else if (strSend.starts_with("file")) // file socket filepath
+				{
+					size_t index1 = strSend.find(" ", 0);
+					size_t index2 = strSend.find(" ", index1 + 1);
+
+					std::string sock = strSend.substr(index1 + 1, index2 - index1 - 1);
+
+					int soc = 0;
+					if (!sock.empty())
+						soc = stoi(sock);
+					SOCKET socket = static_cast<SOCKET>(soc);
+
+					std::string info = strSend.substr(index2 + 1, strSend.size() - index2 - 1);
+					SendFileToClient(socket, info);
 				}
 			}
 		});
 
 		thread.detach();
+	}
+
+	// 处理客户端发过来的请求
+	void Server::HandleClientCMD(SOCKET socket, const char* CMD)
+	{
+		if (strcmp(CMD,"port") == 0)
+		{
+			std::string strPort = std::to_string(m_port);
+			send(socket, &strPort[0], static_cast<int>(strPort.size()), 0);
+		}
+		else if (strcmp(CMD, "ip") == 0)
+		{
+			send(socket, &m_ip[0], static_cast<int>(m_ip.size()), 0);
+		}
+		else
+		{
+			Log(LogLevel::INFO, "Client ", socket, " Say:", CMD, "\n");
+		}
+	}
+
+	bool Server::Accept()
+	{
+		FD_ZERO(&m_All_FD);
+		FD_SET(m_listen_socket, &m_All_FD);
+
+		Log(LogLevel::INFO, "Server is listening ...\n");
+
+		// 处理服务器的CMD
+		HandleServerCMD();
 
 		while (1)
 		{
@@ -126,85 +172,50 @@ namespace RzLib
 				Log(LogLevel::ERR, " select error, error code : ", WSAGetLastError());
 				return false;
 			}
-			else if (res == 0)
+			if (res == 0)
 			{
 				Log(LogLevel::INFO, "expired time limited ...");
 				continue;
 			}
-			else if (res > 0)
+			if (res > 0)
 			{
 				for (u_int i = 0; i < tmp.fd_count; ++i)
 				{
 					if (tmp.fd_array[i] == m_listen_socket)
 					{
-						//accept
-						sockaddr_in clientaddr;
-						int len = sizeof(sockaddr_in);
-						SOCKET socket_client = accept(m_listen_socket, (sockaddr*)&clientaddr, &len);
-						if (INVALID_SOCKET == socket_client)
-						{
-							continue;
-						}
-						Log(LogLevel::INFO, "客户端已连接, socket : ", socket_client, " port : ", ntohs(clientaddr.sin_port), "\n");
-						client.emplace_back(socket_client, ntohs(clientaddr.sin_port));
-
-						FD_SET(socket_client, &m_All_FD);
-						if (SOCKET_ERROR == send(socket_client, "成功连接到服务器！", 20, 0))
-						{
-							Log(LogLevel::ERR, " error occured,error code : ", WSAGetLastError());
-							return false;
-						}
+						// 处理客户端连接请求
+						AcceptClient();
 					}
 					else
 					{
 						//处理客户端消息
 						char readBuf[1500]{ 0 };
-						int nRecv = recv(tmp.fd_array[i], readBuf, 1500, 0);
-						if (nRecv == 0)
+						if (!GetClientMsg(tmp.fd_array[i], readBuf))
 						{
-							//连接被正常关闭
-							Log(LogLevel::INFO, "Client ", tmp.fd_array[i], " offline...!\n");
-							closesocket(tmp.fd_array[i]);
-							FD_CLR(tmp.fd_array[i], &m_All_FD);
-
-							std::erase_if(client, [=](const std::pair<SOCKET,int>& cli) 
-								{
-									return cli.first == tmp.fd_array[i];
-								});
 							continue;
 						}
-						else if (SOCKET_ERROR == nRecv)
-						{
-							res = WSAGetLastError();
-							if (res == WSAECONNRESET)
-							{
-								Log(LogLevel::INFO, "client ", tmp.fd_array[i], " offline...!\n");
-								closesocket(tmp.fd_array[i]);
-								FD_CLR(tmp.fd_array[i], &m_All_FD);
 
-								std::erase_if(client, [=](const std::pair<SOCKET, int>& cli)
-									{
-										return cli.first == tmp.fd_array[i];
-									});
-								continue;
-							}
-							Log(LogLevel::ERR, "recv error : error code : ", res);
-							return false;
-						}
 						//接收到了数据
-						Log(LogLevel::INFO, "Client ", tmp.fd_array[i], " Say:", readBuf, "\n");
+						HandleClientCMD(tmp.fd_array[i], readBuf);
 					}
 				}
 			}
 		}
+
+		return true;
 	}
 
 	void Server::ListClient()
 	{
-		Log(LogLevel::ERR,"[ list client : ]");
-		for (size_t i = 0;i < client.size();++i)
+		if (m_client.empty())
 		{
-			std::cout << client.at(i).first << std::endl;
+			Log(LogLevel::WARN, "No client is online...\n");
+		}
+
+		Log(LogLevel::ERR,"[ list client : ]");
+		for (size_t i = 0;i < m_client.size();++i)
+		{
+			std::cout << m_client.at(i).first << std::endl;
 		}
 
 		std::cout << std::endl;
@@ -212,16 +223,126 @@ namespace RzLib
 
 	int Server::GetPort(SOCKET socket)
 	{
-		auto itr = std::find_if(client.begin(), client.end(), [=](const std::pair<SOCKET,int>& cli) 
+		auto itr = std::find_if(m_client.begin(), m_client.end(), [=](const std::pair<SOCKET,int>& cli)
 			{
 				return cli.first == socket;
 			});
 
-		if (itr != client.end())
+		if (itr != m_client.end())
 		{
 			return (*itr).second;
 		}
 
 		return -1;
+	}
+
+	void Server::AcceptClient()
+	{
+		sockaddr_in clientaddr;
+		int len = sizeof(sockaddr_in);
+		SOCKET socket_client = accept(m_listen_socket, (sockaddr*)&clientaddr, &len);
+		if (INVALID_SOCKET == socket_client)
+		{
+			return;
+		}
+		Log(LogLevel::INFO, "客户端已连接, socket : ", socket_client, " port : ", ntohs(clientaddr.sin_port), "\n");
+		m_client.emplace_back(socket_client, ntohs(clientaddr.sin_port));
+
+		FD_SET(socket_client, &m_All_FD);
+
+		const char* info = "成功连接到服务器！";
+		if (SOCKET_ERROR == send(socket_client, info, static_cast<int>(strlen(info)), 0))
+		{
+			Log(LogLevel::ERR, " error occured,error code : ", WSAGetLastError());
+		}
+	}
+
+	bool Server::GetClientMsg(SOCKET socket, char* buf)
+	{
+		int res = recv(socket, buf, 1500, 0);
+		if (res == 0)
+		{
+			//连接被正常关闭
+			Log(LogLevel::INFO, "Client ", socket, " offline...!\n");
+			closesocket(socket);
+			FD_CLR(socket, &m_All_FD);
+
+			std::erase_if(m_client, [=](const std::pair<SOCKET, int>& cli)
+				{
+					return cli.first == socket;
+				});
+			return false;
+		}
+		else if (SOCKET_ERROR == res)
+		{
+			res = WSAGetLastError();
+			if (res == WSAECONNRESET)
+			{
+				Log(LogLevel::INFO, "client ", socket, " offline...!\n");
+				closesocket(socket);
+				FD_CLR(socket, &m_All_FD);
+
+				std::erase_if(m_client, [=](const std::pair<SOCKET, int>& cli)
+					{
+						return cli.first == socket;
+					});
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	bool Server::SendFileToClient(SOCKET socket, const std::string& path)
+	{
+		//先发给client，告诉client下面要发送的是文件
+
+		std::ifstream inf(path);
+		if (!inf.is_open())
+		{
+			Log(LogLevel::ERR, "Open file ", path , " failed!\n");
+			return false;
+		}
+
+		inf.seekg(0, std::ios::end);
+		size_t size = static_cast<size_t>(inf.tellg());
+		if (size == -1)
+		{
+			Log(LogLevel::ERR, "Read file ", path, " failed!\n");
+			return false;
+		}
+
+		std::string strCMD("file " + std::to_string(size) + " " + path);
+
+		if (send(socket, &strCMD[0], static_cast<int>(strCMD.size()), 0) == SOCKET_ERROR)
+		{
+			Log(LogLevel::ERR, "Send to client failed! \n");
+			return false;
+		}
+		
+		strCMD.clear();
+		strCMD.resize(size);
+		inf.seekg(0, std::ios::beg);
+		inf.read(&strCMD[0], strCMD.size());
+		inf.close();
+
+		// 每次向client发送1K数据，知道文件内容发送完毕
+		int index = 0;
+		while (int(size) > 0)
+		{
+			size_t sSize = size > 1024 ? 1024 : size;
+			if (send(socket, &strCMD[index], static_cast<int>(sSize), 0) == SOCKET_ERROR)
+			{
+				Log(LogLevel::ERR, "Send to client failed! \n");
+				return false;
+			}
+
+			index += 1024;
+			size -= 1024;
+		}
+
+		Log(LogLevel::INFO, "Send file to client success! \n");
+
+		return true;
 	}
 }
