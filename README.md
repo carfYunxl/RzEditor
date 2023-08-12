@@ -5,7 +5,10 @@
   - RzServer : a windows server
 - others...
 
-# CMD
+# RzServer
+## Introduction
+  a windows server that use native winsock2 API
+## CMD
 - **send**
   - gramma : send socket message
   - socket : client socket
