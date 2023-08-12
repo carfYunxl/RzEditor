@@ -29,7 +29,7 @@
     <ClInclude Include="Server\Server.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="CMD\CMDParser.h">
+    <ClInclude Include="CMD\CMDParser.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -164,7 +164,7 @@
     <ClCompile Include="Server\Server.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CMD\CMDParser.h" />
+    <ClInclude Include="CMD\CMDParser.hpp" />
     <ClInclude Include="Server\Server.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -3,7 +3,7 @@
 #include <thread>
 #include <fstream>
 #include "Core/Core.hpp"
-#include "CMD/CMDParser.h"
+#include "CMD/CMDParser.hpp"
 
 namespace RzLib
 {
