@@ -21,9 +21,15 @@
     <ClCompile Include="Server\Server.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="CMD\CMDParser.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Server\Server.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CMD\CMDParser.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

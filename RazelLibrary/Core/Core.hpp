@@ -5,11 +5,20 @@
         #ifdef RZ_BUILD_DLL
         #define RzAPI __declspec(dllexport)
         #else
-        #define RazelAPI __declspec(dllimport)
+        #define RzAPI __declspec(dllimport)
         #endif
     #else
-        #define RazelAPI
+        #define RzAPI
     #endif
 #else
     #error Razel only support Windows!
 #endif
+
+// CMD
+enum class ServerCMD
+{
+    EXIT = 0,   // 退出
+    CLIENT,     // 列出所有客户端的SOCKET
+    FILE,       // 向客户端发送文件
+    SEND        // 向客户端发送信息
+};

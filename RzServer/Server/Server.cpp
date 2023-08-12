@@ -1,7 +1,9 @@
 #include "Server.hpp"
-#include "Log.hpp"
+#include "Core/Log.hpp"
 #include <thread>
 #include <fstream>
+#include "Core/Core.hpp"
+#include "CMD/CMDParser.h"
 
 namespace RzLib
 {
@@ -85,6 +87,8 @@ namespace RzLib
 		{
 			std::string strSend;
 			strSend.resize(128);
+
+			CMDParser parser("");
 			while (1)
 			{
 				std::cin.getline(&strSend[0], 128);
@@ -94,48 +98,69 @@ namespace RzLib
 					continue;
 				}
 
-				if (strSend.starts_with("send"))
+				parser.SetCMD(strSend);
+
+				switch (parser.GetCmdType())
 				{
-					size_t index1 = strSend.find(" ", 0);
-					size_t index2 = strSend.find(" ", index1 + 1);
-
-					std::string sock = strSend.substr(index1 + 1, index2 - index1 - 1);
-
-					int soc = 0;
-					if (!sock.empty())
-						soc = stoi(sock);
-					SOCKET socket = static_cast<SOCKET>(soc);
-
-					std::string info = strSend.substr(index2 + 1, strSend.size() - index2 - 1);
-					if (SOCKET_ERROR == send(socket, info.c_str(), static_cast<int>(info.size()), 0))
+				case CMDType::NONE:
+					continue;
+					break;
+				case CMDType::SINGLE:
+				{
+					ServerCMD	CMD = static_cast<ServerCMD>(parser.GetCMD());
+					switch (CMD)
 					{
-						Log(LogLevel::ERR, "send to client error!");
+					case ServerCMD::EXIT:
+						Log(LogLevel::WARN, "server is closed!");
+						break;
+					case ServerCMD::CLIENT:
+						ListClient();
+						break;
+					default:
+						Log(LogLevel::ERR, "unknown single command!");
+						break;
 					}
 				}
-				else if (strSend.starts_with("client"))
+					break;
+				case CMDType::DOUBLE:
 				{
-					ListClient();
+					ServerCMD	CMD = static_cast<ServerCMD>(parser.GetCMD());
+					SOCKET		socket = parser.GetSocket();
+					// ...
+
+					switch (CMD)
+					{
+					default:
+						Log(LogLevel::ERR, "No second command definition now!");
+					}
 				}
-				else if (strSend.starts_with("file")) // file socket filepath
+					break;
+				case CMDType::TRIPLE:
 				{
-					size_t index1 = strSend.find(" ", 0);
-					size_t index2 = strSend.find(" ", index1 + 1);
+					ServerCMD	CMD = static_cast<ServerCMD>(parser.GetCMD());
+					SOCKET		socket = parser.GetSocket();
+					std::string msg = parser.GetMsg();
 
-					std::string sock = strSend.substr(index1 + 1, index2 - index1 - 1);
-
-					int soc = 0;
-					if (!sock.empty())
-						soc = stoi(sock);
-					SOCKET socket = static_cast<SOCKET>(soc);
-
-					std::string info = strSend.substr(index2 + 1, strSend.size() - index2 - 1);
-					SendFileToClient(socket, info);
+					switch (CMD)
+					{
+					case ServerCMD::FILE:
+						SendFileToClient(socket, msg);
+						break;
+					case ServerCMD::SEND:
+						if (SOCKET_ERROR == send(socket, msg.c_str(), static_cast<int>(msg.size()), 0))
+						{
+							Log(LogLevel::ERR, "send to client error!");
+						}
+						break;
+					default:
+						Log(LogLevel::ERR, "unknown triple command!");
+						break;
+					}
 				}
-				else if (strSend.starts_with("exit"))
-				{
-					Log(LogLevel::WARN, "server is closed!");
 					break;
 				}
+
+				memset(&strSend[0],0,strSend.size());
 			}
 		});
 
@@ -195,14 +220,14 @@ namespace RzLib
 					}
 					else
 					{
-						//处理客户端消息
+						// 处理客户端消息
 						char readBuf[1500]{ 0 };
 						if (!GetClientMsg(tmp.fd_array[i], readBuf))
 						{
 							continue;
 						}
 
-						//接收到了数据
+						// 接收到了数据
 						HandleClientCMD(tmp.fd_array[i], readBuf);
 					}
 				}
@@ -217,9 +242,10 @@ namespace RzLib
 		if (m_client.empty())
 		{
 			Log(LogLevel::WARN, "No client is online...\n");
+			return;
 		}
 
-		Log(LogLevel::ERR,"[ list client : ]");
+		Log(LogLevel::INFO,"client:");
 		for (size_t i = 0;i < m_client.size();++i)
 		{
 			std::cout << m_client.at(i).first << std::endl;
