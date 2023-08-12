@@ -3,7 +3,7 @@
 
 int main()
 {
-    RzLib::Server server("192.168.2.9",8080);
+    RzLib::Server server("127.0.0.1",8080);
 
     if (!server.Init())
     {

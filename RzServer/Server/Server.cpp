@@ -83,7 +83,6 @@ namespace RzLib
 	{
 		std::thread thread([&]()
 		{
-
 			std::string strSend;
 			strSend.resize(128);
 			while (1)
@@ -95,7 +94,7 @@ namespace RzLib
 					continue;
 				}
 
-				if (strSend.starts_with("Send"))
+				if (strSend.starts_with("send"))
 				{
 					size_t index1 = strSend.find(" ", 0);
 					size_t index2 = strSend.find(" ", index1 + 1);
@@ -108,7 +107,10 @@ namespace RzLib
 					SOCKET socket = static_cast<SOCKET>(soc);
 
 					std::string info = strSend.substr(index2 + 1, strSend.size() - index2 - 1);
-					send(socket, info.c_str(), static_cast<int>(info.size()), 0);
+					if (SOCKET_ERROR == send(socket, info.c_str(), static_cast<int>(info.size()), 0))
+					{
+						Log(LogLevel::ERR, "send to client error!");
+					}
 				}
 				else if (strSend.starts_with("client"))
 				{
@@ -128,6 +130,11 @@ namespace RzLib
 
 					std::string info = strSend.substr(index2 + 1, strSend.size() - index2 - 1);
 					SendFileToClient(socket, info);
+				}
+				else if (strSend.starts_with("exit"))
+				{
+					Log(LogLevel::WARN, "server is closed!");
+					break;
 				}
 			}
 		});
