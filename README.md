@@ -1,8 +1,9 @@
 # RzLib
-A useful library for self-own daily work!
-
--FileTraveler
-A file handle to ease the use of file operation.
+- some personal like library for daily work
+  - FileTraveler : a easy use file operation class
+- windows native socket API server
+  - RzServer : a windows server
+- others...
 
 # CMD
 - **send**
