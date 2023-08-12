@@ -7,7 +7,7 @@
 
 # RzServer
 ## Introduction
-  a windows server that use native winsock2 API
+  a console windows server App that use native winsock2 API
 ## CMD
 - **send**
   - gramma : send socket message
