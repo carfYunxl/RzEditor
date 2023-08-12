@@ -102,62 +102,62 @@ namespace RzLib
 
 				switch (parser.GetCmdType())
 				{
-				case CMDType::NONE:
-					continue;
-					break;
-				case CMDType::SINGLE:
-				{
-					ServerCMD	CMD = static_cast<ServerCMD>(parser.GetCMD());
-					switch (CMD)
+					case CMDType::NONE:
+						continue;
+						break;
+					case CMDType::SINGLE:
 					{
-					case ServerCMD::EXIT:
-						Log(LogLevel::WARN, "server is closed!");
-						break;
-					case ServerCMD::CLIENT:
-						ListClient();
-						break;
-					default:
-						Log(LogLevel::ERR, "unknown single command!");
-						break;
-					}
-				}
-					break;
-				case CMDType::DOUBLE:
-				{
-					ServerCMD	CMD = static_cast<ServerCMD>(parser.GetCMD());
-					SOCKET		socket = parser.GetSocket();
-					// ...
-
-					switch (CMD)
-					{
-					default:
-						Log(LogLevel::ERR, "No second command definition now!");
-					}
-				}
-					break;
-				case CMDType::TRIPLE:
-				{
-					ServerCMD	CMD = static_cast<ServerCMD>(parser.GetCMD());
-					SOCKET		socket = parser.GetSocket();
-					std::string msg = parser.GetMsg();
-
-					switch (CMD)
-					{
-					case ServerCMD::FILE:
-						SendFileToClient(socket, msg);
-						break;
-					case ServerCMD::SEND:
-						if (SOCKET_ERROR == send(socket, msg.c_str(), static_cast<int>(msg.size()), 0))
+						ServerCMD	CMD = static_cast<ServerCMD>(parser.GetCMD());
+						switch (CMD)
 						{
-							Log(LogLevel::ERR, "send to client error!");
+							case ServerCMD::EXIT:
+								Log(LogLevel::WARN, "server is closed!");
+								break;
+							case ServerCMD::CLIENT:
+								ListClient();
+								break;
+							default:
+								Log(LogLevel::ERR, "unknown single command!");
+								break;
 						}
 						break;
-					default:
-						Log(LogLevel::ERR, "unknown triple command!");
+					}
+					case CMDType::DOUBLE:
+					{
+						ServerCMD	CMD = static_cast<ServerCMD>(parser.GetCMD());
+						SOCKET		socket = parser.GetSocket();
+						// ...
+
+						switch (CMD)
+						{
+							default:
+								Log(LogLevel::ERR, "No second command definition now!");
+						}
 						break;
 					}
-				}
-					break;
+					case CMDType::TRIPLE:
+					{
+						ServerCMD	CMD = static_cast<ServerCMD>(parser.GetCMD());
+						SOCKET		socket = parser.GetSocket();
+						std::string msg = parser.GetMsg();
+
+						switch (CMD)
+						{
+							case ServerCMD::FILE:
+								SendFileToClient(socket, msg);
+								break;
+							case ServerCMD::SEND:
+								if (SOCKET_ERROR == send(socket, msg.c_str(), static_cast<int>(msg.size()), 0))
+								{
+									Log(LogLevel::ERR, "send to client error!");
+								}
+								break;
+							default:
+								Log(LogLevel::ERR, "unknown triple command!");
+								break;
+						}
+						break;
+					}
 				}
 
 				memset(&strSend[0],0,strSend.size());

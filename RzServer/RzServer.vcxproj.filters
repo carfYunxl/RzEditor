@@ -32,5 +32,8 @@
     <ClInclude Include="CMD\CMDParser.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CMD\CMDType.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
