@@ -22,3 +22,10 @@ enum class ServerCMD
     FILE,       // 向客户端发送文件
     SEND        // 向客户端发送信息
 };
+
+enum class ClientCMD
+{
+    NORMAL = 0,
+    IP,
+    PORT
+};

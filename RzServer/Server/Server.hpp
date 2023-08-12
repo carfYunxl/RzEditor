@@ -10,6 +10,8 @@
 
 namespace RzLib
 {
+    constexpr size_t MAX_TCP_PACKAGE_SIZE = 1500;
+
     class Server
     {
     public:
@@ -21,6 +23,8 @@ namespace RzLib
 
         void ListClient();
         int GetPort(SOCKET socket);
+
+        bool SendFileToClient(SOCKET socket, const std::string& path);
     private:
         void HandleServerCMD();
         void HandleClientCMD(SOCKET socket, const char* CMD);
@@ -28,7 +32,6 @@ namespace RzLib
         void AcceptClient();
         bool GetClientMsg(SOCKET socket, char* buf);
 
-        bool SendFileToClient(SOCKET socket, const std::string& path);
     private:
         std::string m_ip;
         int m_port;

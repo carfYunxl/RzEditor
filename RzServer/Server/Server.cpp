@@ -4,6 +4,8 @@
 #include <fstream>
 #include "Core/Core.hpp"
 #include "CMD/CMDParser.hpp"
+#include "CMD/CMDType.hpp"
+#include <memory>
 
 namespace RzLib
 {
@@ -97,68 +99,32 @@ namespace RzLib
 				{
 					continue;
 				}
-
 				parser.SetCMD(strSend);
+
+				std::unique_ptr<CMD> pCMD;
 
 				switch (parser.GetCmdType())
 				{
 					case CMDType::NONE:
 						continue;
-						break;
 					case CMDType::SINGLE:
 					{
-						ServerCMD	CMD = static_cast<ServerCMD>(parser.GetCMD());
-						switch (CMD)
-						{
-							case ServerCMD::EXIT:
-								Log(LogLevel::WARN, "server is closed!");
-								break;
-							case ServerCMD::CLIENT:
-								ListClient();
-								break;
-							default:
-								Log(LogLevel::ERR, "unknown single command!");
-								break;
-						}
+						pCMD = std::make_unique<CMDSingle>(parser.GetCMD(),this);
 						break;
 					}
 					case CMDType::DOUBLE:
 					{
-						ServerCMD	CMD = static_cast<ServerCMD>(parser.GetCMD());
-						SOCKET		socket = parser.GetSocket();
-						// ...
-
-						switch (CMD)
-						{
-							default:
-								Log(LogLevel::ERR, "No second command definition now!");
-						}
+						pCMD = std::make_unique<CMDDouble>(parser.GetCMD(), this, parser.GetSocket());
 						break;
 					}
 					case CMDType::TRIPLE:
 					{
-						ServerCMD	CMD = static_cast<ServerCMD>(parser.GetCMD());
-						SOCKET		socket = parser.GetSocket();
-						std::string msg = parser.GetMsg();
-
-						switch (CMD)
-						{
-							case ServerCMD::FILE:
-								SendFileToClient(socket, msg);
-								break;
-							case ServerCMD::SEND:
-								if (SOCKET_ERROR == send(socket, msg.c_str(), static_cast<int>(msg.size()), 0))
-								{
-									Log(LogLevel::ERR, "send to client error!");
-								}
-								break;
-							default:
-								Log(LogLevel::ERR, "unknown triple command!");
-								break;
-						}
+						pCMD = std::make_unique<CMDTriple>(parser.GetCMD(), this, parser.GetSocket(), parser.GetMsg());
 						break;
 					}
 				}
+
+				pCMD->Run();
 
 				memset(&strSend[0],0,strSend.size());
 			}
@@ -170,6 +136,7 @@ namespace RzLib
 	// 处理客户端发过来的请求
 	void Server::HandleClientCMD(SOCKET socket, const char* CMD)
 	{
+		CMDParser parser(CMD);
 		if (strcmp(CMD,"port") == 0)
 		{
 			std::string strPort = std::to_string(m_port);
@@ -295,7 +262,7 @@ namespace RzLib
 		int res = recv(socket, buf, 1500, 0);
 		if (res == 0)
 		{
-			//连接被正常关闭
+			// 连接被正常关闭
 			Log(LogLevel::INFO, "Client ", socket, " offline...!\n");
 			closesocket(socket);
 			FD_CLR(socket, &m_All_FD);
@@ -328,7 +295,7 @@ namespace RzLib
 
 	bool Server::SendFileToClient(SOCKET socket, const std::string& path)
 	{
-		//先发给client，告诉client下面要发送的是文件
+		// 先发给client，告诉client下面要发送的是文件
 
 		std::ifstream inf(path);
 		if (!inf.is_open())
@@ -359,19 +326,22 @@ namespace RzLib
 		inf.read(&strCMD[0], strCMD.size());
 		inf.close();
 
-		// 每次向client发送1K数据，知道文件内容发送完毕
-		int index = 0;
+		// 每次向client发送MAX_TCP_PACKAGE_SIZE数据，直到文件内容发送完毕
+		size_t index = 0;
+		Log(LogLevel::ERR, "All file size = ", size);
 		while (int(size) > 0)
 		{
-			size_t sSize = size > 1024 ? 1024 : size;
+			size_t sSize = size > MAX_TCP_PACKAGE_SIZE ? MAX_TCP_PACKAGE_SIZE : size;
 			if (send(socket, &strCMD[index], static_cast<int>(sSize), 0) == SOCKET_ERROR)
 			{
 				Log(LogLevel::ERR, "Send to client failed! \n");
 				return false;
 			}
 
-			index += 1024;
-			size -= 1024;
+			index += sSize;
+			size -= sSize;
+
+			Log(LogLevel::INFO, "send file success, total = ", index);
 		}
 
 		Log(LogLevel::INFO, "Send file to client success! \n");

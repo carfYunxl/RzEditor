@@ -24,6 +24,9 @@
     <ClCompile Include="CMD\CMDParser.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="CMD\CMDType.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Server\Server.hpp">
@@ -32,7 +35,7 @@
     <ClInclude Include="CMD\CMDParser.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="CMD\CMDType.h">
+    <ClInclude Include="CMD\CMDType.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

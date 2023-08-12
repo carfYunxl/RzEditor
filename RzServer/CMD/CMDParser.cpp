@@ -33,11 +33,11 @@ namespace RzLib
 			m_cmdType = CMDType::SINGLE;
 			if (strCmd == "exit")
 			{
-				m_cmdInfo.CMD = 0;
+				m_cmdInfo.CMD = static_cast<size_t>(ServerCMD::EXIT);
 			}
 			else if (strCmd == "client")
 			{
-				m_cmdInfo.CMD = 1;
+				m_cmdInfo.CMD = static_cast<size_t>(ServerCMD::CLIENT);
 			}
 			return;
 		}
@@ -54,11 +54,11 @@ namespace RzLib
 			m_cmdType = CMDType::TRIPLE;
 			if (strCmd == "file")
 			{
-				m_cmdInfo.CMD = 2;
+				m_cmdInfo.CMD = static_cast<size_t>(ServerCMD::FILE);
 			}
 			else if (strCmd == "send")
 			{
-				m_cmdInfo.CMD = 3;
+				m_cmdInfo.CMD = static_cast<size_t>(ServerCMD::SEND);
 			}
 
 			std::string sock = CMD.substr(index1 + 1, index2 - index1 - 1);
