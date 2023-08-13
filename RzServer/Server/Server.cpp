@@ -103,23 +103,25 @@ namespace RzLib
 
 				std::unique_ptr<CMD> pCMD;
 
+				size_t cmd_id = parser.GetCMD();
+
 				switch (parser.GetCmdType())
 				{
 					case CMDType::NONE:
 						continue;
 					case CMDType::SINGLE:
 					{
-						pCMD = std::make_unique<CMDSingle>(parser.GetCMD(),this);
+						pCMD = std::make_unique<CMDSingle>(cmd_id, this);
 						break;
 					}
 					case CMDType::DOUBLE:
 					{
-						pCMD = std::make_unique<CMDDouble>(parser.GetCMD(), this, parser.GetSocket());
+						pCMD = std::make_unique<CMDDouble>(cmd_id, this, parser.GetSocket());
 						break;
 					}
 					case CMDType::TRIPLE:
 					{
-						pCMD = std::make_unique<CMDTriple>(parser.GetCMD(), this, parser.GetSocket(), parser.GetMsg());
+						pCMD = std::make_unique<CMDTriple>(cmd_id, this, parser.GetSocket(), parser.GetMsg());
 						break;
 					}
 				}
@@ -136,19 +138,31 @@ namespace RzLib
 	// 处理客户端发过来的请求
 	void Server::HandleClientCMD(SOCKET socket, const char* CMD)
 	{
-		CMDParser parser(CMD);
-		if (strcmp(CMD,"port") == 0)
+		CMDParserClient parser(CMD);
+		switch (static_cast<ClientCMD>(parser.GetCMD()))
 		{
-			std::string strPort = std::to_string(m_port);
-			send(socket, &strPort[0], static_cast<int>(strPort.size()), 0);
-		}
-		else if (strcmp(CMD, "ip") == 0)
-		{
-			send(socket, &m_ip[0], static_cast<int>(m_ip.size()), 0);
-		}
-		else
-		{
-			Log(LogLevel::INFO, "Client ", socket, " Say:", CMD, "\n");
+			case ClientCMD::PORT:
+			{
+				std::string strPort = std::to_string(m_port);
+				if (send(socket, &strPort[0], static_cast<int>(strPort.size()), 0) == SOCKET_ERROR)
+				{
+					Log(LogLevel::ERR, "send to client failed, error code = ", WSAGetLastError());
+				}
+				break;
+			}
+			case ClientCMD::IP:
+			{
+				if (SOCKET_ERROR == send(socket, &m_ip[0], static_cast<int>(m_ip.size()), 0))
+				{
+					Log(LogLevel::ERR, "send to client failed, error code = ", WSAGetLastError());
+				}
+				break;
+			}
+			case ClientCMD::NORMAL:
+			{
+				Log(LogLevel::INFO, "Client ", socket, " Say:", CMD, "\n");
+				break;
+			}
 		}
 	}
 

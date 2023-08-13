@@ -33,7 +33,7 @@
     <ClInclude Include="File\IniTraveler.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Core\FmtLayer.h">
+    <ClInclude Include="Core\FmtLayer.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

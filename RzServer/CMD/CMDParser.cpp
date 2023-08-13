@@ -1,15 +1,60 @@
 #include "CMDParser.hpp"
+#include <string>
 
 namespace RzLib
 {
+
+	//------------------------------------------------------------
+	// CMDParserBase implementation								//
+	//------------------------------------------------------------
+	CMDParserClient::CMDParserClient(const std::string& CMD, char SPLIT)
+		: m_CMD(0)
+	{
+		Parser(CMD, SPLIT);
+	}
+
+	void CMDParserClient::Parser(const std::string& CMD, char SPLIT)
+	{
+		if (CMD.empty())
+		{
+			return;
+		}
+
+		std::string strCmd = CMD;
+
+		strCmd.resize(strlen(&strCmd[0]));
+		if (strCmd == "port")
+		{
+			m_CMD = static_cast<size_t>(ClientCMD::PORT);
+		}
+		else if (strCmd == "ip")
+		{
+			m_CMD = static_cast<size_t>(ClientCMD::IP);
+		}
+		else
+		{
+			m_CMD = static_cast<size_t>(ClientCMD::NORMAL);
+		}
+		return;
+	}
+
+	void CMDParserClient::SetCMD(const std::string& CMD, char SPLIT)
+	{
+		this->Parser(CMD,SPLIT);
+	}
+	//------------------------------------------------------------
+	// CMDParser implementation									//
+	//------------------------------------------------------------
+
 	CMDParser::CMDParser(const std::string& CMD, char SPLIT)
+		: CMDParserClient(CMD,SPLIT)
 	{
 		Parser(CMD, SPLIT);
 	}
 
 	void CMDParser::SetCMD(const std::string& CMD, char SPLIT)
 	{
-		Parser(CMD, SPLIT);
+		this->Parser(CMD, SPLIT);
 	}
 
 	void CMDParser::Parser(const std::string& CMD, char SPLIT)
@@ -33,11 +78,15 @@ namespace RzLib
 			m_cmdType = CMDType::SINGLE;
 			if (strCmd == "exit")
 			{
-				m_cmdInfo.CMD = static_cast<size_t>(ServerCMD::EXIT);
+				m_CMD = static_cast<size_t>(ServerCMD::EXIT);
 			}
 			else if (strCmd == "client")
 			{
-				m_cmdInfo.CMD = static_cast<size_t>(ServerCMD::CLIENT);
+				m_CMD = static_cast<size_t>(ServerCMD::CLIENT);
+			}
+			else
+			{
+				m_CMD = 4;
 			}
 			return;
 		}
@@ -54,20 +103,24 @@ namespace RzLib
 			m_cmdType = CMDType::TRIPLE;
 			if (strCmd == "file")
 			{
-				m_cmdInfo.CMD = static_cast<size_t>(ServerCMD::FILE);
+				m_CMD = static_cast<size_t>(ServerCMD::FILE);
 			}
 			else if (strCmd == "send")
 			{
-				m_cmdInfo.CMD = static_cast<size_t>(ServerCMD::SEND);
+				m_CMD = static_cast<size_t>(ServerCMD::SEND);
+			}
+			else
+			{
+				m_CMD = 4;
 			}
 
 			std::string sock = CMD.substr(index1 + 1, index2 - index1 - 1);
 
 			if (IsAllDigits(sock))
 			{
-				m_cmdInfo.socket = static_cast<SOCKET>(stoi(sock));
+				m_socket = static_cast<SOCKET>(stoi(sock));
 			}
-			m_cmdInfo.message = CMD.substr(index2 + 1, CMD.size() - index2 - 1);
+			m_message = CMD.substr(index2 + 1, CMD.size() - index2 - 1);
 		}
 	}
 

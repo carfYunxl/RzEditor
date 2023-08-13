@@ -2,7 +2,7 @@
 
 #define FMT_HEADER_ONLY
 
-#include "FmtLayer.h"
+#include "FmtLayer.hpp"
 #include <type_traits>
 #include <iostream>
 

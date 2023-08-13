@@ -15,7 +15,7 @@ namespace RzLib
 		case ServerCMD::CLIENT:
 			m_Server->ListClient();
 			break;
-		default:
+		case ServerCMD::UNKNOWN:
 			Log(LogLevel::ERR, "unknown single command!");
 			break;
 		}
@@ -49,7 +49,7 @@ namespace RzLib
 					Log(LogLevel::ERR, "send to client error!");
 				}
 				break;
-			default:
+			case ServerCMD::UNKNOWN:
 				Log(LogLevel::ERR, "unknown triple command!");
 				break;
 		}

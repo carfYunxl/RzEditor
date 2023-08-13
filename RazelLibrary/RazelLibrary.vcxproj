@@ -20,7 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Core\Core.hpp" />
-    <ClInclude Include="Core\FmtLayer.h" />
+    <ClInclude Include="Core\FmtLayer.hpp" />
     <ClInclude Include="Core\Log.hpp" />
     <ClInclude Include="File\IniTraveler.hpp" />
     <ClInclude Include="pch.hpp" />

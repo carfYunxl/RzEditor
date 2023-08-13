@@ -1,3 +1,11 @@
+/*****************************************************************//**
+ * \file   Core.hpp
+ * \brief  core definition header
+ * 
+ * \author yun
+ * \date   August 2023
+ *********************************************************************/
+
 #pragma once
 
 #ifdef RZ_PALTFORM_WINDOWS
@@ -20,7 +28,8 @@ enum class ServerCMD
     EXIT = 0,   // 退出
     CLIENT,     // 列出所有客户端的SOCKET
     FILE,       // 向客户端发送文件
-    SEND        // 向客户端发送信息
+    SEND,       // 向客户端发送信息
+    UNKNOWN
 };
 
 enum class ClientCMD

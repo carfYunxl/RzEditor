@@ -1,3 +1,14 @@
+/*****************************************************************//**
+ * \file   CMDType.hpp
+ * \brief  Several classed about cmd type
+ *          - Single Command : 
+ *          - Double Command :
+ *          - Triple Command :
+ * 
+ * \author yun
+ * \date   August 2023
+ *********************************************************************/
+
 #pragma once
 
 #include "Server/Server.hpp"
@@ -9,7 +20,7 @@ namespace RzLib
         CMD(size_t cmdId, Server* server)
             : m_CmdId(cmdId)
             , m_Server(server){}
-
+        virtual ~CMD() {}
         virtual void Run() = 0;
     protected:
         size_t m_CmdId;
@@ -21,6 +32,8 @@ namespace RzLib
         CMDSingle(size_t cmdId, Server* server) 
             : CMD(cmdId,server) {}
 
+        virtual ~CMDSingle() {}
+
         virtual void Run() override;
     };
 
@@ -30,23 +43,25 @@ namespace RzLib
             : CMD(cmdId, server)
             , m_socket(socket) {}
 
+        virtual ~CMDDouble() {}
+
         virtual void Run() override;
 
-    private:
+    protected:
         SOCKET m_socket;
     };
 
-    struct CMDTriple : public CMD
+    struct CMDTriple : public CMDDouble
     {
         CMDTriple(size_t cmdId, Server* server, SOCKET socket, const std::string& msg)
-            : CMD(cmdId, server)
-            , m_socket(socket)
+            : CMDDouble(cmdId, server, socket)
             , m_message(msg){}
+
+        virtual ~CMDTriple() {}
 
         virtual void Run() override;
 
-    private:
-        SOCKET m_socket;
+    protected:
         std::string m_message;
     };
 }
