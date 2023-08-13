@@ -6,6 +6,7 @@
 #include "CMD/CMDParser.hpp"
 #include "CMD/CMDType.hpp"
 #include <memory>
+#include <filesystem>
 
 namespace RzLib
 {
@@ -155,6 +156,28 @@ namespace RzLib
 				if (SOCKET_ERROR == send(socket, &m_ip[0], static_cast<int>(m_ip.size()), 0))
 				{
 					Log(LogLevel::ERR, "send to client failed, error code = ", WSAGetLastError());
+				}
+				break;
+			}
+			case ClientCMD::UPDATE:// 把编译好的exe发送给客户端
+			{
+				Log(LogLevel::INFO, "files in binClient : ");
+				// 找到binClient的目录， 服务器需要在此处放置最新的客户端文件
+				std::filesystem::path binPath = std::filesystem::current_path();
+				binPath = binPath.parent_path();
+				binPath /= "binClient";
+
+				// 先告诉客户端，下面开始更新客户端的文件了
+				const char* sendbuffer = "update";
+				if ( SOCKET_ERROR == send(socket,sendbuffer,strlen(sendbuffer),0) )
+				{
+					Log(LogLevel::ERR,"send to client failed, error code = ",WSAGetLastError());
+				}
+
+				//遍历该目录
+				for (auto const& dir_entry : std::filesystem::directory_iterator{ binPath })
+				{
+					SendFileToClient( socket, dir_entry.path().string() );
 				}
 				break;
 			}

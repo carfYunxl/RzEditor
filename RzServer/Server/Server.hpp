@@ -12,6 +12,7 @@ namespace RzLib
 {
     constexpr size_t MAX_TCP_PACKAGE_SIZE = 1500;
     constexpr short CLIENT_VERSION = 0x1001;        // 客户端版本协定 v1.0.0.1
+
     class Server
     {
     public:

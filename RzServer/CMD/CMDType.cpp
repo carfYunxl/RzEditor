@@ -1,6 +1,7 @@
 #include "CMDType.hpp"
 #include "Core/Core.hpp"
 #include "Core/Log.hpp"
+#include <filesystem>
 
 namespace RzLib
 {
@@ -15,6 +16,12 @@ namespace RzLib
 		case ServerCMD::CLIENT:
 			m_Server->ListClient();
 			break;
+		case ServerCMD::PATH:
+		{
+			std::filesystem::path root = std::filesystem::current_path();
+			Log(LogLevel::INFO, "Server exe path : ", root.string());
+			break;
+		}
 		case ServerCMD::UNKNOWN:
 			Log(LogLevel::ERR, "unknown single command!");
 			break;

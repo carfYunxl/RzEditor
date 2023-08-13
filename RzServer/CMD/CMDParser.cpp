@@ -31,6 +31,10 @@ namespace RzLib
 		{
 			m_CMD = static_cast<size_t>(ClientCMD::IP);
 		}
+		else if (strCmd == "update")
+		{
+			m_CMD = static_cast<size_t>(ClientCMD::UPDATE);
+		}
 		else
 		{
 			m_CMD = static_cast<size_t>(ClientCMD::NORMAL);
@@ -83,6 +87,10 @@ namespace RzLib
 			else if (strCmd == "client")
 			{
 				m_CMD = static_cast<size_t>(ServerCMD::CLIENT);
+			}
+			else if (strCmd == "path")
+			{
+				m_CMD = static_cast<size_t>(ServerCMD::PATH);
 			}
 			else
 			{

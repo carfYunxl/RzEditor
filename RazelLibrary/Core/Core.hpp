@@ -30,12 +30,14 @@ enum class ServerCMD
     FILE,       // 向客户端发送文件
     SEND,       // 向客户端发送信息
     UNKNOWN,    // 未知CMD
-    VERSION     // 客户端版本信息
+    VERSION,    // 客户端版本信息
+    PATH        // 服务端当前运行的路径
 };
 
 enum class ClientCMD
 {
     NORMAL = 0,
     IP,
-    PORT
+    PORT,
+    UPDATE
 };
