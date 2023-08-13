@@ -29,7 +29,8 @@ enum class ServerCMD
     CLIENT,     // 列出所有客户端的SOCKET
     FILE,       // 向客户端发送文件
     SEND,       // 向客户端发送信息
-    UNKNOWN
+    UNKNOWN,    // 未知CMD
+    VERSION     // 客户端版本信息
 };
 
 enum class ClientCMD

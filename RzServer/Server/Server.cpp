@@ -264,11 +264,8 @@ namespace RzLib
 
 		FD_SET(socket_client, &m_All_FD);
 
-		const char* info = "成功连接到服务器！";
-		if (SOCKET_ERROR == send(socket_client, info, static_cast<int>(strlen(info)), 0))
-		{
-			Log(LogLevel::ERR, " error occured,error code : ", WSAGetLastError());
-		}
+		// when client connected to server, we send client version to client
+		SendClientVersion(socket_client);
 	}
 
 	bool Server::GetClientMsg(SOCKET socket, char* buf)
@@ -359,6 +356,21 @@ namespace RzLib
 		}
 
 		Log(LogLevel::INFO, "Send file to client success! \n");
+
+		return true;
+	}
+
+	// 发送最新的客户端版本给client
+	bool Server::SendClientVersion(SOCKET socket)
+	{
+		std::string strVer("ver");
+		strVer.append(" ");
+		strVer.append(std::to_string(CLIENT_VERSION));
+		if ( SOCKET_ERROR == send(socket, strVer.c_str(), strVer.size(), 0))
+		{
+			Log(LogLevel::ERR, "send to client failed! error code = ", WSAGetLastError());
+			return false;
+		}
 
 		return true;
 	}

@@ -14,13 +14,6 @@
 
 namespace RzLib
 {
-    struct CMDInfo
-    {
-        size_t CMD{0};
-        SOCKET socket{INVALID_SOCKET};
-        std::string message;
-    };
-
     enum class CMDType
     {
         NONE = 0,

@@ -11,7 +11,7 @@
 namespace RzLib
 {
     constexpr size_t MAX_TCP_PACKAGE_SIZE = 1500;
-
+    constexpr short CLIENT_VERSION = 0x1001;        // 客户端版本协定 v1.0.0.1
     class Server
     {
     public:
@@ -25,6 +25,8 @@ namespace RzLib
         int GetPort(SOCKET socket);
 
         bool SendFileToClient(SOCKET socket, const std::string& path);
+
+        bool SendClientVersion(SOCKET socket);
     private:
         void HandleServerCMD();
         void HandleClientCMD(SOCKET socket, const char* CMD);
