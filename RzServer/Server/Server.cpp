@@ -3,10 +3,9 @@
 #include <thread>
 #include <fstream>
 #include "Core/Core.hpp"
-#include "CMD/CMDParser.hpp"
-#include "CMD/CMDType.hpp"
-#include <memory>
+
 #include <filesystem>
+#include "CMD/Communication.h"
 
 namespace RzLib
 {
@@ -14,6 +13,7 @@ namespace RzLib
 		: m_ip(std::move(ip))
 		, m_port(std::move(port))
 		, m_listen_socket(INVALID_SOCKET)
+		, m_IsRunning(true)
 	{
 	}
 	Server::~Server()
@@ -88,48 +88,20 @@ namespace RzLib
 	{
 		std::thread thread([&]()
 		{
-			std::string strSend;
-			strSend.resize(128);
-
-			CMDParser parser("");
+				char readBuf[128]{0};
 			while (1)
 			{
-				std::cin.getline(&strSend[0], 128);
+				std::cin.getline( readBuf, 128 );
 
-				if (strSend.empty())
-				{
-					continue;
-				}
-				parser.SetCMD(strSend);
+				if (strlen(readBuf) == 0) continue;
 
-				std::unique_ptr<CMD> pCMD;
+				ConsoleCMDParser parser(readBuf);
 
-				size_t cmd_id = parser.GetCMD();
-
-				switch (parser.GetCmdType())
-				{
-					case CMDType::NONE:
-						continue;
-					case CMDType::SINGLE:
-					{
-						pCMD = std::make_unique<CMDSingle>(cmd_id, this);
-						break;
-					}
-					case CMDType::DOUBLE:
-					{
-						pCMD = std::make_unique<CMDDouble>(cmd_id, this, parser.GetSocket());
-						break;
-					}
-					case CMDType::TRIPLE:
-					{
-						pCMD = std::make_unique<CMDTriple>(cmd_id, this, parser.GetSocket(), parser.GetMsg());
-						break;
-					}
-				}
+				std::unique_ptr<CMD> pCMD = GenCmd(parser);
 
 				pCMD->Run();
 
-				memset(&strSend[0],0,strSend.size());
+				memset(readBuf,0,128);
 			}
 		});
 
@@ -137,29 +109,17 @@ namespace RzLib
 	}
 
 	// 处理客户端发过来的请求
-	void Server::HandleClientCMD(SOCKET socket, const char* CMD)
+	void Server::HandleClientCMD(SOCKET socket, const char* CMD, int rtLen)
 	{
-		CMDParserClient parser(CMD);
-		switch (static_cast<ClientCMD>(parser.GetCMD()))
+		Communication parser(CMD,rtLen);
+		switch (static_cast<CommunicationCMD>(parser.GetCmd()))
 		{
-			case ClientCMD::PORT:
+			case CommunicationCMD::NORMAL:
 			{
-				std::string strPort = std::to_string(m_port);
-				if (send(socket, &strPort[0], static_cast<int>(strPort.size()), 0) == SOCKET_ERROR)
-				{
-					Log(LogLevel::ERR, "send to client failed, error code = ", WSAGetLastError());
-				}
+				Log(LogLevel::INFO, "Client ", socket, " Say:", parser.GetMsg(), "\n");
 				break;
 			}
-			case ClientCMD::IP:
-			{
-				if (SOCKET_ERROR == send(socket, &m_ip[0], static_cast<int>(m_ip.size()), 0))
-				{
-					Log(LogLevel::ERR, "send to client failed, error code = ", WSAGetLastError());
-				}
-				break;
-			}
-			case ClientCMD::UPDATE:// 把编译好的exe发送给客户端
+			case CommunicationCMD::UPDATE:// 把编译好的exe发送给客户端
 			{
 				Log(LogLevel::INFO, "files in binClient : ");
 				// 找到binClient的目录， 服务器需要在此处放置最新的客户端文件
@@ -167,25 +127,28 @@ namespace RzLib
 				binPath = binPath.parent_path();
 				binPath /= "binClient";
 
+				if (!std::filesystem::exists(binPath))
+				{
+					Log(LogLevel::ERR, "directory ",binPath, " not exist, please check!");
+					return;
+				}
+
 				// 先告诉客户端，下面开始更新客户端的文件了
 				const char* sendbuffer = "update";
-				if ( SOCKET_ERROR == send(socket,sendbuffer,strlen(sendbuffer),0) )
+				if ( SOCKET_ERROR == send(socket, sendbuffer, static_cast<int>(strlen(sendbuffer)), 0) )
 				{
 					Log(LogLevel::ERR,"send to client failed, error code = ",WSAGetLastError());
 				}
 
 				//遍历该目录
+				std::string buffer;
 				for (auto const& dir_entry : std::filesystem::directory_iterator{ binPath })
 				{
-					SendFileToClient( socket, dir_entry.path().string() );
+					SendFileToClient( socket, "update", dir_entry.path().string());
 				}
 				break;
 			}
-			case ClientCMD::NORMAL:
-			{
-				Log(LogLevel::INFO, "Client ", socket, " Say:", CMD, "\n");
-				break;
-			}
+			
 		}
 	}
 
@@ -199,7 +162,7 @@ namespace RzLib
 		// 处理服务器的CMD
 		HandleServerCMD();
 
-		while (1)
+		while (m_IsRunning)
 		{
 			fd_set tmp = m_All_FD;
 			int res = select(0, &tmp, NULL, NULL, 0);
@@ -225,14 +188,15 @@ namespace RzLib
 					else
 					{
 						// 处理客户端消息
-						char readBuf[1500]{ 0 };
-						if (!GetClientMsg(tmp.fd_array[i], readBuf))
+						char readBuf[MAX_TCP_PACKAGE_SIZE]{ 0 };
+						int len = 0;
+						if (!GetClientMsg(tmp.fd_array[i], readBuf, &len))
 						{
 							continue;
 						}
 
 						// 接收到了数据
-						HandleClientCMD(tmp.fd_array[i], readBuf);
+						HandleClientCMD(tmp.fd_array[i], readBuf, len);
 					}
 				}
 			}
@@ -250,9 +214,10 @@ namespace RzLib
 		}
 
 		Log(LogLevel::INFO,"client:");
+		std::cout << "\t=======" << std::endl;
 		for (size_t i = 0;i < m_client.size();++i)
 		{
-			std::cout << m_client.at(i).first << std::endl;
+			std::cout << "\t| " << i << ". " << m_client.at(i).first << std::endl;
 		}
 
 		std::cout << std::endl;
@@ -291,9 +256,9 @@ namespace RzLib
 		SendClientVersion(socket_client);
 	}
 
-	bool Server::GetClientMsg(SOCKET socket, char* buf)
+	bool Server::GetClientMsg(SOCKET socket, char* buf, int* rtlen)
 	{
-		int res = recv(socket, buf, 1500, 0);
+		int res = recv(socket, buf, MAX_TCP_PACKAGE_SIZE, 0);
 		if (res == 0)
 		{
 			// 连接被正常关闭
@@ -324,10 +289,12 @@ namespace RzLib
 			}
 		}
 
+		*rtlen = res;
+
 		return true;
 	}
 
-	bool Server::SendFileToClient(SOCKET socket, const std::string& path)
+	bool Server::SendFileToClient(SOCKET socket, const std::string& Cmd, const std::string& path)
 	{
 		// 先发给client，告诉client下面要发送的是文件
 
@@ -346,7 +313,7 @@ namespace RzLib
 			return false;
 		}
 
-		std::string strCMD("file " + std::to_string(size) + " " + path);
+		std::string strCMD(Cmd + " " + std::to_string(size) + " " + path);
 
 		if (send(socket, &strCMD[0], static_cast<int>(strCMD.size()), 0) == SOCKET_ERROR)
 		{
@@ -365,6 +332,7 @@ namespace RzLib
 		Log(LogLevel::ERR, "All file size = ", size);
 		while (int(size) > 0)
 		{
+
 			size_t sSize = size > MAX_TCP_PACKAGE_SIZE ? MAX_TCP_PACKAGE_SIZE : size;
 			if (send(socket, &strCMD[index], static_cast<int>(sSize), 0) == SOCKET_ERROR)
 			{
@@ -386,15 +354,34 @@ namespace RzLib
 	// 发送最新的客户端版本给client
 	bool Server::SendClientVersion(SOCKET socket)
 	{
-		std::string strVer("ver");
-		strVer.append(" ");
-		strVer.append(std::to_string(CLIENT_VERSION));
-		if ( SOCKET_ERROR == send(socket, strVer.c_str(), strVer.size(), 0))
+		std::string strVer;
+		strVer.append(1,char(0xF2));								// 0xF2 : send new client version to client
+		strVer.append(1,char(0x02));								// low byte
+		strVer.append(1,char(0x00));								// high byte
+		strVer.append(1,char(CLIENT_VERSION & 0xFF));				// version low byte
+		strVer.append(1,char((CLIENT_VERSION >> 8) & 0xFF));		// version high byte
+
+		if ( SOCKET_ERROR == send(socket, strVer.c_str(), static_cast<int>(strVer.size()), 0))
 		{
 			Log(LogLevel::ERR, "send to client failed! error code = ", WSAGetLastError());
 			return false;
 		}
 
 		return true;
+	}
+
+	std::unique_ptr<CMD> Server::GenCmd(const ConsoleCMDParser& parser)
+	{
+		switch (parser.GetCmdType())
+		{
+		case CMDType::SINGLE:
+			return std::make_unique<CMDSingle>(parser.GetCMD(),this);
+		case CMDType::DOUBLE:
+			return std::make_unique<CMDDouble>(parser.GetCMD(), this, parser.GetSocket());
+		case CMDType::TRIPLE:
+			return std::make_unique<CMDTriple>(parser.GetCMD(), this, parser.GetSocket(), parser.GetMsg());
+		}
+
+		return nullptr;
 	}
 }

@@ -23,21 +23,28 @@
 #endif
 
 // CMD
-enum class ServerCMD
+enum class ConsoleCMD
 {
-    EXIT = 0,   // 退出
-    CLIENT,     // 列出所有客户端的SOCKET
-    FILE,       // 向客户端发送文件
-    SEND,       // 向客户端发送信息
-    UNKNOWN,    // 未知CMD
-    VERSION,    // 客户端版本信息
-    PATH        // 服务端当前运行的路径
+    UNKNOWN = 0,    // 未知CMD
+    EXIT,           // 退出
+    CLIENT,         // 列出所有客户端的SOCKET
+    FILE,           // 向客户端发送文件
+    SEND,           // 向客户端发送信息
+    VERSION,        // 客户端版本信息
+    PATH            // 服务端当前运行的路径
 };
 
-enum class ClientCMD
+enum class CommunicationCMD
 {
-    NORMAL = 0,
-    IP,
-    PORT,
+    NORMAL = 0xF1,
     UPDATE
 };
+
+enum class CMDType
+{
+    NONE = 0,
+    SINGLE,
+    DOUBLE,
+    TRIPLE
+};
+

@@ -17,20 +17,20 @@ namespace RzLib
 {
     struct CMD
     {
-        CMD(size_t cmdId, Server* server)
-            : m_CmdId(cmdId)
+        CMD(const std::string& cmd, Server* server)
+            : m_Cmd(cmd)
             , m_Server(server){}
         virtual ~CMD() {}
         virtual void Run() = 0;
     protected:
-        size_t m_CmdId;
+        std::string m_Cmd;
         Server* m_Server;
     };
 
     struct CMDSingle : public CMD
     {
-        CMDSingle(size_t cmdId, Server* server) 
-            : CMD(cmdId,server) {}
+        CMDSingle(const std::string& cmd, Server* server)
+            : CMD(cmd,server) {}
 
         virtual ~CMDSingle() {}
 
@@ -39,8 +39,8 @@ namespace RzLib
 
     struct CMDDouble : public CMD
     {
-        CMDDouble(size_t cmdId, Server* server, SOCKET socket) 
-            : CMD(cmdId, server)
+        CMDDouble(const std::string& cmd, Server* server, SOCKET socket)
+            : CMD(cmd, server)
             , m_socket(socket) {}
 
         virtual ~CMDDouble() {}
@@ -53,8 +53,8 @@ namespace RzLib
 
     struct CMDTriple : public CMDDouble
     {
-        CMDTriple(size_t cmdId, Server* server, SOCKET socket, const std::string& msg)
-            : CMDDouble(cmdId, server, socket)
+        CMDTriple(const std::string& cmd, Server* server, SOCKET socket, const std::string& msg)
+            : CMDDouble(cmd, server, socket)
             , m_message(msg){}
 
         virtual ~CMDTriple() {}

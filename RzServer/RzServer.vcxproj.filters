@@ -21,10 +21,13 @@
     <ClCompile Include="Server\Server.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="CMD\CMDParser.cpp">
+    <ClCompile Include="CMD\ConsoleCMDParser.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CMD\CMDType.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CMD\Communication.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -32,10 +35,13 @@
     <ClInclude Include="Server\Server.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="CMD\CMDParser.hpp">
+    <ClInclude Include="CMD\ConsoleCMDParser.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CMD\CMDType.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CMD\Communication.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

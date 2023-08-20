@@ -3,62 +3,62 @@
 #include "Core/Log.hpp"
 #include <filesystem>
 
+
 namespace RzLib
 {
     void CMDSingle::Run()
     {
-		ServerCMD	CMD = static_cast<ServerCMD>(m_CmdId);
-		switch (CMD)
+		if (m_Cmd == "exit")
 		{
-		case ServerCMD::EXIT:
 			Log(LogLevel::WARN, "server is closed!");
-			break;
-		case ServerCMD::CLIENT:
+		}
+		else if (m_Cmd == "client")
+		{
 			m_Server->ListClient();
-			break;
-		case ServerCMD::PATH:
+		}
+		else if (m_Cmd == "path")
 		{
 			std::filesystem::path root = std::filesystem::current_path();
 			Log(LogLevel::INFO, "Server exe path : ", root.string());
-			break;
 		}
-		case ServerCMD::UNKNOWN:
+		else {
 			Log(LogLevel::ERR, "unknown single command!");
-			break;
 		}
     }
 
     void CMDDouble::Run()
     {
-		ServerCMD	CMD = static_cast<ServerCMD>(m_CmdId);
-		//SOCKET		socket = parser.GetSocket();
-		// ...
-
-		switch (CMD)
-		{
-		default:
-			Log(LogLevel::ERR, "No second command definition now!");
-		}
+		// TO DO
     }
 
     void CMDTriple::Run()
     {
-		ServerCMD	CMD = static_cast<ServerCMD>(m_CmdId);
-
-		switch (CMD)
+		if (m_Cmd == "file")
 		{
-			case ServerCMD::FILE:
-				m_Server->SendFileToClient(m_socket, m_message);
-				break;
-			case ServerCMD::SEND:
-				if (SOCKET_ERROR == send(m_socket, m_message.c_str(), static_cast<int>(m_message.size()), 0))
-				{
-					Log(LogLevel::ERR, "send to client error!");
-				}
-				break;
-			case ServerCMD::UNKNOWN:
-				Log(LogLevel::ERR, "unknown triple command!");
-				break;
+			m_Server->SendFileToClient(m_socket, "file", m_message);
+		}
+		else if (m_Cmd == "send")
+		{
+			std::string strSend;
+			strSend.append(1,0xF1);
+			strSend.append(1, m_message.size() & 0xFF);
+			strSend.append(1, (m_message.size()>>8) & 0xFF);
+
+			strSend += m_message;
+
+			if (SOCKET_ERROR == send(m_socket, strSend.c_str(), static_cast<int>(strSend.size()), 0))
+			{
+				Log(LogLevel::ERR, "send to client error!");
+			}
+		}
+		else if (m_Cmd == "exit")
+		{
+			m_Server->StopServer();
+			Log(LogLevel::INFO, "server is closed!");
+		}
+		else
+		{
+			Log(LogLevel::ERR, "unknown triple command!");
 		}
     }
 }
