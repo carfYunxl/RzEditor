@@ -37,7 +37,10 @@ enum class ConsoleCMD
 enum class CommunicationCMD
 {
     NORMAL = 0xF1,
-    UPDATE
+    UPDATE = 0xF3,
+    FILE_HEADER = 0xF5,
+    FILE_PACKET = 0xF6,
+    File_TAIL = 0xF7
 };
 
 enum class CMDType

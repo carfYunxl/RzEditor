@@ -1,15 +1,9 @@
 #pragma once
-
-#include <iostream>
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <string>
 #include <vector>
-#include <mswsock.h>
-#include <memory>
+#include <string>
+#include <winsock2.h>
 
 #include "CMD/ConsoleCMDParser.hpp"
-#include "CMD/CMDType.hpp"
 
 
 namespace RzLib
@@ -19,11 +13,13 @@ namespace RzLib
 
     using vecClient = std::vector<std::pair<SOCKET, int>>;
 
-    class Server
+    class CMD;
+
+    class RzServer
     {
     public:
-        Server(std::string&& ip, int port);
-        ~Server();
+        RzServer(std::string&& ip, int port);
+        ~RzServer();
         bool Init();
         bool Listen();
         bool Accept();
@@ -31,9 +27,9 @@ namespace RzLib
         void StopServer() { m_IsRunning = false; }
 
         void ListClient();
-        int GetPort(SOCKET socket);
+        int  GetPort(SOCKET socket);
 
-        bool SendFileToClient(SOCKET socket, const std::string& Cmd, const std::string& path);
+        bool SendFileToClient(SOCKET socket, const std::string& path);
 
         bool SendClientVersion(SOCKET socket);
     private:
@@ -43,7 +39,7 @@ namespace RzLib
         void AcceptClient();
         bool GetClientMsg(SOCKET socket, char* buf, int* rtlen);
 
-        std::unique_ptr<CMD> GenCmd(const ConsoleCMDParser& parser);
+        std::unique_ptr<CMD> GenCmd(const ConsoleCMDParser* parser);
 
     private:
         std::string     m_ip;

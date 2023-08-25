@@ -1,9 +1,9 @@
-#include  "Core/Log.hpp"
-#include "Server/Server.hpp"
+#include "Core/Log.hpp"
+#include "TcpServer/RzServer.hpp"
 
 int main()
 {
-    RzLib::Server server("127.0.0.1",8080);
+    RzLib::RzServer server("127.0.0.1",8080);
 
     if (!server.Init())
     {

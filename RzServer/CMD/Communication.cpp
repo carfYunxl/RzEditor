@@ -19,18 +19,15 @@ namespace RzLib
 		// byte[0] «cmd¿‡–Õ
 		m_Cmd = cmd[0];
 
-		unsigned short length = cmd[2] << 8 | cmd[1];
+		unsigned short size = cmd[2] << 8 | cmd[1];
 
-		if (length == 3)
+		if (size == 0)
 		{
 			return;
 		}
 
-		m_msg.resize(length);
-		if (length > 0)
-		{
-			memcpy(&m_msg[0], &cmd[3], length);
-		}
+		m_msg.resize(size);
+		std::copy(&cmd[3], &cmd[3+size], m_msg.begin());
 
 		return;
 	}

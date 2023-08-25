@@ -18,30 +18,30 @@
     <ClCompile Include="ServerDemo.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Server\Server.cpp">
+    <ClCompile Include="TcpServer\RzServer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CMD\ConsoleCMDParser.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="CMD\CMDType.cpp">
+    <ClCompile Include="CMD\Communication.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="CMD\Communication.cpp">
+    <ClCompile Include="CMD\CMD.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Server\Server.hpp">
+    <ClInclude Include="TcpServer\RzServer.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CMD\ConsoleCMDParser.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="CMD\CMDType.hpp">
+    <ClInclude Include="CMD\Communication.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="CMD\Communication.h">
+    <ClInclude Include="CMD\CMD.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

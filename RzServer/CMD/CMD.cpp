@@ -1,11 +1,21 @@
-#include "CMDType.hpp"
-#include "Core/Core.hpp"
 #include "Core/Log.hpp"
 #include <filesystem>
 
+#include "TcpServer/RzServer.hpp"
+#include "CMD.hpp"
 
 namespace RzLib
 {
+	CMD::CMD(const std::string& cmd, RzServer* server)
+		: m_Cmd(cmd), m_Server(server)
+	{
+		//...
+	}
+
+	CMDSingle::CMDSingle(const std::string& cmd, RzServer* server)
+		: CMD(cmd, server)
+	{ }
+
     void CMDSingle::Run()
     {
 		if (m_Cmd == "exit")
@@ -26,23 +36,32 @@ namespace RzLib
 		}
     }
 
+	CMDDouble::CMDDouble(const std::string& cmd, RzServer* server, SOCKET socket)
+		: CMD(cmd, server), m_socket(socket)
+	{}
+
     void CMDDouble::Run()
     {
 		// TO DO
     }
 
+	CMDTriple::CMDTriple(const std::string& cmd, RzServer* server, SOCKET socket, const std::string& msg)
+		: CMD(cmd, server),m_socket(socket), m_message(msg)
+	{
+
+	}
     void CMDTriple::Run()
     {
 		if (m_Cmd == "file")
 		{
-			m_Server->SendFileToClient(m_socket, "file", m_message);
+			m_Server->SendFileToClient(m_socket, m_message);
 		}
 		else if (m_Cmd == "send")
 		{
 			std::string strSend;
-			strSend.append(1,0xF1);
-			strSend.append(1, m_message.size() & 0xFF);
-			strSend.append(1, (m_message.size()>>8) & 0xFF);
+			strSend.append(1, static_cast<char>(0xF1));
+			strSend.append(1, static_cast<char>(m_message.size() & 0xFF));
+			strSend.append(1, static_cast<char>((m_message.size()>>8) & 0xFF));
 
 			strSend += m_message;
 

@@ -11,37 +11,40 @@
 
 #pragma once
 
-#include "Server/Server.hpp"
+#include <string>
+#include <winsock2.h>
+
+class RzServer;
 
 namespace RzLib
 {
-    struct CMD
+    class CMD
     {
-        CMD(const std::string& cmd, Server* server)
-            : m_Cmd(cmd)
-            , m_Server(server){}
+    public:
+        CMD(const std::string& cmd, RzServer* server);
+
+        virtual void Run() {};
         virtual ~CMD() {}
-        virtual void Run() = 0;
+
     protected:
-        std::string m_Cmd;
-        Server* m_Server;
+        std::string     m_Cmd;
+        RzServer*       m_Server;
     };
 
-    struct CMDSingle : public CMD
+    class CMDSingle : public CMD
     {
-        CMDSingle(const std::string& cmd, Server* server)
-            : CMD(cmd,server) {}
+    public:
+        CMDSingle(const std::string& cmd, RzServer* server);
 
         virtual ~CMDSingle() {}
 
         virtual void Run() override;
     };
 
-    struct CMDDouble : public CMD
+    class CMDDouble : public CMD
     {
-        CMDDouble(const std::string& cmd, Server* server, SOCKET socket)
-            : CMD(cmd, server)
-            , m_socket(socket) {}
+    public:
+        CMDDouble(const std::string& cmd, RzServer* server, SOCKET socket);
 
         virtual ~CMDDouble() {}
 
@@ -51,17 +54,17 @@ namespace RzLib
         SOCKET m_socket;
     };
 
-    struct CMDTriple : public CMDDouble
+    class CMDTriple : public CMD
     {
-        CMDTriple(const std::string& cmd, Server* server, SOCKET socket, const std::string& msg)
-            : CMDDouble(cmd, server, socket)
-            , m_message(msg){}
+    public:
+        CMDTriple(const std::string& cmd, RzServer* server, SOCKET socket, const std::string& msg);
 
         virtual ~CMDTriple() {}
 
         virtual void Run() override;
 
     protected:
+        SOCKET m_socket;
         std::string m_message;
     };
 }

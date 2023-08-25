@@ -98,6 +98,8 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)RzServer;$(SolutionDir)RazelLibrary</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -115,6 +117,8 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)RzServer;$(SolutionDir)RazelLibrary</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -132,6 +136,8 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)RzServer;$(SolutionDir)RazelLibrary</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -149,6 +155,8 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)RzServer;$(SolutionDir)RazelLibrary</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -159,17 +167,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CMD\CMD.cpp" />
     <ClCompile Include="CMD\ConsoleCMDParser.cpp" />
-    <ClCompile Include="CMD\CMDType.cpp" />
     <ClCompile Include="CMD\Communication.cpp" />
     <ClCompile Include="ServerDemo.cpp" />
-    <ClCompile Include="Server\Server.cpp" />
+    <ClCompile Include="TcpServer\RzServer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CMD\CMD.hpp" />
     <ClInclude Include="CMD\ConsoleCMDParser.hpp" />
-    <ClInclude Include="CMD\CMDType.hpp" />
     <ClInclude Include="CMD\Communication.h" />
-    <ClInclude Include="Server\Server.hpp" />
+    <ClInclude Include="TcpServer\RzServer.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

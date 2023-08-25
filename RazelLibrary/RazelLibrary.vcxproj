@@ -88,25 +88,25 @@
     <OutDir>$(SolutionDir)bin\$(Platform)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin-tmp\$(ProjectName)\$(Platform)-$(Configuration)\</IntDir>
     <IncludePath>$(IncludePath)</IncludePath>
-    <ExternalIncludePath>D:\dev\software\RzLib\fmt;$(ExternalIncludePath)</ExternalIncludePath>
+    <ExternalIncludePath>$(SolutionDir)fmt;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)bin\$(Platform)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin-tmp\$(ProjectName)\$(Platform)-$(Configuration)\</IntDir>
     <IncludePath>$(IncludePath)</IncludePath>
-    <ExternalIncludePath>D:\dev\software\RzLib\fmt;$(ExternalIncludePath)</ExternalIncludePath>
+    <ExternalIncludePath>$(SolutionDir)fmt;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)bin\$(Platform)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin-tmp\$(ProjectName)\$(Platform)-$(Configuration)\</IntDir>
     <IncludePath>$(IncludePath)</IncludePath>
-    <ExternalIncludePath>D:\dev\software\RzLib\fmt;$(ExternalIncludePath)</ExternalIncludePath>
+    <ExternalIncludePath>$(SolutionDir)fmt;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)bin\$(Platform)-$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin-tmp\$(ProjectName)\$(Platform)-$(Configuration)\</IntDir>
     <IncludePath>$(IncludePath)</IncludePath>
-    <ExternalIncludePath>D:\dev\software\RzLib\fmt;$(ExternalIncludePath)</ExternalIncludePath>
+    <ExternalIncludePath>$(SolutionDir)fmt;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

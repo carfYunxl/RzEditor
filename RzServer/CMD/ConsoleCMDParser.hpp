@@ -20,6 +20,7 @@ namespace RzLib
     class ConsoleCMDParser
     {
     public:
+        ConsoleCMDParser() = default;
         ConsoleCMDParser(const std::string& CMD, char SPLIT = ' ');
         ~ConsoleCMDParser() {}
         SOCKET          GetSocket()     const { return m_socket; }

@@ -1,22 +1,22 @@
-#include "Server.hpp"
 #include "Core/Log.hpp"
+#include <ws2tcpip.h>
 #include <thread>
-#include <fstream>
-#include "Core/Core.hpp"
-
 #include <filesystem>
+#include <fstream>
+#include "TcpServer/RzServer.hpp"
 #include "CMD/Communication.h"
+#include "CMD/CMD.hpp"
 
 namespace RzLib
 {
-	Server::Server(std::string&& ip, int port)
+	RzServer::RzServer(std::string&& ip, int port)
 		: m_ip(std::move(ip))
 		, m_port(std::move(port))
 		, m_listen_socket(INVALID_SOCKET)
 		, m_IsRunning(true)
 	{
 	}
-	Server::~Server()
+	RzServer::~RzServer()
 	{
 		closesocket(m_listen_socket);
 		for (size_t i = 0; i < m_client.size(); ++i)
@@ -25,7 +25,7 @@ namespace RzLib
 		}
 		WSACleanup();
 	}
-	bool Server::Init()
+	bool RzServer::Init()
 	{
 		/*
 		* socket start
@@ -40,7 +40,7 @@ namespace RzLib
 		return true;
 	}
 
-	bool Server::Listen()
+	bool RzServer::Listen()
 	{
 		/**
 		* sockaddr_in
@@ -84,20 +84,21 @@ namespace RzLib
 	}
 
 	// 响应服务端的相关CMD
-	void Server::HandleServerCMD()
+	void RzServer::HandleServerCMD()
 	{
 		std::thread thread([&]()
 		{
-				char readBuf[128]{0};
+			ConsoleCMDParser parser;
+			char readBuf[128]{0};
 			while (1)
 			{
 				std::cin.getline( readBuf, 128 );
 
 				if (strlen(readBuf) == 0) continue;
 
-				ConsoleCMDParser parser(readBuf);
+				parser.SetCMD(readBuf);
 
-				std::unique_ptr<CMD> pCMD = GenCmd(parser);
+				std::unique_ptr<CMD> pCMD = GenCmd(&parser);
 
 				pCMD->Run();
 
@@ -109,7 +110,7 @@ namespace RzLib
 	}
 
 	// 处理客户端发过来的请求
-	void Server::HandleClientCMD(SOCKET socket, const char* CMD, int rtLen)
+	void RzServer::HandleClientCMD(SOCKET socket, const char* CMD, int rtLen)
 	{
 		Communication parser(CMD,rtLen);
 		switch (static_cast<CommunicationCMD>(parser.GetCmd()))
@@ -126,25 +127,45 @@ namespace RzLib
 				std::filesystem::path binPath = std::filesystem::current_path();
 				binPath = binPath.parent_path();
 				binPath /= "binClient";
-
 				if (!std::filesystem::exists(binPath))
 				{
 					Log(LogLevel::ERR, "directory ",binPath, " not exist, please check!");
 					return;
 				}
 
-				// 先告诉客户端，下面开始更新客户端的文件了
-				const char* sendbuffer = "update";
-				if ( SOCKET_ERROR == send(socket, sendbuffer, static_cast<int>(strlen(sendbuffer)), 0) )
-				{
-					Log(LogLevel::ERR,"send to client failed, error code = ",WSAGetLastError());
-				}
-
 				//遍历该目录
 				std::string buffer;
-				for (auto const& dir_entry : std::filesystem::directory_iterator{ binPath })
+
+				for (auto const& dir_entry : std::filesystem::recursive_directory_iterator{ binPath })
 				{
-					SendFileToClient( socket, "update", dir_entry.path().string());
+					std::string path = dir_entry.path().filename().string();
+					std::filesystem::path fPath = dir_entry.path().parent_path();
+					while (fPath != binPath)
+					{
+						path.insert(0, fPath.filename().string() + "\\");
+						fPath = fPath.parent_path();
+					}
+					//发送文件头
+					buffer.push_back(0xF5);
+					buffer.push_back(path.size() & 0xFF);
+					buffer.push_back((path.size() >> 8) & 0xFF);
+
+					//发送的是目录名或者文件名
+					buffer += path;
+					if ( send(socket, buffer.c_str(), buffer.size(), 0) == SOCKET_ERROR)
+					{
+						Log(LogLevel::ERR, "Send file name error!");
+					}
+
+					Log(LogLevel::WARN, "发送文件/名：",path);
+
+					if (!dir_entry.path().has_extension())
+					{
+						continue;
+					}
+
+					// 发送文件
+					SendFileToClient(socket, dir_entry.path().string());
 				}
 				break;
 			}
@@ -152,7 +173,7 @@ namespace RzLib
 		}
 	}
 
-	bool Server::Accept()
+	bool RzServer::Accept()
 	{
 		FD_ZERO(&m_All_FD);
 		FD_SET(m_listen_socket, &m_All_FD);
@@ -205,7 +226,7 @@ namespace RzLib
 		return true;
 	}
 
-	void Server::ListClient()
+	void RzServer::ListClient()
 	{
 		if (m_client.empty())
 		{
@@ -223,7 +244,7 @@ namespace RzLib
 		std::cout << std::endl;
 	}
 
-	int Server::GetPort(SOCKET socket)
+	int RzServer::GetPort(SOCKET socket)
 	{
 		auto itr = std::find_if(m_client.begin(), m_client.end(), [=](const std::pair<SOCKET,int>& cli)
 			{
@@ -238,7 +259,7 @@ namespace RzLib
 		return -1;
 	}
 
-	void Server::AcceptClient()
+	void RzServer::AcceptClient()
 	{
 		sockaddr_in clientaddr;
 		int len = sizeof(sockaddr_in);
@@ -256,7 +277,7 @@ namespace RzLib
 		SendClientVersion(socket_client);
 	}
 
-	bool Server::GetClientMsg(SOCKET socket, char* buf, int* rtlen)
+	bool RzServer::GetClientMsg(SOCKET socket, char* buf, int* rtlen)
 	{
 		int res = recv(socket, buf, MAX_TCP_PACKAGE_SIZE, 0);
 		if (res == 0)
@@ -294,7 +315,7 @@ namespace RzLib
 		return true;
 	}
 
-	bool Server::SendFileToClient(SOCKET socket, const std::string& Cmd, const std::string& path)
+	bool RzServer::SendFileToClient(SOCKET socket, const std::string& path)
 	{
 		// 先发给client，告诉client下面要发送的是文件
 
@@ -312,19 +333,11 @@ namespace RzLib
 			Log(LogLevel::ERR, "Read file ", path, " failed!\n");
 			return false;
 		}
-
-		std::string strCMD(Cmd + " " + std::to_string(size) + " " + path);
-
-		if (send(socket, &strCMD[0], static_cast<int>(strCMD.size()), 0) == SOCKET_ERROR)
-		{
-			Log(LogLevel::ERR, "Send to client failed! \n");
-			return false;
-		}
 		
-		strCMD.clear();
-		strCMD.resize(size);
+		std::string strFile;
+		strFile.resize(size);
 		inf.seekg(0, std::ios::beg);
-		inf.read(&strCMD[0], strCMD.size());
+		inf.read(&strFile[0], strFile.size());
 		inf.close();
 
 		// 每次向client发送MAX_TCP_PACKAGE_SIZE数据，直到文件内容发送完毕
@@ -332,9 +345,15 @@ namespace RzLib
 		Log(LogLevel::ERR, "All file size = ", size);
 		while (int(size) > 0)
 		{
+			size_t sSize = size > MAX_TCP_PACKAGE_SIZE - 3 ? MAX_TCP_PACKAGE_SIZE - 3 : size;
 
-			size_t sSize = size > MAX_TCP_PACKAGE_SIZE ? MAX_TCP_PACKAGE_SIZE : size;
-			if (send(socket, &strCMD[index], static_cast<int>(sSize), 0) == SOCKET_ERROR)
+			std::string strSend;
+			strSend.push_back(0xF6);
+			strSend.push_back(sSize & 0xFF);
+			strSend.push_back((sSize >> 8) & 0xFF);
+			std::copy(&strFile[index], &strFile[index + size], std::back_inserter(strSend));
+
+			if (send(socket, strSend.c_str(), strSend.size(), 0) == SOCKET_ERROR)
 			{
 				Log(LogLevel::ERR, "Send to client failed! \n");
 				return false;
@@ -346,20 +365,30 @@ namespace RzLib
 			Log(LogLevel::INFO, "send file success, total = ", index);
 		}
 
+		std::string strSend;
+		strSend.push_back(0xF7);
+		strSend.push_back(0x00);
+		strSend.push_back(0x00);
+		if (send(socket, strSend.c_str(), strSend.size(), 0) == SOCKET_ERROR)
+		{
+			Log(LogLevel::ERR, "Send to client failed! \n");
+			return false;
+		}
+
 		Log(LogLevel::INFO, "Send file to client success! \n");
 
 		return true;
 	}
 
 	// 发送最新的客户端版本给client
-	bool Server::SendClientVersion(SOCKET socket)
+	bool RzServer::SendClientVersion(SOCKET socket)
 	{
 		std::string strVer;
-		strVer.append(1,char(0xF2));								// 0xF2 : send new client version to client
-		strVer.append(1,char(0x02));								// low byte
-		strVer.append(1,char(0x00));								// high byte
-		strVer.append(1,char(CLIENT_VERSION & 0xFF));				// version low byte
-		strVer.append(1,char((CLIENT_VERSION >> 8) & 0xFF));		// version high byte
+		strVer.push_back(0xF2);
+		strVer.push_back(0x02);
+		strVer.push_back(0x00);
+		strVer.push_back(CLIENT_VERSION & 0xFF);
+		strVer.push_back((CLIENT_VERSION >> 8) & 0xFF);
 
 		if ( SOCKET_ERROR == send(socket, strVer.c_str(), static_cast<int>(strVer.size()), 0))
 		{
@@ -370,16 +399,16 @@ namespace RzLib
 		return true;
 	}
 
-	std::unique_ptr<CMD> Server::GenCmd(const ConsoleCMDParser& parser)
+	std::unique_ptr<CMD> RzServer::GenCmd(const ConsoleCMDParser* parser)
 	{
-		switch (parser.GetCmdType())
+		switch (parser->GetCmdType())
 		{
-		case CMDType::SINGLE:
-			return std::make_unique<CMDSingle>(parser.GetCMD(),this);
-		case CMDType::DOUBLE:
-			return std::make_unique<CMDDouble>(parser.GetCMD(), this, parser.GetSocket());
-		case CMDType::TRIPLE:
-			return std::make_unique<CMDTriple>(parser.GetCMD(), this, parser.GetSocket(), parser.GetMsg());
+			case CMDType::SINGLE:
+				return std::make_unique<CMDSingle>(parser->GetCMD(), this);
+			case CMDType::DOUBLE:
+				return std::make_unique<CMDDouble>(parser->GetCMD(), this, parser->GetSocket());
+			case CMDType::TRIPLE:
+				return std::make_unique<CMDTriple>(parser->GetCMD(), this, parser->GetSocket(), parser->GetMsg());
 		}
 
 		return nullptr;
