@@ -146,9 +146,7 @@ namespace RzLib
 						fPath = fPath.parent_path();
 					}
 					//发送文件头
-					buffer.push_back(0xF5);
-					buffer.push_back(path.size() & 0xFF);
-					buffer.push_back((path.size() >> 8) & 0xFF);
+					buffer = GenPackageHeader(0xF5, path.size());
 
 					//发送的是目录名或者文件名
 					buffer += path;
@@ -347,10 +345,8 @@ namespace RzLib
 		{
 			size_t sSize = size > MAX_TCP_PACKAGE_SIZE - 3 ? MAX_TCP_PACKAGE_SIZE - 3 : size;
 
-			std::string strSend;
-			strSend.push_back(0xF6);
-			strSend.push_back(sSize & 0xFF);
-			strSend.push_back((sSize >> 8) & 0xFF);
+			std::string strSend = GenPackageHeader(0xF6, sSize);
+
 			std::copy(&strFile[index], &strFile[index + size], std::back_inserter(strSend));
 
 			if (send(socket, strSend.c_str(), strSend.size(), 0) == SOCKET_ERROR)
@@ -365,10 +361,8 @@ namespace RzLib
 			Log(LogLevel::INFO, "send file success, total = ", index);
 		}
 
-		std::string strSend;
-		strSend.push_back(0xF7);
-		strSend.push_back(0x00);
-		strSend.push_back(0x00);
+		std::string strSend = GenPackageHeader(0xF7, 0);
+
 		if (send(socket, strSend.c_str(), strSend.size(), 0) == SOCKET_ERROR)
 		{
 			Log(LogLevel::ERR, "Send to client failed! \n");
@@ -383,10 +377,7 @@ namespace RzLib
 	// 发送最新的客户端版本给client
 	bool RzServer::SendClientVersion(SOCKET socket)
 	{
-		std::string strVer;
-		strVer.push_back(0xF2);
-		strVer.push_back(0x02);
-		strVer.push_back(0x00);
+		std::string strVer = GenPackageHeader(0xF2, 2);
 		strVer.push_back(CLIENT_VERSION & 0xFF);
 		strVer.push_back((CLIENT_VERSION >> 8) & 0xFF);
 
@@ -412,5 +403,15 @@ namespace RzLib
 		}
 
 		return nullptr;
+	}
+
+	std::string RzServer::GenPackageHeader(unsigned char cmd, size_t size)
+	{
+		std::string strPack;
+		strPack.push_back(cmd);
+		strPack.push_back(static_cast<char>(size & 0xFF));
+		strPack.push_back(static_cast<char>((size >> 8) & 0xFF));
+
+		return strPack;
 	}
 }

@@ -40,6 +40,7 @@ namespace RzLib
         bool GetClientMsg(SOCKET socket, char* buf, int* rtlen);
 
         std::unique_ptr<CMD> GenCmd(const ConsoleCMDParser* parser);
+        std::string GenPackageHeader(unsigned char cmd, size_t size);
 
     private:
         std::string     m_ip;
