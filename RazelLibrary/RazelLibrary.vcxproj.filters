@@ -18,7 +18,7 @@
     <ClInclude Include="RzLibrary.hpp">
       <Filter>源文件</Filter>
     </ClInclude>
-    <ClInclude Include="File\FileTraveler.hpp">
+    <ClInclude Include="RzFile\FileTraveler.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Core\Core.hpp">
@@ -30,13 +30,13 @@
     <ClInclude Include="Core\Log.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="File\IniTraveler.hpp">
+    <ClInclude Include="RzFile\IniTraveler.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Core\FmtLayer.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Core\RzThread.hpp">
+    <ClInclude Include="RzThread\RzThread.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -44,13 +44,10 @@
     <ClCompile Include="pch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="File\FileTraveler.cpp">
+    <ClCompile Include="RzFile\FileTraveler.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="File\IniTraveler.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\RzThread.cpp">
+    <ClCompile Include="RzFile\IniTraveler.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

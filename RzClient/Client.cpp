@@ -3,6 +3,13 @@
 
 int main()
 {
+    // must add this to eable color out to console
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+    GetConsoleMode(hOut, &dwMode);
+    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    SetConsoleMode(hOut, dwMode);
+
     RzLib::RzClient client("127.0.0.1", 8080);
 
     if (!client.Init())

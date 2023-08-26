@@ -21,50 +21,39 @@ namespace RzLib
     class CMD
     {
     public:
-        CMD(const std::string& cmd, RzServer* server);
+        CMD(CONSOLE_CMD cmd, RzServer* server);
 
         virtual void Run() {};
         virtual ~CMD() {}
 
     protected:
-        std::string     m_Cmd;
+        CONSOLE_CMD     m_Cmd;
         RzServer*       m_Server;
     };
 
-    class CMDSingle : public CMD
+    /** exit, client, version ... not used for transfer information */
+    class FuncCMD : public CMD
     {
     public:
-        CMDSingle(const std::string& cmd, RzServer* server);
+        FuncCMD(CONSOLE_CMD cmd, RzServer* server);
 
-        virtual ~CMDSingle() {}
+        virtual ~FuncCMD() {}
 
         virtual void Run() override;
     };
 
-    class CMDDouble : public CMD
+    /** used for transfor information  */
+    class TransferCMD : public CMD
     {
     public:
-        CMDDouble(const std::string& cmd, RzServer* server, SOCKET socket);
+        TransferCMD(CONSOLE_CMD cmd, RzServer* server, SOCKET socket, const std::string& msg);
 
-        virtual ~CMDDouble() {}
+        virtual ~TransferCMD() {}
 
         virtual void Run() override;
 
     protected:
-        SOCKET m_socket;
-    };
-
-    class CMDTriple : public CMD
-    {
-    public:
-        CMDTriple(const std::string& cmd, RzServer* server, SOCKET socket, const std::string& msg);
-
-        virtual ~CMDTriple() {}
-
-        virtual void Run() override;
-
-    protected:
-        SOCKET m_socket;
-        std::string m_message;
+        SOCKET          m_socket;
+        std::string     m_message;
     };
 }

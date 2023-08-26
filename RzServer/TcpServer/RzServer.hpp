@@ -30,8 +30,11 @@ namespace RzLib
         int  GetPort(SOCKET socket);
 
         bool SendFileToClient(SOCKET socket, const std::string& path);
-
         bool SendClientVersion(SOCKET socket);
+
+        bool IsClientSocket(size_t nSocket);
+        std::string             GenPackageHeader(unsigned char cmd, size_t size);
+
     private:
         void HandleServerCMD();
         void HandleClientCMD(SOCKET socket, const char* CMD, int rtLen);
@@ -39,9 +42,7 @@ namespace RzLib
         void AcceptClient();
         bool GetClientMsg(SOCKET socket, char* buf, int* rtlen);
 
-        std::unique_ptr<CMD> GenCmd(const ConsoleCMDParser* parser);
-        std::string GenPackageHeader(unsigned char cmd, size_t size);
-
+        std::unique_ptr<CMD>    GenCmd(const ConsoleCMDParser* parser);
     private:
         std::string     m_ip;
         int             m_port;

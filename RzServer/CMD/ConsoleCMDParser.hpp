@@ -24,7 +24,7 @@ namespace RzLib
         ConsoleCMDParser(const std::string& CMD, char SPLIT = ' ');
         ~ConsoleCMDParser() {}
         SOCKET          GetSocket()     const { return m_socket; }
-        std::string     GetCMD()        const { return m_CMD; }
+        CONSOLE_CMD     GetCMD()        const { return m_CMD; }
         std::string     GetMsg()        const { return m_message; }
         CMDType         GetCmdType()    const { return m_cmdType; }
 
@@ -32,11 +32,14 @@ namespace RzLib
 
     private:
         void Parser(const std::string& CMD, char SPLIT = ' ');
-        const bool IsAllDigits(const std::string& digits) const;
+        const bool IsCmd(const std::string& sCmd);
+
+        CONSOLE_CMD CastCMD(const std::string& cmd);
     private:
-        std::string         m_CMD;
-        SOCKET              m_socket{ INVALID_SOCKET };
-        std::string         m_message;
-        CMDType             m_cmdType{ CMDType::NONE };
+        CONSOLE_CMD     m_CMD;
+        SOCKET          m_socket{ INVALID_SOCKET };
+        std::string     m_message;
+        CMDType         m_cmdType{ CMDType::NONE };
+
     };
 }

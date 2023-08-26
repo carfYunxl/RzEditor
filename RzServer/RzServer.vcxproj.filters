@@ -30,6 +30,9 @@
     <ClCompile Include="CMD\CMD.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="utility\utility.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TcpServer\RzServer.hpp">
@@ -42,6 +45,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CMD\CMD.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="RzUtility\RzUtility.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="utility\utility.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

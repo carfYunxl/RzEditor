@@ -1,12 +1,12 @@
 #include "RzClient.hpp"
 #include "Core/Log.hpp"
-#include "RazelLibrary/Core/RzThread.hpp"
+#include "RzThread/RzThread.hpp"
 #include "CMD/CMDParser.hpp"
 #include "CMD/CMDType.hpp"
 #include "CMD/TcpParser.h"
 #include <fstream>
 #include <memory>
-#include <array>
+#include "cUtility/cUtility.hpp"
 
 namespace RzLib
 {
@@ -91,6 +91,7 @@ namespace RzLib
             while (1)
             {
                 int ret = recv(m_socket, readBuf, MAX_TCP_PACKAGE_SIZE, 0);
+                std::cout << std::endl;
                 if (ret == SOCKET_ERROR)
                 {
                     int ret = WSAGetLastError();
@@ -124,7 +125,9 @@ namespace RzLib
                         {
                             case RECV_CMD::NORMAL:
                             {
-                                Log(LogLevel::ERR, "server say : ", msg);
+                                Log(LogLevel::INFO, "server say : ", msg);
+                                ClientUti::PrintConsoleHeader();
+                                std::cout << std::endl;
                                 break;
                             }
                             case RECV_CMD::VERSION:
@@ -135,6 +138,8 @@ namespace RzLib
                                 {
                                     UpdateClient();
                                 }
+                                ClientUti::PrintConsoleHeader();
+                                std::cout << std::endl;
                                 break;
                             }
                             case RECV_CMD::FILE_HEADER:
@@ -158,6 +163,8 @@ namespace RzLib
                                     m_fCurContent.clear();
                                     Log(LogLevel::WARN, "接收到文件 ： ", m_pCurPath);
                                 }
+                                ClientUti::PrintConsoleHeader();
+                                std::cout << std::endl;
                                 break;
                             }
                             case RECV_CMD::FILE_PACKET:
@@ -165,6 +172,8 @@ namespace RzLib
                                 m_fCurContent += msg;
 
                                 Log(LogLevel::WARN, "接收到文件包：", "现在的文件内容是：", m_fCurContent);
+                                ClientUti::PrintConsoleHeader();
+                                std::cout << std::endl;
                                 break;
                             }
                             case RECV_CMD::File_TAIL:
@@ -179,12 +188,12 @@ namespace RzLib
                                 }
 
                                 m_fCurContent.clear();
+                                ClientUti::PrintConsoleHeader();
+                                std::cout << std::endl;
                                 break;
                             }
                         }
                     }
-
-                    
                     memset(readBuf, 0, MAX_TCP_PACKAGE_SIZE);
                 }
             }
@@ -198,8 +207,12 @@ namespace RzLib
         std::string readBuf;
         readBuf.resize(64);
 
-        while (std::cin.getline(&readBuf[0], 64))
+        while (1)
         {
+            ClientUti::PrintConsoleHeader();
+
+            std::cin.getline(&readBuf[0], 64);
+
             if (readBuf.empty())
             {
                 continue;

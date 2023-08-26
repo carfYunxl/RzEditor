@@ -22,16 +22,15 @@
     <ClInclude Include="Core\Core.hpp" />
     <ClInclude Include="Core\FmtLayer.hpp" />
     <ClInclude Include="Core\Log.hpp" />
-    <ClInclude Include="Core\RzThread.hpp" />
-    <ClInclude Include="File\IniTraveler.hpp" />
+    <ClInclude Include="RzThread\RzThread.hpp" />
+    <ClInclude Include="RzFile\IniTraveler.hpp" />
     <ClInclude Include="pch.hpp" />
-    <ClInclude Include="File\FileTraveler.hpp" />
+    <ClInclude Include="RzFile\FileTraveler.hpp" />
     <ClInclude Include="RzLibrary.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Core\RzThread.cpp" />
-    <ClCompile Include="File\FileTraveler.cpp" />
-    <ClCompile Include="File\IniTraveler.cpp" />
+    <ClCompile Include="RzFile\FileTraveler.cpp" />
+    <ClCompile Include="RzFile\IniTraveler.cpp" />
     <ClCompile Include="pch.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -45,26 +44,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>

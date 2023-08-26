@@ -1,4 +1,7 @@
 #include "ConsoleCMDParser.hpp"
+#include "utility/utility.hpp"
+
+#include <filesystem>
 
 namespace RzLib
 {
@@ -19,40 +22,65 @@ namespace RzLib
 	void ConsoleCMDParser::Parser(const std::string& CMD, char SPLIT)
 	{
 		size_t index1 = CMD.find(SPLIT, 0);
-		size_t index2 = CMD.find(SPLIT, index1 + 1);
 
 		std::string strCmd = CMD.substr(0, index1);
-		if (index1 == std::string::npos)
+
+		if ( IsCmd(strCmd) )
 		{
-			// Single CMD
-			m_cmdType = CMDType::SINGLE;
-			m_CMD = strCmd;
-			return;
-		}
-		else if(index2 == std::string::npos)
-		{
-			// Double CMD
-			// TO BE DEFINE
-			m_cmdType = CMDType::DOUBLE;
+			if (index1 == std::string::npos)
+			{
+				// FUNC CMD
+				m_cmdType = CMDType::FUNC;
+				return;
+			}
+			else
+			{
+				// TRANSFER CMD
+				m_cmdType = CMDType::TRANSFER;
+
+				m_message = CMD.substr(index1 + 1, CMD.size() - index1 - 1);
+			}
 		}
 		else
 		{
-			// Triple CMD
-			m_cmdType = CMDType::TRIPLE;
-			m_CMD = strCmd;
-
-			std::string sock = CMD.substr(index1 + 1, index2 - index1 - 1);
-
-			if (IsAllDigits(sock))
-			{
-				m_socket = static_cast<SOCKET>(stoi(sock));
-			}
-			m_message = CMD.substr(index2 + 1, CMD.size() - index2 - 1);
+			m_cmdType = CMDType::NONE;
+			m_CMD = CONSOLE_CMD::UNKNOWN;
 		}
 	}
 
-	const bool ConsoleCMDParser::IsAllDigits(const std::string& digits) const
+	const bool ConsoleCMDParser::IsCmd(const std::string& sCmd)
 	{
-		return digits.cend() == std::find_if(digits.cbegin(), digits.cend(), [](const char ch){ return isalpha(ch);});
+		// e.g. 235£ºsend something to client socket : 235
+		if ( sCmd.ends_with(':') && ServerUti::IsAllDigits(sCmd.substr(0,sCmd.size()-1)) )
+		{
+			m_CMD = CONSOLE_CMD::SEND;
+			m_socket = stoi( sCmd.substr(0,sCmd.size()-1) );
+			return true;
+		}
+		else if (sCmd == "exit" || sCmd == "client" || sCmd == "version")
+		{
+			m_CMD = CastCMD(sCmd);
+			return true;
+		}
+
+		return false;
+	}
+
+	CONSOLE_CMD ConsoleCMDParser::CastCMD(const std::string& cmd)
+	{
+		if (cmd == "exit" )
+		{
+			return CONSOLE_CMD::EXIT;
+		}
+		else if (cmd =="client" )
+		{
+			return CONSOLE_CMD::CLIENT;
+		}
+		else if (cmd == "version")
+		{
+			return CONSOLE_CMD::VERSION;
+		}
+
+		return CONSOLE_CMD::UNKNOWN;
 	}
 }

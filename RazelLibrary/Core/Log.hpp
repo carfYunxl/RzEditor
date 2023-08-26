@@ -12,7 +12,8 @@ namespace RzLib
     {
         INFO = 0,
         WARN,
-        ERR
+        ERR,
+        CONSOLE
     };
 
     template<typename T, char SEPERATOR>
@@ -36,7 +37,7 @@ namespace RzLib
         switch (level)
         {
         case LogLevel::INFO:
-            fmt::print(fg(fmt::color::steel_blue), "[INFO] ");
+            fmt::print(fg(fmt::color::light_pink), "[INFO] ");
             break;
         case LogLevel::WARN:
             fmt::print(fg(fmt::color::yellow), "[WARN] ");
@@ -44,8 +45,31 @@ namespace RzLib
         case LogLevel::ERR:
             fmt::print(fg(fmt::color::red), "[ERROR] ");
             break;
+        case LogLevel::CONSOLE:
+            fmt::print(fg(fmt::color::cyan), "[ERROR] ");
+            break;
         }
 
         (std::cout << ... << AddSeperator<Args,' '>(args)) << std::endl;
+    }
+
+    template<typename LogLevel>
+    void Print(LogLevel level, const std::string& title)
+    {
+        switch (level)
+        {
+            case LogLevel::INFO:
+                fmt::print(fg(fmt::color::light_pink), title);
+                break;
+            case LogLevel::WARN:
+                fmt::print(fg(fmt::color::yellow), title);
+                break;
+            case LogLevel::ERR:
+                fmt::print(fg(fmt::color::red), title);
+                break;
+            case LogLevel::CONSOLE:
+                fmt::print(fg(fmt::color::cyan), title);
+                break;
+        }
     }
 }
