@@ -34,11 +34,12 @@ enum class CONSOLE_CMD
 
 enum class TCP_CMD
 {
-    NORMAL = 0xF1,
-    UPDATE = 0xF3,
-    FILE_HEADER = 0xF5,
-    FILE_PACKET = 0xF6,
-    File_TAIL = 0xF7
+    NORMAL          = 0xF1,
+    UPDATE_START    = 0xF3,
+    FILE_HEADER     = 0xF5,
+    FILE_PACKET     = 0xF6,
+    File_TAIL       = 0xF7,
+    UPDATE_FIN      = 0xF8
 };
 
 enum class CMDType

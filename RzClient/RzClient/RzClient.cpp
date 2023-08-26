@@ -16,7 +16,6 @@ namespace RzLib
         , m_socket(INVALID_SOCKET)
         , m_updated{false}
     {
-        CreateDir();
     }
     RzClient::RzClient(std::string&& server_ip, uint32_t&& server_port)
         : m_serverIp(std::move(server_ip))
@@ -24,7 +23,6 @@ namespace RzLib
         , m_socket(INVALID_SOCKET)
         , m_updated{ false }
     {
-        CreateDir();
     }
 
     RzClient::~RzClient()
@@ -142,6 +140,12 @@ namespace RzLib
                                 std::cout << std::endl;
                                 break;
                             }
+                            case RECV_CMD::UPDATE_START:
+                            {
+                                //开始更新客户端了，在这里应该准备好存储文件的路径，因为此处与一般情况下不同
+                                CreateDir("Tmp");
+                                break;
+                            }
                             case RECV_CMD::FILE_HEADER:
                             {
                                 m_pCurPath.clear();
@@ -190,6 +194,13 @@ namespace RzLib
                                 m_fCurContent.clear();
                                 ClientUti::PrintConsoleHeader();
                                 std::cout << std::endl;
+                                break;
+                            }
+                            case RECV_CMD::UPDATE_FIN:
+                            {
+                                //更新客户端结束，将存储文件的目录恢复到Cache目录下
+                                CreateDir("Cache");
+                                Update("");
                                 break;
                             }
                         }
@@ -314,13 +325,47 @@ namespace RzLib
         return true;
     }
 
-    void RzClient::CreateDir()
+    void RzClient::CreateDir(const std::string& dirName)
     {
-        m_pRootPath = std::filesystem::current_path() / "Tmp";
+        m_pRootPath = std::filesystem::current_path() / dirName;
 
         if (!std::filesystem::exists(m_pRootPath))
         {
             std::filesystem::create_directory(m_pRootPath);
         }
+    }
+
+    void RzClient::Update(const std::string& path)
+    {
+        STARTUPINFO si;
+        PROCESS_INFORMATION pi;
+
+        ZeroMemory(&si, sizeof(si));
+        si.cb = sizeof(si);
+        ZeroMemory(&pi, sizeof(pi));
+
+        // Start the child process. 
+        if (!CreateProcess(NULL,    // No module name (use command line)
+            (LPSTR)path.c_str(),    // Command line
+            NULL,                   // Process handle not inheritable
+            NULL,                   // Thread handle not inheritable
+            FALSE,                  // Set handle inheritance to FALSE
+            0,                      // No creation flags
+            NULL,                   // Use parent's environment block
+            NULL,                   // Use parent's starting directory 
+            &si,                    // Pointer to STARTUPINFO structure
+            &pi)                    // Pointer to PROCESS_INFORMATION structure
+            )
+        {
+            printf("CreateProcess failed (%d).\n", GetLastError());
+            return;
+        }
+
+        // Wait until child process exits.
+        WaitForSingleObject(pi.hProcess, INFINITE);
+
+        // Close process and thread handles. 
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
     }
 }

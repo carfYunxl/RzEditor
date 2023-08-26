@@ -42,8 +42,8 @@ namespace RzLib
         bool IsUpdating() { return m_updated; }
 
     private:
-        void CreateDir();
-
+        void CreateDir(const std::string& dirName);
+        void Update(const std::string& path);
     private:
         std::string             m_serverIp;
         uint32_t                m_serverPort;
