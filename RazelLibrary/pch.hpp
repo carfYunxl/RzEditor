@@ -5,3 +5,4 @@
 #include <type_traits>
 #include <algorithm>
 #include <string_view>
+#include <stdexcept>

@@ -15,43 +15,34 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="RzLibrary.hpp">
+    <ClCompile Include="Client.cpp">
       <Filter>源文件</Filter>
-    </ClInclude>
-    <ClInclude Include="File\FileTraveler.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Core.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="pch.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\Log.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="File\IniTraveler.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\FmtLayer.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\RzThread.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
+    </ClCompile>
+    <ClCompile Include="RzClient\RzClient.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CMD\CMDParser.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CMD\CMDType.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CMD\TcpParser.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="pch.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="File\FileTraveler.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="File\IniTraveler.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Core\RzThread.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
+    <ClInclude Include="RzClient\RzClient.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CMD\CMDParser.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CMD\CMDType.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CMD\TcpParser.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

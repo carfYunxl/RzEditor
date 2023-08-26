@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32929.386
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RazelLibrary", "RazelLibrary\RazelLibrary.vcxproj", "{1F9BD005-D2E6-467F-ADF8-B956C83F3762}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RzServer", "RzServer\RzServer.vcxproj", "{AF22FC3E-C530-45AD-9C68-0515DB5127E4}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RzClient", "RzClient\RzClient.vcxproj", "{DD416D29-AA28-41F0-BDC3-A352E5B1ADC4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,22 @@ Global
 		{AF22FC3E-C530-45AD-9C68-0515DB5127E4}.Release|x64.Build.0 = Release|x64
 		{AF22FC3E-C530-45AD-9C68-0515DB5127E4}.Release|x86.ActiveCfg = Release|Win32
 		{AF22FC3E-C530-45AD-9C68-0515DB5127E4}.Release|x86.Build.0 = Release|Win32
+		{DD416D29-AA28-41F0-BDC3-A352E5B1ADC4}.Debug|ARM.ActiveCfg = Debug|x64
+		{DD416D29-AA28-41F0-BDC3-A352E5B1ADC4}.Debug|ARM.Build.0 = Debug|x64
+		{DD416D29-AA28-41F0-BDC3-A352E5B1ADC4}.Debug|ARM64.ActiveCfg = Debug|x64
+		{DD416D29-AA28-41F0-BDC3-A352E5B1ADC4}.Debug|ARM64.Build.0 = Debug|x64
+		{DD416D29-AA28-41F0-BDC3-A352E5B1ADC4}.Debug|x64.ActiveCfg = Debug|x64
+		{DD416D29-AA28-41F0-BDC3-A352E5B1ADC4}.Debug|x64.Build.0 = Debug|x64
+		{DD416D29-AA28-41F0-BDC3-A352E5B1ADC4}.Debug|x86.ActiveCfg = Debug|Win32
+		{DD416D29-AA28-41F0-BDC3-A352E5B1ADC4}.Debug|x86.Build.0 = Debug|Win32
+		{DD416D29-AA28-41F0-BDC3-A352E5B1ADC4}.Release|ARM.ActiveCfg = Release|x64
+		{DD416D29-AA28-41F0-BDC3-A352E5B1ADC4}.Release|ARM.Build.0 = Release|x64
+		{DD416D29-AA28-41F0-BDC3-A352E5B1ADC4}.Release|ARM64.ActiveCfg = Release|x64
+		{DD416D29-AA28-41F0-BDC3-A352E5B1ADC4}.Release|ARM64.Build.0 = Release|x64
+		{DD416D29-AA28-41F0-BDC3-A352E5B1ADC4}.Release|x64.ActiveCfg = Release|x64
+		{DD416D29-AA28-41F0-BDC3-A352E5B1ADC4}.Release|x64.Build.0 = Release|x64
+		{DD416D29-AA28-41F0-BDC3-A352E5B1ADC4}.Release|x86.ActiveCfg = Release|Win32
+		{DD416D29-AA28-41F0-BDC3-A352E5B1ADC4}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
