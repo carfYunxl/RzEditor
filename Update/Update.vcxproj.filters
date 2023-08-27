@@ -15,34 +15,8 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ServerDemo.cpp">
+    <ClCompile Include="Update.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="RzServer\RzServer.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="RzCMD\ConsoleCMDParser.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="RzCMD\Communication.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="RzCMD\CMD.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="RzServer\RzServer.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="RzCMD\ConsoleCMDParser.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="RzCMD\Communication.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="RzCMD\CMD.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

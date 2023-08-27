@@ -27,9 +27,6 @@
     <ClCompile Include="CMD\TcpParser.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="cUtility\cUtility.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="RzClient\RzClient.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -42,9 +39,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="CMD\TcpParser.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="cUtility\cUtility.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="RzClient\RzClient.hpp">

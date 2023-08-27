@@ -13,7 +13,7 @@ namespace RzLib
 {
     constexpr size_t MAX_TCP_PACKAGE_SIZE = 1500;
 
-    constexpr size_t CLIENT_VERSION = 0x0101;
+    constexpr size_t CLIENT_VERSION = 0x1001;
 
     class RzClient
     {
@@ -43,7 +43,8 @@ namespace RzLib
 
     private:
         void CreateDir(const std::string& dirName);
-        void Update(const std::string& path);
+        void Update(const std::filesystem::path& path);
+        void StopClient() { m_Running = false; }
     private:
         std::string             m_serverIp;
         uint32_t                m_serverPort;
@@ -55,5 +56,7 @@ namespace RzLib
         std::filesystem::path   m_pCurPath;
         std::filesystem::path   m_pRootPath;
         std::string             m_fCurContent;
+        size_t                  m_client_version;
+        bool                    m_Running{true};
     };
 }

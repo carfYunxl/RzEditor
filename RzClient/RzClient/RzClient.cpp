@@ -1,12 +1,13 @@
 #include "RzClient.hpp"
-#include "Core/Log.hpp"
+#include "RzCore/Log.hpp"
 #include "RzThread/RzThread.hpp"
 #include "CMD/CMDParser.hpp"
 #include "CMD/CMDType.hpp"
 #include "CMD/TcpParser.h"
 #include <fstream>
 #include <memory>
-#include "cUtility/cUtility.hpp"
+#include "RzUtility/utility.hpp"
+#include <windows.h>
 
 namespace RzLib
 {
@@ -15,6 +16,7 @@ namespace RzLib
         , m_serverPort(server_port)
         , m_socket(INVALID_SOCKET)
         , m_updated{false}
+        , m_client_version{ 0x1001 }
     {
     }
     RzClient::RzClient(std::string&& server_ip, uint32_t&& server_port)
@@ -22,6 +24,7 @@ namespace RzLib
         , m_serverPort(std::move(server_port))
         , m_socket(INVALID_SOCKET)
         , m_updated{ false }
+        , m_client_version{ 0x1001 }
     {
     }
 
@@ -124,7 +127,7 @@ namespace RzLib
                             case RECV_CMD::NORMAL:
                             {
                                 Log(LogLevel::INFO, "server say : ", msg);
-                                ClientUti::PrintConsoleHeader();
+                                Utility::PrintConsoleHeader();
                                 std::cout << std::endl;
                                 break;
                             }
@@ -132,11 +135,12 @@ namespace RzLib
                             {
                                 Log(LogLevel::INFO, "server send newest client version to me : ", msg);
                                 size_t newVer = (msg[0] << 8) | msg[1];
+                                m_client_version = newVer;
                                 if (newVer != CLIENT_VERSION)
                                 {
                                     UpdateClient();
                                 }
-                                ClientUti::PrintConsoleHeader();
+                                Utility::PrintConsoleHeader();
                                 std::cout << std::endl;
                                 break;
                             }
@@ -167,7 +171,7 @@ namespace RzLib
                                     m_fCurContent.clear();
                                     Log(LogLevel::WARN, "接收到文件 ： ", m_pCurPath);
                                 }
-                                ClientUti::PrintConsoleHeader();
+                                Utility::PrintConsoleHeader();
                                 std::cout << std::endl;
                                 break;
                             }
@@ -175,8 +179,8 @@ namespace RzLib
                             {
                                 m_fCurContent += msg;
 
-                                Log(LogLevel::WARN, "接收到文件包：", "现在的文件内容是：", m_fCurContent);
-                                ClientUti::PrintConsoleHeader();
+                                Log(LogLevel::WARN, msg.size());
+                                Utility::PrintConsoleHeader();
                                 std::cout << std::endl;
                                 break;
                             }
@@ -192,15 +196,19 @@ namespace RzLib
                                 }
 
                                 m_fCurContent.clear();
-                                ClientUti::PrintConsoleHeader();
+                                Utility::PrintConsoleHeader();
                                 std::cout << std::endl;
                                 break;
                             }
                             case RECV_CMD::UPDATE_FIN:
                             {
-                                //更新客户端结束，将存储文件的目录恢复到Cache目录下
+                                // 更新客户端结束，将存储文件的目录恢复到Cache目录下
                                 CreateDir("Cache");
-                                Update("");
+
+                                // 关闭当前客户端， 启动更新程序，将Tmp目录下的文件搬到运行目录下
+                                // 再重新启动客户端
+                                std::filesystem::path path = std::filesystem::current_path() / "Update.exe";
+                                Update(path);
                                 break;
                             }
                         }
@@ -218,9 +226,9 @@ namespace RzLib
         std::string readBuf;
         readBuf.resize(64);
 
-        while (1)
+        while (m_Running)
         {
-            ClientUti::PrintConsoleHeader();
+            Utility::PrintConsoleHeader();
 
             std::cin.getline(&readBuf[0], 64);
 
@@ -335,7 +343,7 @@ namespace RzLib
         }
     }
 
-    void RzClient::Update(const std::string& path)
+    void RzClient::Update(const std::filesystem::path& path)
     {
         STARTUPINFO si;
         PROCESS_INFORMATION pi;
@@ -346,7 +354,7 @@ namespace RzLib
 
         // Start the child process. 
         if (!CreateProcess(NULL,    // No module name (use command line)
-            (LPSTR)path.c_str(),    // Command line
+            (LPSTR)(path.wstring().c_str()),    // Command line
             NULL,                   // Process handle not inheritable
             NULL,                   // Thread handle not inheritable
             FALSE,                  // Set handle inheritance to FALSE
@@ -357,15 +365,19 @@ namespace RzLib
             &pi)                    // Pointer to PROCESS_INFORMATION structure
             )
         {
-            printf("CreateProcess failed (%d).\n", GetLastError());
+            Log(LogLevel::ERR, "CreateProcess failed, error code : ", GetLastError());
             return;
         }
 
+        Log(LogLevel::INFO, "CreateProcess success!");
+
         // Wait until child process exits.
-        WaitForSingleObject(pi.hProcess, INFINITE);
+        //WaitForSingleObject(pi.hProcess, INFINITE);
 
         // Close process and thread handles. 
         CloseHandle(pi.hProcess);
         CloseHandle(pi.hThread);
+
+        StopClient();
     }
 }

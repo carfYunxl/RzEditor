@@ -29,26 +29,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -73,25 +73,25 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Platform)-$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)bin-tmp\$(Platform)-$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)bin-tmp\$(ProjectName)\$(Platform)-$(Configuration)\</IntDir>
     <ExternalIncludePath>$(SolutionDir);$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Platform)-$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)bin-tmp\$(Platform)-$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)bin-tmp\$(ProjectName)\$(Platform)-$(Configuration)\</IntDir>
     <ExternalIncludePath>$(SolutionDir);$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Platform)-$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)bin-tmp\$(Platform)-$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)bin-tmp\$(ProjectName)\$(Platform)-$(Configuration)\</IntDir>
     <ExternalIncludePath>$(SolutionDir);$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)bin\$(Platform)-$(Configuration)\</OutDir>
-    <IntDir>$(SolutionDir)bin-tmp\$(Platform)-$(Configuration)\</IntDir>
+    <IntDir>$(SolutionDir)bin-tmp\$(ProjectName)\$(Platform)-$(Configuration)\</IntDir>
     <ExternalIncludePath>$(SolutionDir);$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -101,7 +101,7 @@
       <PreprocessorDefinitions>RZ_PALTFORM_WINDOWS;RZ_DYNAMIC_LINK;</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)RzClient\;$(SolutionDir)RazelLibrary;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)RzLib\;$(SolutionDir)RzClient\;$(SolutionDir)RzServer\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
@@ -121,7 +121,7 @@
       <PreprocessorDefinitions>RZ_PALTFORM_WINDOWS;RZ_DYNAMIC_LINK;</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)RzClient\;$(SolutionDir)RazelLibrary;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)RzLib\;$(SolutionDir)RzClient\;$(SolutionDir)RzServer\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
@@ -141,7 +141,7 @@
       <PreprocessorDefinitions>RZ_PALTFORM_WINDOWS;RZ_DYNAMIC_LINK;</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)RzClient\;$(SolutionDir)RazelLibrary;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)RzLib\;$(SolutionDir)RzClient\;$(SolutionDir)RzServer\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
@@ -161,7 +161,7 @@
       <PreprocessorDefinitions>RZ_PALTFORM_WINDOWS;RZ_DYNAMIC_LINK;</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)RzClient\;$(SolutionDir)RazelLibrary;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)RzLib\;$(SolutionDir)RzClient\;$(SolutionDir)RzServer\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
@@ -179,15 +179,18 @@
     <ClCompile Include="CMD\CMDParser.cpp" />
     <ClCompile Include="CMD\CMDType.cpp" />
     <ClCompile Include="CMD\TcpParser.cpp" />
-    <ClCompile Include="cUtility\cUtility.cpp" />
     <ClCompile Include="RzClient\RzClient.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CMD\CMDParser.hpp" />
     <ClInclude Include="CMD\CMDType.hpp" />
     <ClInclude Include="CMD\TcpParser.h" />
-    <ClInclude Include="cUtility\cUtility.hpp" />
     <ClInclude Include="RzClient\RzClient.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RzLib\RzLib.vcxproj">
+      <Project>{06e4dcb0-5d41-452b-8147-6dabba750aad}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

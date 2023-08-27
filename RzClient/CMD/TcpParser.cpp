@@ -1,5 +1,5 @@
 #include "TcpParser.h"
-#include "Core/Log.hpp"
+#include "RzCore/Log.hpp"
 #include <algorithm>
 #include <numeric>
 
@@ -25,7 +25,9 @@ namespace RzLib
         std::string strMsg;
         while ( IsCmd(cmd) )
         {
-            int nMsgSize = strRead[1] | (strRead[2] << 8);
+            int nS1 = static_cast<unsigned char>(strRead[1]);
+            int nS2 = static_cast<unsigned char>(strRead[2]);
+            int nMsgSize = nS1 | (nS2 << 8);
 
             if (nMsgSize != 0)
             {
@@ -54,7 +56,8 @@ namespace RzLib
             ch == 0xF4 ||
             ch == 0xF5 ||
             ch == 0xF6 ||
-            ch == 0xF7
+            ch == 0xF7 ||
+            ch == 0xF8
             )
         {
             return true;

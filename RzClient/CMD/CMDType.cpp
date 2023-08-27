@@ -1,6 +1,6 @@
 #include "CMDType.hpp"
-#include "Core/Core.hpp"
-#include "Core/Log.hpp"
+#include "RzCore/Core.hpp"
+#include "RzCore/Log.hpp"
 
 namespace RzLib
 {

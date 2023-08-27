@@ -1,5 +1,5 @@
-#include "Core/Log.hpp"
-#include "TcpServer/RzServer.hpp"
+#include "RzCore/Log.hpp"
+#include "RzServer/RzServer.hpp"
 
 int main()
 {

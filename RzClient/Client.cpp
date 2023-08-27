@@ -1,5 +1,5 @@
 #include "RzClient/RzClient.hpp"
-#include "Core/Log.hpp"
+#include "RzCore/Log.hpp"
 
 int main()
 {

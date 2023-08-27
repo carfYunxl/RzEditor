@@ -10,7 +10,7 @@
 #pragma once
 #include <string>
 #include <winsock2.h>
-#include "Core/Core.hpp"
+#include "RzCore/Core.hpp"
 
 namespace RzLib
 {
