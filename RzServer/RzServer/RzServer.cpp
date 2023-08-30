@@ -348,13 +348,16 @@ namespace RzLib
 		size_t index = 0;
 		Log(LogLevel::ERR, "All file size = ", size);
 		std::string strSend;
+
 		while (int(size) > 0)
 		{
 			size_t sSize = size > MAX_TCP_PACKAGE_SIZE - 3 ? MAX_TCP_PACKAGE_SIZE - 3 : size;
 
 			strSend = GenPackageHeader(0xF6, sSize);
 
-			std::copy(&strFile[index], &strFile[index + size], std::back_inserter(strSend));
+			strSend.resize( sSize + 3 );
+
+			memcpy(&strSend[3], &strFile[index], sSize);
 
 			if (send(socket, strSend.c_str(), static_cast<int>(strSend.size()), 0) == SOCKET_ERROR)
 			{
@@ -419,7 +422,6 @@ namespace RzLib
 		strPack.push_back(cmd);
 		strPack.push_back(static_cast<char>(size & 0xFF));
 		strPack.push_back(static_cast<char>((size >> 8) & 0xFF));
-
 		return strPack;
 	}
 

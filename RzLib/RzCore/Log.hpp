@@ -1,10 +1,11 @@
 #pragma once
 
+#include <type_traits>
+#include <iostream>
+
 #define FMT_HEADER_ONLY
 
 #include "FmtLayer.hpp"
-#include <type_traits>
-#include <iostream>
 
 namespace RzLib
 {
@@ -46,7 +47,7 @@ namespace RzLib
             fmt::print(fg(fmt::color::red), "[ERROR] ");
             break;
         case LogLevel::CONSOLE:
-            fmt::print(fg(fmt::color::dark_magenta), "[CONSOLE] ");
+            fmt::print(fg(fmt::color::yellow), "[CONSOLE] ");
             break;
         }
 
@@ -68,7 +69,7 @@ namespace RzLib
                 fmt::print(fg(fmt::color::red), title);
                 break;
             case LogLevel::CONSOLE:
-                fmt::print(fg(fmt::color::dark_magenta), title);
+                fmt::print(fg(fmt::color::yellow), title);
                 break;
         }
     }

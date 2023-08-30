@@ -1,15 +1,12 @@
 #include "RzCore/Log.hpp"
 #include "RzServer/RzServer.hpp"
+#include "RzUtility/Utility.hpp"
 
 int main()
 {
     // must add this to eable color out to console
-
-    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-    DWORD dwMode = 0;
-    GetConsoleMode(hOut, &dwMode);
-    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-    SetConsoleMode(hOut, dwMode);
+    RzLib::Utility::EnSTDOutputColor();
+    RzLib::Utility::ChangeConsoleFont(L"Consolas");
 
     RzLib::RzServer server("127.0.0.1",8080);
 

@@ -89,9 +89,11 @@ namespace RzLib
         ScopeThread sThread(std::thread([=]()
         {
             char readBuf[MAX_TCP_PACKAGE_SIZE]{0};
+
             while (1)
             {
                 int ret = recv(m_socket, readBuf, MAX_TCP_PACKAGE_SIZE, 0);
+
                 std::cout << std::endl;
                 if (ret == SOCKET_ERROR)
                 {
@@ -134,7 +136,7 @@ namespace RzLib
                             case RECV_CMD::VERSION:
                             {
                                 Log(LogLevel::INFO, "server send newest client version to me : ", msg);
-                                size_t newVer = (msg[0] << 8) | msg[1];
+                                size_t newVer = (msg[1] << 8) | msg[0];
                                 m_client_version = newVer;
                                 if (newVer != CLIENT_VERSION)
                                 {
@@ -177,7 +179,8 @@ namespace RzLib
                             }
                             case RECV_CMD::FILE_PACKET:
                             {
-                                m_fCurContent += msg;
+                                m_fCurContent.append(msg);
+                                Log(LogLevel::WARN, "//================== 接收文件总大小 = ", m_fCurContent.size());
 
                                 Log(LogLevel::WARN, msg.size());
                                 Utility::PrintConsoleHeader();
@@ -186,18 +189,22 @@ namespace RzLib
                             }
                             case RECV_CMD::File_TAIL:
                             {
-                                Log(LogLevel::WARN, "接收到文件包尾, 写入文件：", m_pCurPath);
-                                std::ofstream out(m_pCurPath, std::ios::out);
-                                if (out.is_open())
+                                Log(LogLevel::WARN, "接收到文件包尾, 写入文件：");
+
+                                std::ofstream out(m_pCurPath, std::ios::binary);
+                                if (!out.is_open())
                                 {
-                                    out.write(m_fCurContent.c_str(), m_fCurContent.size());
-                                    out.flush();
-                                    out.close();
+                                    continue;
                                 }
+
+                                out.write(m_fCurContent.c_str(), m_fCurContent.size());
+                                out.flush();
+                                out.close();
 
                                 m_fCurContent.clear();
                                 Utility::PrintConsoleHeader();
                                 std::cout << std::endl;
+
                                 break;
                             }
                             case RECV_CMD::UPDATE_FIN:

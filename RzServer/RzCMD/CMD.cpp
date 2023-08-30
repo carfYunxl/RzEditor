@@ -64,6 +64,7 @@ namespace RzLib
 					// 不是路径就是一条信息
 					std::string strSend = m_Server->GenPackageHeader(0xF1, m_message.size());
 					strSend += m_message;
+
 					if (SOCKET_ERROR == send(m_socket, strSend.c_str(), static_cast<int>(strSend.size()), 0))
 					{
 						Log(LogLevel::ERR, "send info to client error!");

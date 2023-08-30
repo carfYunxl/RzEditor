@@ -52,7 +52,10 @@ namespace RzLib
         }
 
         std::ifstream inf;
-        inf.open(m_filepath, std::fstream::in);
+        if(mode == Mode::Binary)
+            inf.open(m_filepath, std::ofstream::binary);
+        else
+            inf.open(m_filepath, std::fstream::in);
         if (!inf.is_open())
         {
             Log(LogLevel::ERR, "Couldn't open file : ", m_filepath);
@@ -70,7 +73,8 @@ namespace RzLib
 
         m_fileCache.resize(size);
         inf.seekg(0, std::ios::beg);
-        inf.read(&m_fileCache[0], m_fileCache.size());
+
+        inf.read(&m_fileCache[0], size);
         inf.close();
 
         Log(LogLevel::INFO, "Open file success : ", m_filepath);
@@ -86,7 +90,7 @@ namespace RzLib
     /** close file */
     void FileTraveler::close()
     {
-        std::ofstream out(m_filepath, std::ofstream::out | std::ofstream::app);
+        std::ofstream out(m_filepath, std::ofstream::binary);
         if (!out.is_open())
         {
             Log(LogLevel::ERR,"Couldn't create file : ", m_filepath);
@@ -95,6 +99,9 @@ namespace RzLib
 
         out.write(&m_fileCache[0],m_fileCache.size());
 
+        Log(LogLevel::WARN, "write file size = ", m_fileCache.size());
+
+        out.flush();
         out.close();
 
         Log(LogLevel::INFO, "save file : ", m_filepath, "success!");

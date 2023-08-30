@@ -54,5 +54,7 @@ namespace RzLib
     protected:
         std::string m_filepath;
         std::string m_fileCache;
+        char* m_buffer;
+        size_t mSize;
     };
 }

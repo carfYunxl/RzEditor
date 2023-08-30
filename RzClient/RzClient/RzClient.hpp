@@ -11,7 +11,7 @@
 
 namespace RzLib
 {
-    constexpr size_t MAX_TCP_PACKAGE_SIZE = 1500;
+    constexpr size_t MAX_TCP_PACKAGE_SIZE = 1400;
 
     constexpr size_t CLIENT_VERSION = 0x1001;
 
