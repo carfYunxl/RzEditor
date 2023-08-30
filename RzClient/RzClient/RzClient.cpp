@@ -140,7 +140,18 @@ namespace RzLib
                                 m_client_version = newVer;
                                 if (newVer != CLIENT_VERSION)
                                 {
-                                    UpdateClient();
+                                    Log(LogLevel::WARN, "new Client now avaliable, update now ?[yes/no]");
+                                    char input[8]{0};
+                                    bool update = false;
+
+                                    std::cout << std::endl;
+
+                                    std::cin.getline(input, 8);
+
+                                    if (memcmp(input, "yes", 3) == 0)
+                                    {
+                                        UpdateClient();
+                                    }
                                 }
                                 Utility::PrintConsoleHeader();
                                 std::cout << std::endl;
