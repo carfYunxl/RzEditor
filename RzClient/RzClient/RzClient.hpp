@@ -9,9 +9,11 @@
 
 #include <filesystem>
 
+#include "RzCore/Core.hpp"
+
 namespace RzLib
 {
-    constexpr size_t MAX_TCP_PACKAGE_SIZE = 1400;
+    constexpr size_t MAX_TCP_PACKAGE_SIZE = 1450;
 
     constexpr size_t CLIENT_VERSION = 0x1001;
 
@@ -45,6 +47,8 @@ namespace RzLib
         void CreateDir(const std::string& dirName);
         void Update(const std::filesystem::path& path);
         void StopClient() { m_Running = false; }
+
+        std::pair<TCP_CMD, std::string> ReadPacket();
     private:
         std::string             m_serverIp;
         uint32_t                m_serverPort;

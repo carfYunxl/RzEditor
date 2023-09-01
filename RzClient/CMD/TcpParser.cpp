@@ -5,13 +5,13 @@
 
 namespace RzLib
 {
-    TcpParser::TcpParser(const char* cmd, size_t size)
+    TcpParser::TcpParser(const unsigned char* cmd, size_t size)
         : m_size(size)
     {
         Parser(cmd);
     }
 
-    void TcpParser::Parser(const char* arrCmd)
+    void TcpParser::Parser(const unsigned char* arrCmd)
     {
         if (m_size == 0)
             return;
@@ -21,7 +21,7 @@ namespace RzLib
 
         memcpy(&strRead[0], arrCmd, m_size);
 
-        unsigned char cmd = static_cast<unsigned char>(strRead[0]);
+        unsigned char cmd = strRead[0];
         std::string strMsg;
         while (IsCmd(cmd))
         {
@@ -29,19 +29,16 @@ namespace RzLib
             int nS2 = static_cast<unsigned char>(strRead[2]);
             int nMsgSize = nS1 | (nS2 << 8);
 
-            if (nMsgSize != 0)
-            {
-                strMsg.resize(nMsgSize);
-                memcpy(&strMsg[0], &strRead[3], nMsgSize);
-            }
-
+            strMsg.resize(nMsgSize);
+            memcpy(&strMsg[0], &strRead[3], nMsgSize);
             m_Info.emplace_back(cmd, strMsg);
-
             strMsg.clear();
 
-            strRead = strRead.substr(3 + nMsgSize, strRead.size() - 3 - nMsgSize);
-            
-  
+            if ( m_size > (nMsgSize+3) )
+                strRead = strRead.substr( nMsgSize + 3, m_size - nMsgSize - 3 );
+            else
+                break;
+
             if (strRead.empty())
                 break;
 

@@ -8,7 +8,7 @@
 
 namespace RzLib
 {
-    constexpr size_t MAX_TCP_PACKAGE_SIZE = 1400;
+    constexpr size_t MAX_TCP_PACKAGE_SIZE = 1450;
     constexpr short CLIENT_VERSION = 0x1002;        // 客户端版本协定 v1.0.0.2
 
     using vecClient = std::vector<std::pair<SOCKET, int>>;
@@ -33,7 +33,6 @@ namespace RzLib
         bool SendClientVersion(SOCKET socket);
 
         bool IsClientSocket(size_t nSocket);
-        std::string GenPackageHeader(unsigned char cmd, size_t size);
 
     private:
         void HandleServerCMD();

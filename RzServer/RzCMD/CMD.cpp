@@ -62,7 +62,12 @@ namespace RzLib
 				else
 				{
 					// 不是路径就是一条信息
-					std::string strSend = m_Server->GenPackageHeader(0xF1, m_message.size());
+					size_t size = m_message.size();
+					std::string strSend{
+						static_cast<char>(0xF1),
+						static_cast<char>(size & 0xFF),
+						static_cast<char>((size >> 8) & 0xFF)
+					};
 					strSend += m_message;
 
 					if (SOCKET_ERROR == send(m_socket, strSend.c_str(), static_cast<int>(strSend.size()), 0))
