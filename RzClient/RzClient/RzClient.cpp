@@ -123,6 +123,7 @@ namespace RzLib
             while (1)
             {
                 auto packet = ReadPacket();
+#if 0
                 int msgSize = packet.second.size();
                 printf("[CMD] : %02X\n", static_cast<int>(packet.first));
                 printf("[SIZE] : %02X\n", static_cast<int>(msgSize));
@@ -135,7 +136,7 @@ namespace RzLib
                     }
                     printf("%02X ", static_cast<unsigned char>(packet.second[i]));
                 }
-
+#endif
                 switch (packet.first)
                 {
                     case TCP_CMD::NORMAL:
