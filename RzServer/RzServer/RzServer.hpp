@@ -9,7 +9,7 @@
 namespace RzLib
 {
     constexpr size_t MAX_TCP_PACKAGE_SIZE = 1450;
-    constexpr short CLIENT_VERSION = 0x1002;        // 客户端版本协定 v1.0.0.2
+    constexpr short CLIENT_VERSION = 0x1005;        // 客户端版本协定 v1.0.0.2
 
     using vecClient = std::vector<std::pair<SOCKET, int>>;
 

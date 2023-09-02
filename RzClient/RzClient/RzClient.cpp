@@ -16,7 +16,7 @@ namespace RzLib
         , m_serverPort(server_port)
         , m_socket(INVALID_SOCKET)
         , m_updated{false}
-        , m_client_version{ 0x1001 }
+        , m_new_client_ver{ CLIENT_VERSION }
     {
     }
     RzClient::RzClient(std::string&& server_ip, uint32_t&& server_port)
@@ -24,7 +24,7 @@ namespace RzLib
         , m_serverPort(std::move(server_port))
         , m_socket(INVALID_SOCKET)
         , m_updated{ false }
-        , m_client_version{ 0x1001 }
+        , m_new_client_ver{ CLIENT_VERSION }
     {
     }
 
@@ -131,7 +131,7 @@ namespace RzLib
                     {
                         std::cout << "\n";
                         Log(LogLevel::INFO, "server say : ", packet.second);
-                        Utility::PrintConsoleHeader();
+                        //Utility::PrintConsoleHeader();
                         std::cout << std::endl;
                         break;
                     }
@@ -141,6 +141,8 @@ namespace RzLib
                         sprintf_s(str, 8, "%02x%02x", packet.second[1], packet.second[0]);
                         std::string strVer(str);
                         strVer.insert(0,"v_");
+
+                        m_new_client_ver = strVer;
 
                         if (strVer != CLIENT_VERSION)
                         {
@@ -156,7 +158,7 @@ namespace RzLib
                             }
                         }
 
-                        Utility::PrintConsoleHeader();
+                        //Utility::PrintConsoleHeader();
                         break;
                     }
                     case TCP_CMD::UPDATE_START:
@@ -182,7 +184,7 @@ namespace RzLib
                             m_fCurContent.clear();
                             Log(LogLevel::INFO, "接收到文件 ： ", m_pCurPath);
                         }
-                        Utility::PrintConsoleHeader();
+                        //Utility::PrintConsoleHeader();
                         break;
                     }
                     case TCP_CMD::FILE_PACKET:
@@ -209,16 +211,15 @@ namespace RzLib
                     }
                     case TCP_CMD::UPDATE_FIN:
                     {
-                        // 更新客户端结束，将存储文件的目录恢复到Cache目录下
-                        CreateDir("Cache");
-
                         // 关闭当前客户端， 启动更新程序，将Tmp目录下的文件搬到运行目录下
                         // 再重新启动客户端
                         std::filesystem::path path = std::filesystem::current_path() / "Update.exe";
                         Update(path);
 
                         Log(LogLevel::INFO, "客户端更新结束！");
-                        Utility::PrintConsoleHeader();
+                        //Utility::PrintConsoleHeader();
+                        // 更新客户端结束，将存储文件的目录恢复到Cache目录下
+                        CreateDir("Cache");
                         break;
                     }
                 }
@@ -261,47 +262,7 @@ namespace RzLib
 
             memset(&readBuf[0], 0, 64);
 
-            Utility::PrintConsoleHeader();
-        }
-
-        return true;
-    }
-
-    bool RzClient::RecvFile(size_t fileSize, const std::string& filepath)
-    {
-        std::string strFileCache;
-        std::string strRecv;
-        strRecv.resize(MAX_TCP_PACKAGE_SIZE);
-        while (fileSize > 0)
-        {
-            memset(&strRecv[0], 0, MAX_TCP_PACKAGE_SIZE);
-            int ret = recv(m_socket, &strRecv[0], MAX_TCP_PACKAGE_SIZE, 0);
-
-            if (ret == SOCKET_ERROR)
-            {
-                Log(LogLevel::ERR, "Recv file from server failed!, error code : ", WSAGetLastError());
-                return false;
-            }
-
-            size_t len = strlen(&strRecv[0]);
-            if (len != MAX_TCP_PACKAGE_SIZE)
-                strFileCache += strRecv.substr(0, len);
-            else
-                strFileCache += strRecv;
-
-            Log(LogLevel::INFO, "recv file success, total = ", strFileCache.size());
-
-            fileSize -= MAX_TCP_PACKAGE_SIZE;
-        }
-
-        std::ofstream ofs(filepath, std::ios::out);
-        if (ofs.is_open())
-        {
-            ofs.write(strFileCache.c_str(), strFileCache.size());
-            ofs.flush();
-            ofs.close();
-
-            Log(LogLevel::INFO, "Recv file from server success!");
+           // Utility::PrintConsoleHeader();
         }
 
         return true;
@@ -323,28 +284,9 @@ namespace RzLib
         return true;
     }
 
-    //接收服务器发过来的可执行档
-    bool RzClient::RecvExe(size_t fileSize, const std::string& filepath)
-    {
-        std::filesystem::path path = std::filesystem::current_path();
-        path = path.parent_path();
-        path /= "binClient";
-
-        if (!std::filesystem::exists(path))
-        {
-            std::filesystem::create_directory(path);
-        }
-
-        Log(LogLevel::INFO, "bin path ", path.string());
-
-        RecvFile(fileSize, filepath);
-
-        return true;
-    }
-
     void RzClient::CreateDir(const std::string& dirName)
     {
-        m_pRootPath = std::filesystem::current_path() / dirName;
+        m_pRootPath = std::filesystem::current_path().parent_path() / dirName;
 
         if (!std::filesystem::exists(m_pRootPath))
         {
@@ -354,6 +296,69 @@ namespace RzLib
 
     void RzClient::Update(const std::filesystem::path& path)
     {
+        // 检查新版exe的版本后缀与服务器发过来的版本是否一致，不一致就删掉下载的内容
+        // 遍历Tmp文件夹下的.exe档，并检查它们的版本
+
+        for (auto const& dir_entry : std::filesystem::recursive_directory_iterator{ m_pRootPath })
+        {
+            std::string strExtent = dir_entry.path().extension().string();
+            if ( dir_entry.path().has_extension() && (strExtent == ".exe" || strExtent == ".dll") )
+            {
+                std::string flag("_v_");
+                std::string filestem = dir_entry.path().stem().string();
+
+                std::string ver = filestem.substr(filestem.size() - 6, 6);
+
+                if (!ver.empty() && ver != m_new_client_ver)
+                {
+                    Log(LogLevel::ERR, "非法的版本程序，更新已暂停！");
+                    //删除整个文件夹
+                    std::filesystem::remove_all(m_pRootPath);
+                    return;
+                }
+            }
+        }
+        
+        // 重命名当前当前目录下的所有exe和dll
+        for (auto const& dir_entry : std::filesystem::recursive_directory_iterator{ std::filesystem::current_path() })
+        {
+            std::filesystem::path path = dir_entry.path();
+            std::string strExtent = path.extension().string();
+            if (path.has_extension() && (strExtent == ".exe" || strExtent == ".dll"))
+            {
+                std::string stem = path.stem().string();
+                stem.append("_old");
+                std::filesystem::path path_after = (std::filesystem::current_path() / stem).string() + strExtent;
+
+                std::filesystem::rename(path, path_after);
+            }
+        }
+
+        // Tmp目录下的文件，拷贝到当前运行目录下
+        for (auto const& dir_entry : std::filesystem::recursive_directory_iterator{ m_pRootPath })
+        {
+            std::filesystem::path curPath = dir_entry.path();
+            std::string strExtent = path.extension().string();
+            if ( !std::filesystem::is_directory(curPath) )
+            {
+                std::filesystem::path path = std::filesystem::current_path() / curPath.filename();
+
+                if ( strExtent == ".exe" || strExtent == ".dll" )
+                {
+                    //直接拷贝
+                    std::filesystem::copy_file(curPath, path);
+                }
+                else
+                {
+                    //删掉已有的，再拷贝
+                    std::filesystem::remove(path);
+                    std::filesystem::copy_file(curPath, path);
+                }
+            }      
+        }
+        std::filesystem::remove_all(m_pRootPath);
+        
+        // 启动新版程序
         STARTUPINFO si;
         PROCESS_INFORMATION pi;
 
@@ -361,32 +366,45 @@ namespace RzLib
         si.cb = sizeof(si);
         ZeroMemory(&pi, sizeof(pi));
 
+        std::string sClient = "RzClient_" + m_new_client_ver;
+
+        std::filesystem::path clientPath = std::filesystem::current_path() / sClient;
+
         // Start the child process. 
-        if (!CreateProcess(NULL,    // No module name (use command line)
-            (LPSTR)(path.wstring().c_str()),    // Command line
-            NULL,                   // Process handle not inheritable
-            NULL,                   // Thread handle not inheritable
-            FALSE,                  // Set handle inheritance to FALSE
-            0,                      // No creation flags
-            NULL,                   // Use parent's environment block
-            NULL,                   // Use parent's starting directory 
-            &si,                    // Pointer to STARTUPINFO structure
-            &pi)                    // Pointer to PROCESS_INFORMATION structure
+        if (
+            CreateProcess
+            (
+                NULL,
+                (LPWSTR)(clientPath.wstring().c_str()),  // No module name (use command line)                                                          // Command line
+                NULL,                              // Process handle not inheritable
+                NULL,                              // Thread handle not inheritable
+                FALSE,                             // Set handle inheritance to FALSE
+                0,                                 // No creation flags
+                NULL,                              // Use parent's environment block
+                NULL,                              // Use parent's starting directory 
+                &si,                               // Pointer to STARTUPINFO structure
+                &pi)                               // Pointer to PROCESS_INFORMATION structure
             )
         {
-            Log(LogLevel::ERR, "CreateProcess failed, error code : ", GetLastError());
+            Log(LogLevel::INFO, "CreateProcess success!");
+            CloseHandle(pi.hProcess);
+            CloseHandle(pi.hThread);
+
+            StopClient();
+
+            std::filesystem::path p = std::filesystem::current_path() / "Client.ini";
+
+            std::string str("[ver]\n" + m_new_client_ver.substr(2,4));
+            if (std::filesystem::exists(p))
+            {
+                std::ofstream of(p.string(), std::ofstream::out);
+
+                of << str;
+                of.flush();
+                of.close();
+            }
             return;
         }
-
-        Log(LogLevel::INFO, "CreateProcess success!");
-
-        // Wait until child process exits.
-        //WaitForSingleObject(pi.hProcess, INFINITE);
-
-        // Close process and thread handles. 
-        CloseHandle(pi.hProcess);
-        CloseHandle(pi.hThread);
-
-        StopClient();
+        Log(LogLevel::ERR, "CreateProcess failed, error code : ", GetLastError());     
     }
 }

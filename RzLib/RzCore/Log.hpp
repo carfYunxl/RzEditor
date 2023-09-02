@@ -6,6 +6,7 @@
 #define FMT_HEADER_ONLY
 
 #include "FmtLayer.hpp"
+#include "RzUtility/Utility.hpp"
 
 namespace RzLib
 {
@@ -52,6 +53,8 @@ namespace RzLib
         }
 
         (std::cout << ... << AddSeperator<Args,' '>(args)) << std::endl;
+
+        Utility::PrintConsoleHeader();
     }
 
     template<typename LogLevel>

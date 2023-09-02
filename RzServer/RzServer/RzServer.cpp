@@ -250,7 +250,7 @@ namespace RzLib
 				}
 			}
 
-			Utility::PrintConsoleHeader();
+			//Utility::PrintConsoleHeader();
 		}
 
 		return true;

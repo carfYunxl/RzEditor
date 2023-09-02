@@ -40,8 +40,6 @@ namespace RzLib
 			int fileSize = 0;
 			if (!m_SecInfo.empty())
 				fileSize = stoi(m_SecInfo);
-
-			m_Client->RecvExe(fileSize, m_message);
 		}
 		else
 		{
@@ -57,8 +55,6 @@ namespace RzLib
 				{
 					filepath = filepath.substr(idx + 2, filepath.size() - idx - 2);
 				}
-
-				m_Client->RecvFile(fileSize, filepath);
 			}
 			else
 			{

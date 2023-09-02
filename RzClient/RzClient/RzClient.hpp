@@ -34,14 +34,12 @@ namespace RzLib
         bool Init();
         bool Connect();
 
-        bool RecvFile(size_t fileSize, const std::string& filepath);
-
-        bool RecvExe(size_t fileSize, const std::string& filepath);
-
         bool UpdateClient();
 
         void Update(bool update) { m_updated = update; }
         bool IsUpdating() { return m_updated; }
+
+        const std::string GetClientVer() const { return m_new_client_ver; }
 
     private:
         void CreateDir(const std::string& dirName);
@@ -58,9 +56,9 @@ namespace RzLib
         bool                    m_updated;
 
         std::filesystem::path   m_pCurPath;
-        std::filesystem::path   m_pRootPath;
+        std::filesystem::path   m_pRootPath;    //exeËùÔÚÄ¿Â¼
         std::string             m_fCurContent;
-        size_t                  m_client_version;
         bool                    m_Running{true};
+        std::string             m_new_client_ver;
     };
 }
