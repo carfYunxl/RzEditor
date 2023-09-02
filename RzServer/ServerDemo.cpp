@@ -8,7 +8,7 @@ int main()
     RzLib::Utility::EnSTDOutputColor();
     RzLib::Utility::ChangeConsoleFont(L"Consolas");
 
-    RzLib::RzServer server("127.0.0.1",8080);
+    RzLib::RzServer server("192.168.2.5",8080);
 
     if (!server.Init())
     {
