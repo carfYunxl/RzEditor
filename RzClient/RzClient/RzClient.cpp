@@ -77,6 +77,8 @@ namespace RzLib
 
         Log(LogLevel::INFO, "Connect to server success!");
 
+        Utility::PrintConsoleHeader();
+
         Recv();
         Send();
 
@@ -104,7 +106,7 @@ namespace RzLib
         // 再以msg的长度来获取msg的资料
         sCh.clear();
         sCh.resize(size);
-        if (recv(m_socket, (char*)&sCh[0], size, 0) == SOCKET_ERROR)
+        if (recv(m_socket, (char*)&sCh[0], static_cast<int>(size), 0) == SOCKET_ERROR)
         {
             Log(LogLevel::ERR, "Recv from server error, error code : ", WSAGetLastError());
             return {};
@@ -123,24 +125,11 @@ namespace RzLib
             while (1)
             {
                 auto packet = ReadPacket();
-#if 0
-                int msgSize = packet.second.size();
-                printf("[CMD] : %02X\n", static_cast<int>(packet.first));
-                printf("[SIZE] : %02X\n", static_cast<int>(msgSize));
-
-                for (size_t i = 0; i < msgSize; ++i)
-                {
-                    if (i != 0 && i % 16 == 0)
-                    {
-                        printf("\n");
-                    }
-                    printf("%02X ", static_cast<unsigned char>(packet.second[i]));
-                }
-#endif
                 switch (packet.first)
                 {
                     case TCP_CMD::NORMAL:
                     {
+                        std::cout << "\n";
                         Log(LogLevel::INFO, "server say : ", packet.second);
                         Utility::PrintConsoleHeader();
                         std::cout << std::endl;
@@ -148,17 +137,16 @@ namespace RzLib
                     }
                     case TCP_CMD::VERSION:
                     {
-                        std::cout << std::endl;
-                        Log(LogLevel::INFO, "server send newest client version to me : ", packet.second);
-                        size_t newVer = (packet.second[1] << 8) | packet.second[0];
-                        m_client_version = newVer;
-                        if (newVer != CLIENT_VERSION)
+                        char str[8]{0};
+                        sprintf_s(str, 8, "%02x%02x", packet.second[1], packet.second[0]);
+                        std::string strVer(str);
+                        strVer.insert(0,"v_");
+
+                        if (strVer != CLIENT_VERSION)
                         {
-                            Log(LogLevel::WARN, "new Client now avaliable, update now ?[y/n]");
+                            Log(LogLevel::INFO, "客户端发现新版本 : ", strVer, ", 要更新吗?[y/n]");
                             char chIn;
                             bool update = false;
-
-                            std::cout << std::endl;
 
                             std::cin >> chIn;
 
@@ -167,8 +155,8 @@ namespace RzLib
                                 UpdateClient();
                             }
                         }
+
                         Utility::PrintConsoleHeader();
-                        std::cout << std::endl;
                         break;
                     }
                     case TCP_CMD::UPDATE_START:
@@ -181,53 +169,42 @@ namespace RzLib
                     {
                         m_pCurPath.clear();
 
-                        Log(LogLevel::ERR, "server say : ", packet.second);
-
                         m_pCurPath = m_pRootPath / packet.second;
 
                         if (!m_pCurPath.has_extension())
                         {
                             //是目录
                             std::filesystem::create_directory(m_pCurPath);
-                            Log(LogLevel::WARN, "接收到目录 ： ", m_pCurPath);
+                            Log(LogLevel::INFO, "接收到目录 ： ", m_pCurPath);
                         }
                         else
                         {
                             m_fCurContent.clear();
-                            Log(LogLevel::WARN, "接收到文件 ： ", m_pCurPath);
+                            Log(LogLevel::INFO, "接收到文件 ： ", m_pCurPath);
                         }
                         Utility::PrintConsoleHeader();
-                        std::cout << std::endl;
                         break;
                     }
                     case TCP_CMD::FILE_PACKET:
                     {
                         m_fCurContent.append(packet.second);
-                        Log(LogLevel::WARN, "//================== 接收文件总大小 = ", m_fCurContent.size());
+                        Log(LogLevel::INFO, "//================== 接收文件总大小 = ", m_fCurContent.size());
 
                         Log(LogLevel::WARN, packet.second.size());
-                        Utility::PrintConsoleHeader();
-                        std::cout << std::endl;
                         break;
                     }
                     case TCP_CMD::File_TAIL:
                     {
-                        Log(LogLevel::WARN, "接收到文件包尾, 写入文件：");
+                        Log(LogLevel::INFO, "接收到文件包尾, 写入文件：");
 
                         std::ofstream out(m_pCurPath, std::ios::binary);
                         if (!out.is_open())
-                        {
                             continue;
-                        }
-
                         out.write(m_fCurContent.c_str(), m_fCurContent.size());
                         out.flush();
                         out.close();
 
                         m_fCurContent.clear();
-                        Utility::PrintConsoleHeader();
-                        std::cout << std::endl;
-
                         break;
                     }
                     case TCP_CMD::UPDATE_FIN:
@@ -239,6 +216,9 @@ namespace RzLib
                         // 再重新启动客户端
                         std::filesystem::path path = std::filesystem::current_path() / "Update.exe";
                         Update(path);
+
+                        Log(LogLevel::INFO, "客户端更新结束！");
+                        Utility::PrintConsoleHeader();
                         break;
                     }
                 }
@@ -255,8 +235,6 @@ namespace RzLib
 
         while (m_Running)
         {
-            Utility::PrintConsoleHeader();
-
             std::cin.getline(&readBuf[0], 64);
 
             if (readBuf.empty())
@@ -282,6 +260,8 @@ namespace RzLib
             }
 
             memset(&readBuf[0], 0, 64);
+
+            Utility::PrintConsoleHeader();
         }
 
         return true;

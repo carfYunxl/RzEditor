@@ -15,7 +15,7 @@ namespace RzLib
 {
     constexpr size_t MAX_TCP_PACKAGE_SIZE = 1450;
 
-    constexpr size_t CLIENT_VERSION = 0x1001;
+    const std::string CLIENT_VERSION = "1001";
 
     class RzClient
     {
