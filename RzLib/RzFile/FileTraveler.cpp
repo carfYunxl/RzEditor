@@ -53,7 +53,7 @@ namespace RzLib
 
         std::ifstream inf;
         if(mode == Mode::Binary)
-            inf.open(m_filepath, std::ofstream::binary);
+            inf.open(m_filepath, std::fstream::in | std::ofstream::binary);
         else
             inf.open(m_filepath, std::fstream::in);
         if (!inf.is_open())

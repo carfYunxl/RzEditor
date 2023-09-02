@@ -31,8 +31,8 @@ namespace RzLib
         {
             m_vecSections.emplace_back(cache_str.substr(left, right-left+1));
 
-            left = cache_str.find("[");
-            right = cache_str.find("]");
+            left = cache_str.find("[", right);
+            right = cache_str.find("]", left);
         }
     }
 

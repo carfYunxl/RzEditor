@@ -8,6 +8,7 @@
 #include <memory>
 #include "RzUtility/utility.hpp"
 #include <windows.h>
+#include "Extern/simpleini/SimpleIni.h"
 
 namespace RzLib
 {
@@ -15,16 +16,12 @@ namespace RzLib
         : m_serverIp(server_ip)
         , m_serverPort(server_port)
         , m_socket(INVALID_SOCKET)
-        , m_updated{false}
-        , m_new_client_ver{ CLIENT_VERSION }
     {
     }
     RzClient::RzClient(std::string&& server_ip, uint32_t&& server_port)
         : m_serverIp(std::move(server_ip))
         , m_serverPort(std::move(server_port))
         , m_socket(INVALID_SOCKET)
-        , m_updated{ false }
-        , m_new_client_ver{ CLIENT_VERSION }
     {
     }
 
@@ -140,12 +137,11 @@ namespace RzLib
                         char str[8]{0};
                         sprintf_s(str, 8, "%02x%02x", packet.second[1], packet.second[0]);
                         std::string strVer(str);
-                        strVer.insert(0,"v_");
 
-                        m_new_client_ver = strVer;
-
-                        if (strVer != CLIENT_VERSION)
+                        if ( strVer != m_iniInfo.client_ver )
                         {
+                            m_iniInfo.client_ver = strVer;
+
                             Log(LogLevel::INFO, "客户端发现新版本 : ", strVer, ", 要更新吗?[y/n]");
                             char chIn;
                             bool update = false;
@@ -190,9 +186,9 @@ namespace RzLib
                     case TCP_CMD::FILE_PACKET:
                     {
                         m_fCurContent.append(packet.second);
-                        Log(LogLevel::INFO, "//================== 接收文件总大小 = ", m_fCurContent.size());
+                        //Log(LogLevel::INFO, "//================== 接收文件总大小 = ", m_fCurContent.size());
 
-                        Log(LogLevel::WARN, packet.second.size());
+                        //Log(LogLevel::WARN, packet.second.size());
                         break;
                     }
                     case TCP_CMD::File_TAIL:
@@ -245,7 +241,7 @@ namespace RzLib
 
             if (memcmp(&readBuf[0],"exit",4) == 0)
             {
-                break;
+                StopClient();
             }
 
             size_t len = strlen(readBuf.c_str());
@@ -304,12 +300,15 @@ namespace RzLib
             std::string strExtent = dir_entry.path().extension().string();
             if ( dir_entry.path().has_extension() && (strExtent == ".exe" || strExtent == ".dll") )
             {
-                std::string flag("_v_");
                 std::string filestem = dir_entry.path().stem().string();
 
-                std::string ver = filestem.substr(filestem.size() - 6, 6);
+                std::string ver = filestem.substr(filestem.size() - 4, 4);
 
-                if (!ver.empty() && ver != m_new_client_ver)
+                Log(LogLevel::INFO, "client ver = ", ver);
+
+                Log(LogLevel::INFO, "server client ver = ", m_iniInfo.client_ver);
+
+                if (!ver.empty() && ver != m_iniInfo.client_ver)
                 {
                     Log(LogLevel::ERR, "非法的版本程序，更新已暂停！");
                     //删除整个文件夹
@@ -338,7 +337,7 @@ namespace RzLib
         for (auto const& dir_entry : std::filesystem::recursive_directory_iterator{ m_pRootPath })
         {
             std::filesystem::path curPath = dir_entry.path();
-            std::string strExtent = path.extension().string();
+            std::string strExtent = curPath.extension().string();
             if ( !std::filesystem::is_directory(curPath) )
             {
                 std::filesystem::path path = std::filesystem::current_path() / curPath.filename();
@@ -366,16 +365,19 @@ namespace RzLib
         si.cb = sizeof(si);
         ZeroMemory(&pi, sizeof(pi));
 
-        std::string sClient = "RzClient_" + m_new_client_ver;
+        std::string sClient = "RzClient_" + m_iniInfo.client_ver + ".exe";
 
         std::filesystem::path clientPath = std::filesystem::current_path() / sClient;
+        std::filesystem::path newClientPath = std::filesystem::current_path() / "RzClient.exe";
+
+        std::filesystem::rename(clientPath, newClientPath);
 
         // Start the child process. 
         if (
             CreateProcess
             (
                 NULL,
-                (LPWSTR)(clientPath.wstring().c_str()),  // No module name (use command line)                                                          // Command line
+                (LPWSTR)(newClientPath.wstring().c_str()),  // No module name (use command line)                                                          // Command line
                 NULL,                              // Process handle not inheritable
                 NULL,                              // Thread handle not inheritable
                 FALSE,                             // Set handle inheritance to FALSE
@@ -392,19 +394,40 @@ namespace RzLib
 
             StopClient();
 
-            std::filesystem::path p = std::filesystem::current_path() / "Client.ini";
-
-            std::string str("[ver]\n" + m_new_client_ver.substr(2,4));
-            if (std::filesystem::exists(p))
-            {
-                std::ofstream of(p.string(), std::ofstream::out);
-
-                of << str;
-                of.flush();
-                of.close();
-            }
+            SaveIni();
             return;
         }
         Log(LogLevel::ERR, "CreateProcess failed, error code : ", GetLastError());     
+    }
+
+    // 加载ini的配置信息
+    void RzClient::LoadIni()
+    {
+        std::filesystem::path ini_path = std::filesystem::current_path() / "Client.ini";
+
+        CSimpleIniA ini;
+        SI_Error rc = ini.LoadFile(ini_path.string().c_str());
+        if (rc < 0) {
+            RzLib::Log(RzLib::LogLevel::ERR, "open ini file failed : ", ini_path.string());
+        };
+
+        const char* pv = ini.GetValue("Normal", "client_ver");
+        m_iniInfo.client_ver = pv;
+    }
+
+    void RzClient::SaveIni()
+    {
+        std::filesystem::path ini_path = std::filesystem::current_path() / "Client.ini";
+
+        CSimpleIniA ini;
+        SI_Error rc = ini.LoadFile(ini_path.string().c_str());
+        if (rc < 0) {
+            RzLib::Log(RzLib::LogLevel::ERR, "open ini file failed : ", ini_path.string());
+        };
+
+        rc = ini.SetValue("Normal", "client_ver", m_iniInfo.client_ver.c_str());
+        if (rc < 0) {
+            RzLib::Log(RzLib::LogLevel::ERR, "set ini value failed : ", ini_path.string());
+        };
     }
 }

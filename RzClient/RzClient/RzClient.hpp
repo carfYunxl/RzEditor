@@ -15,7 +15,10 @@ namespace RzLib
 {
     constexpr size_t MAX_TCP_PACKAGE_SIZE = 1450;
 
-    const std::string CLIENT_VERSION = "1001";
+    struct IniInfo
+    {
+        std::string client_ver;
+    };
 
     class RzClient
     {
@@ -26,7 +29,6 @@ namespace RzLib
         ~RzClient();
 
         const SOCKET GetSocket() const { return m_socket; }
-        const std::string GetVersion() const { return m_Version; }
 
         bool Recv();
         bool Send();
@@ -36,10 +38,10 @@ namespace RzLib
 
         bool UpdateClient();
 
-        void Update(bool update) { m_updated = update; }
-        bool IsUpdating() { return m_updated; }
+        const std::string GetClientVer() const { return m_iniInfo.client_ver; }
 
-        const std::string GetClientVer() const { return m_new_client_ver; }
+        void LoadIni();
+        void SaveIni();
 
     private:
         void CreateDir(const std::string& dirName);
@@ -52,13 +54,12 @@ namespace RzLib
         uint32_t                m_serverPort;
         SOCKET                  m_socket;
 
-        std::string             m_Version;
-        bool                    m_updated;
-
         std::filesystem::path   m_pCurPath;
         std::filesystem::path   m_pRootPath;    //exeËùÔÚÄ¿Â¼
         std::string             m_fCurContent;
+
         bool                    m_Running{true};
-        std::string             m_new_client_ver;
+
+        IniInfo                 m_iniInfo;
     };
 }

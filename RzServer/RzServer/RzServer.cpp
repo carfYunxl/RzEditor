@@ -387,7 +387,7 @@ namespace RzLib
 			index += sSize;
 			size -= sSize;
 
-			Log(LogLevel::INFO, "send file success, total = ", index);
+			//Log(LogLevel::INFO, "send file success, total = ", index);
 			strSend.clear();
 		}
 
