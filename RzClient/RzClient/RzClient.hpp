@@ -58,7 +58,7 @@ namespace RzLib
         std::filesystem::path   m_pRootPath;    //exeËùÔÚÄ¿Â¼
         std::string             m_fCurContent;
 
-        bool                    m_Running{true};
+        bool                    m_Running{ true };
 
         IniInfo                 m_iniInfo;
     };

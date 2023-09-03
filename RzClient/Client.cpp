@@ -11,13 +11,6 @@ int main()
     RzLib::Utility::EnSTDOutputColor();
     RzLib::Utility::ChangeConsoleFont(L"Consolas");
 
-    RzLib::Log(RzLib::LogLevel::INFO, "new client v_1008");
-    RzLib::Log(RzLib::LogLevel::INFO, "new client v_1008");
-    RzLib::Log(RzLib::LogLevel::INFO, "new client v_1008");
-    RzLib::Log(RzLib::LogLevel::INFO, "new client v_1008");
-
-    Sleep(2000000);
-
     //检查当前目录下是否含有_old的exe和dll档案，有的话就直接删除
     {
         RzLib::ScopeThread thread(std::thread([]() {

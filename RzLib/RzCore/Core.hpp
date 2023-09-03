@@ -51,3 +51,14 @@ enum class CMDType
     TRANSFER,
 };
 
+#include <vector>
+#include <string>
+
+static const std::vector<std::string> g_FunCMD
+{
+    "exit",
+    "client",
+    "version",
+    "ls"
+};
+

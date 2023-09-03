@@ -63,11 +63,11 @@ namespace RzLib
             int ret = WSAGetLastError();
             if (ret == WSAECONNREFUSED)
             {
-                Log(LogLevel::ERR, " erver refused connect request! ");
+                Log(LogLevel::ERR, " server refused connect request! ");
             }
             else
             {
-                Log(LogLevel::ERR, "Connect error, error code : ", WSAGetLastError());
+                Log(LogLevel::ERR, " Connect error, error code : ", WSAGetLastError());
             }
             return false;
         }
@@ -242,6 +242,7 @@ namespace RzLib
             if (memcmp(&readBuf[0],"exit",4) == 0)
             {
                 StopClient();
+                break;
             }
 
             size_t len = strlen(readBuf.c_str());
@@ -257,8 +258,6 @@ namespace RzLib
             }
 
             memset(&readBuf[0], 0, 64);
-
-           // Utility::PrintConsoleHeader();
         }
 
         return true;
@@ -411,7 +410,9 @@ namespace RzLib
             RzLib::Log(RzLib::LogLevel::ERR, "open ini file failed : ", ini_path.string());
         };
 
+        // if more ini section-key-value, update here
         const char* pv = ini.GetValue("Normal", "client_ver");
+
         m_iniInfo.client_ver = pv;
     }
 
@@ -426,6 +427,7 @@ namespace RzLib
         };
 
         rc = ini.SetValue("Normal", "client_ver", m_iniInfo.client_ver.c_str());
+        // if more ini section-key-value, update here
         if (rc < 0) {
             RzLib::Log(RzLib::LogLevel::ERR, "set ini value failed : ", ini_path.string());
         };

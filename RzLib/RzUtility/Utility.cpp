@@ -2,8 +2,6 @@
 #include "RzUtility/Utility.hpp"
 #include "RzCore/Log.hpp"
 #include "RzCore/Core.hpp"
-#include <windows.h>
-#include <atlconv.h>
 
 namespace RzLib
 {

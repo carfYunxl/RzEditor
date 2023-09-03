@@ -13,8 +13,9 @@
 
 #include <string>
 #include <winsock2.h>
-
-class RzServer;
+#include "RzCore/Core.hpp"
+#include "RzServer/RzServer.hpp"
+#include "RzCore/Log.hpp"
 
 namespace RzLib
 {
@@ -31,29 +32,69 @@ namespace RzLib
         RzServer*       m_Server;
     };
 
-    /** exit, client, version ... not used for transfer information */
-    class FuncCMD : public CMD
+    class SendCMD : public CMD
     {
     public:
-        FuncCMD(CONSOLE_CMD cmd, RzServer* server);
+        SendCMD(CONSOLE_CMD cmd, RzServer* server, SOCKET socket, const std::string& msg)
+            : CMD(cmd, server)
+            , m_socket(socket)
+            , m_message(msg)
+        {}
+        virtual ~SendCMD() = default;
+        virtual void Run() override
+        {
+            if (std::filesystem::exists(m_message))
+            {
+                m_Server->SendFileToClient(m_socket, m_message);
+            }
+            else
+            {
+                // 不是路径就是一条信息
+                size_t size = m_message.size();
+                std::string strSend{
+                    static_cast<char>(0xF1),
+                    static_cast<char>(size & 0xFF),
+                    static_cast<char>((size >> 8) & 0xFF)
+                };
+                strSend += m_message;
 
-        virtual ~FuncCMD() {}
+                if (SOCKET_ERROR == send(m_socket, strSend.c_str(), static_cast<int>(strSend.size()), 0))
+                {
+                    Log(LogLevel::ERR, "send info to client error!");
+                }
+            }
+        }
 
-        virtual void Run() override;
-    };
-
-    /** used for transfor information  */
-    class TransferCMD : public CMD
-    {
-    public:
-        TransferCMD(CONSOLE_CMD cmd, RzServer* server, SOCKET socket, const std::string& msg);
-
-        virtual ~TransferCMD() {}
-
-        virtual void Run() override;
-
-    protected:
+    private:
         SOCKET          m_socket;
         std::string     m_message;
+    };
+
+    struct ExitCMD : public CMD
+    {
+        ExitCMD(CONSOLE_CMD cmd, RzServer* server) : CMD(cmd,server) {}
+        virtual void Run() override
+        {
+            m_Server->StopServer();
+            Log(LogLevel::INFO, "server is closed!");
+        }
+    };
+
+    struct ClientCMD : public CMD
+    {
+        ClientCMD(CONSOLE_CMD cmd, RzServer* server) : CMD(cmd, server) {}
+        virtual void Run() override
+        {
+            m_Server->ListClient();
+        }
+    };
+
+    struct VersionCMD : public CMD
+    {
+        VersionCMD(CONSOLE_CMD cmd, RzServer* server) : CMD(cmd, server) {}
+        virtual void Run() override
+        {
+            // ... TODO
+        }
     };
 }

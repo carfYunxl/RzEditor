@@ -1,9 +1,5 @@
 #include "pch.h"
 #include "RzCore/Log.hpp"
-#include <ws2tcpip.h>
-#include <thread>
-#include <filesystem>
-#include <fstream>
 #include "RzServer/RzServer.hpp"
 #include "RzCMD/Communication.h"
 #include "RzCMD/CMD.hpp"
@@ -93,7 +89,7 @@ namespace RzLib
 		{
 			ConsoleCMDParser parser;
 			char readBuf[128]{0};
-			while (1)
+			while ( 1 )
 			{
 				Utility::PrintConsoleHeader();
 				std::cin.getline( readBuf, 128 );
@@ -102,10 +98,11 @@ namespace RzLib
 
 				parser.SetCMD(readBuf);
 
-				std::unique_ptr<CMD> pCMD = GenCmd(&parser);
+				// 这里根据parser拿到的FunCMD/TransCMD来实例化对应的CMD
+				auto pCMD = parser.GenCmd(this);
 
 				if (pCMD)
-					pCMD->Run();
+					parser.RunCmd(pCMD.get());
 				else
 					Log(LogLevel::ERR, "unknown command!\n");
 
@@ -426,21 +423,6 @@ namespace RzLib
 		}
 
 		return true;
-	}
-
-	std::unique_ptr<CMD> RzServer::GenCmd(const ConsoleCMDParser* parser)
-	{
-		switch (parser->GetCmdType())
-		{
-			case CMDType::FUNC:
-				return std::make_unique<FuncCMD>(parser->GetCMD(), this);
-			case CMDType::TRANSFER:
-				return std::make_unique<TransferCMD>(parser->GetCMD(), this, parser->GetSocket(), parser->GetMsg());
-			case CMDType::NONE:
-				return nullptr;
-		}
-
-		return nullptr;
 	}
 
 	bool RzServer::IsClientSocket(size_t nSocket)
