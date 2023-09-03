@@ -62,3 +62,9 @@ static const std::vector<std::string> g_FunCMD
     "ls"
 };
 
+static const std::vector<unsigned char> g_ClientCMD
+{
+    0xF1,
+    0xF3
+};
+

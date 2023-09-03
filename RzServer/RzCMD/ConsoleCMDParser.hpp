@@ -33,13 +33,8 @@ namespace RzLib
 
         void SetCMD(const std::string& CMD, char SPLIT = ' ');
 
-        std::unique_ptr<CMD> GenCmd(RzServer* server);
+        void RunCmd(RzServer* server);
 
-        template<typename TYPECMD>
-        void RunCmd(TYPECMD pCMD)
-        {
-            pCMD->Run();
-        }
     private:
         void Parser(const std::string& CMD, char SPLIT = ' ');
         const bool IsCmd(const std::string& sCmd);

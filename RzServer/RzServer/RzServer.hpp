@@ -29,7 +29,6 @@ namespace RzLib
         void ListClient();
         int  GetPort(SOCKET socket);
 
-        bool SendFileToClient(SOCKET socket, const std::string& path);
         bool SendClientVersion(SOCKET socket);
 
         bool IsClientSocket(size_t nSocket);

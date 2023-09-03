@@ -19,6 +19,7 @@
 
 namespace RzLib
 {
+    //=== Console Imput Class ========================================================
     class CMD
     {
     public:
@@ -45,7 +46,7 @@ namespace RzLib
         {
             if (std::filesystem::exists(m_message))
             {
-                m_Server->SendFileToClient(m_socket, m_message);
+                //m_Server->SendFileToClient(m_socket, m_message);
             }
             else
             {

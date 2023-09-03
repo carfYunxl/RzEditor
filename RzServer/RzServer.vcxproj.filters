@@ -24,7 +24,7 @@
     <ClCompile Include="RzCMD\ConsoleCMDParser.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="RzCMD\Communication.cpp">
+    <ClCompile Include="RzCMD\TcpCmdParser.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="RzCMD\CMD.cpp">
@@ -38,7 +38,7 @@
     <ClInclude Include="RzCMD\ConsoleCMDParser.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="RzCMD\Communication.h">
+    <ClInclude Include="RzCMD\TcpCmdParser.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="RzCMD\CMD.hpp">

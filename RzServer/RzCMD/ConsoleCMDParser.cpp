@@ -139,21 +139,26 @@ namespace RzLib
 		return tCMD.ends_with(':') && Utility::IsAllDigits(tCMD.substr(0, tCMD.size() - 1));
 	}
 
-	std::unique_ptr<CMD> ConsoleCMDParser::GenCmd(RzServer* server)
+	void ConsoleCMDParser::RunCmd(RzServer* server)
 	{
+		std::unique_ptr<CMD> pCmd;
 		switch (m_CMD)
 		{
 		case CONSOLE_CMD::SEND:
-			return std::make_unique<SendCMD>(m_CMD, server, m_socket, m_message);
+			pCmd = std::make_unique<SendCMD>(m_CMD, server, m_socket, m_message);
 		case CONSOLE_CMD::EXIT:
-			return std::make_unique<ExitCMD>(m_CMD, server);
+			pCmd = std::make_unique<ExitCMD>(m_CMD, server);
 		case CONSOLE_CMD::CLIENT:
-			return std::make_unique<ClientCMD>(m_CMD, server);
+			pCmd = std::make_unique<ClientCMD>(m_CMD, server);
 		case CONSOLE_CMD::VERSION:
-			return std::make_unique<VersionCMD>(m_CMD, server);
+			pCmd = std::make_unique<VersionCMD>(m_CMD, server);
 		case CONSOLE_CMD::UNKNOWN:
-			return nullptr;
+			pCmd = nullptr;
 		}
-		return nullptr;
+		
+		if (pCmd)
+			pCmd->Run();
+		else
+			Log(LogLevel::ERR, "unknown command!\n");
 	}
 }
