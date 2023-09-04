@@ -12,6 +12,7 @@ int main()
     RzLib::Utility::ChangeConsoleFont(L"Consolas");
 
     //检查当前目录下是否含有_old的exe和dll档案，有的话就直接删除
+#if 0
     {
         RzLib::ScopeThread thread(std::thread([]() {
             RzLib::Log(RzLib::LogLevel::ERR, "delete old exe and dll file ......");
@@ -39,6 +40,7 @@ int main()
             }
         }));
     }
+#endif
 
     RzLib::RzClient client("127.0.0.1", 8080);
 

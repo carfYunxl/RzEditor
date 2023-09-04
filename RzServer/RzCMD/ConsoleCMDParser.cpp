@@ -146,14 +146,19 @@ namespace RzLib
 		{
 		case CONSOLE_CMD::SEND:
 			pCmd = std::make_unique<SendCMD>(m_CMD, server, m_socket, m_message);
+			break;
 		case CONSOLE_CMD::EXIT:
 			pCmd = std::make_unique<ExitCMD>(m_CMD, server);
+			break;
 		case CONSOLE_CMD::CLIENT:
 			pCmd = std::make_unique<ClientCMD>(m_CMD, server);
+			break;
 		case CONSOLE_CMD::VERSION:
 			pCmd = std::make_unique<VersionCMD>(m_CMD, server);
+			break;
 		case CONSOLE_CMD::UNKNOWN:
 			pCmd = nullptr;
+			break;
 		}
 		
 		if (pCmd)

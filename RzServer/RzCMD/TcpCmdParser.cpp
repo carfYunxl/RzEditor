@@ -44,82 +44,82 @@ namespace RzLib
 	{
 		switch (m_Cmd)
 		{
-		case 0xF1:
-			Log(LogLevel::INFO, "Client ", socket, " Say:", m_msg, "\n");
-			break;
+			case 0xF1:
+				Log(LogLevel::INFO, "Client ", m_socket, " Say:", m_msg, "\n");
+				break;
 
-		case 0xF3:
-		{
-			Log(LogLevel::INFO, "files in binClient : ");
-			// 找到binClient的目录， 服务器需要在此处放置最新的客户端文件
-			std::filesystem::path binPath = std::filesystem::current_path();
-			binPath /= "binClient";
-			if (!std::filesystem::exists(binPath))
+			case 0xF3:
 			{
-				Log(LogLevel::ERR, "directory ", binPath, " not exist, please check!");
-				return;
-			}
-
-			//遍历该目录
-			std::string buffer{
-				static_cast<char>(0xF4),
-				static_cast<char>(0x00),
-				static_cast<char>(0x00)
-			};
-			if (send(m_socket, buffer.c_str(), static_cast<int>(buffer.size()), 0) == SOCKET_ERROR)
-			{
-				Log(LogLevel::ERR, "Send update start error!");
-			}
-
-			for (auto const& dir_entry : std::filesystem::recursive_directory_iterator{ binPath })
-			{
-				std::string path = dir_entry.path().filename().string();
-				std::filesystem::path fPath = dir_entry.path().parent_path();
-				while (fPath != binPath)
+				Log(LogLevel::INFO, "files in binClient : ");
+				// 找到binClient的目录， 服务器需要在此处放置最新的客户端文件
+				std::filesystem::path binPath = std::filesystem::current_path();
+				binPath /= "binClient";
+				if (!std::filesystem::exists(binPath))
 				{
-					path.insert(0, fPath.filename().string() + "\\");
-					fPath = fPath.parent_path();
+					Log(LogLevel::ERR, "directory ", binPath, " not exist, please check!");
+					return;
 				}
-				//发送文件头
-				buffer = {
-				static_cast<char>(0xF5),
-				static_cast<char>(path.size() & 0xFF),
-				static_cast<char>((path.size() >> 8) & 0xFF)
-				};
 
-				//发送的是目录名或者文件名
-				buffer += path;
+				//遍历该目录
+				std::string buffer{
+					static_cast<char>(0xF4),
+					static_cast<char>(0x00),
+					static_cast<char>(0x00)
+				};
 				if (send(m_socket, buffer.c_str(), static_cast<int>(buffer.size()), 0) == SOCKET_ERROR)
 				{
-					Log(LogLevel::ERR, "Send file name error!");
+					Log(LogLevel::ERR, "Send update start error!");
 				}
 
-				Log(LogLevel::WARN, "发送文件/名：", path);
-
-				if (dir_entry.path().has_extension())
+				for (auto const& dir_entry : std::filesystem::recursive_directory_iterator{ binPath })
 				{
-					// 发送文件
-					SendFileToClient(dir_entry.path().string());
+					std::string path = dir_entry.path().filename().string();
+					std::filesystem::path fPath = dir_entry.path().parent_path();
+					while (fPath != binPath)
+					{
+						path.insert(0, fPath.filename().string() + "\\");
+						fPath = fPath.parent_path();
+					}
+					//发送文件头
+					buffer = {
+					static_cast<char>(0xF5),
+					static_cast<char>(path.size() & 0xFF),
+					static_cast<char>((path.size() >> 8) & 0xFF)
+					};
+
+					//发送的是目录名或者文件名
+					buffer += path;
+					if (send(m_socket, buffer.c_str(), static_cast<int>(buffer.size()), 0) == SOCKET_ERROR)
+					{
+						Log(LogLevel::ERR, "Send file name error!");
+					}
+
+					Log(LogLevel::WARN, "发送文件/名：", path);
+
+					if (dir_entry.path().has_extension())
+					{
+						// 发送文件
+						SendFileToClient(dir_entry.path().string());
+					}
 				}
+
+				//发送更新结束的标志给客户端
+				buffer = {
+					static_cast<char>(0xF8),
+					static_cast<char>(0x00),
+					static_cast<char>(0x00)
+				};
+				std::cout << "Finish CMD : " << buffer.c_str() << std::endl;
+				std::cout << "buffer size = " << buffer.size() << std::endl;
+				if (SOCKET_ERROR == send(m_socket, buffer.c_str(), static_cast<int>(buffer.size()), 0))
+				{
+					Log(LogLevel::ERR, "Send file end error!");
+				}
+				break;
 			}
 
-			//发送更新结束的标志给客户端
-			buffer = {
-				static_cast<char>(0xF8),
-				static_cast<char>(0x00),
-				static_cast<char>(0x00)
-			};
-			std::cout << "Finish CMD : " << buffer.c_str() << std::endl;
-			std::cout << "buffer size = " << buffer.size() << std::endl;
-			if (SOCKET_ERROR == send(m_socket, buffer.c_str(), static_cast<int>(buffer.size()), 0))
-			{
-				Log(LogLevel::ERR, "Send file end error!");
-			}
-			break;
-		}
-
-		default:
-			break;
+			default:
+				break;
 		}
 	}
 
