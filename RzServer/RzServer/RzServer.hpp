@@ -20,23 +20,20 @@ namespace RzLib
     public:
         RzServer(std::string&& ip, int port);
         ~RzServer();
-        bool Init();
-        bool Listen();
-        bool Accept();
 
+        void Start();
         void StopServer() { m_IsRunning = false; }
-
         void ListClient();
         int  GetPort(SOCKET socket);
-
         bool SendClientVersion(SOCKET socket);
-
         bool IsClientSocket(size_t nSocket);
 
     private:
+        bool Init();
+        bool Listen();
+        bool Accept();
         void HandleServerCMD();
         void HandleClientCMD(SOCKET socket, const char* CMD, int rtLen);
-
         void AcceptClient();
         bool GetClientMsg(SOCKET socket, char* buf, int* rtlen);
     private:

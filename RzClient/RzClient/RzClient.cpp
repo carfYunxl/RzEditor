@@ -432,4 +432,19 @@ namespace RzLib
             RzLib::Log(RzLib::LogLevel::ERR, "set ini value failed : ", ini_path.string());
         };
     }
+
+    void RzClient::Run()
+    {
+        if ( !Init() )
+        {
+            RzLib::Log(RzLib::LogLevel::ERR, "client init error, error code : ", WSAGetLastError());
+            return;
+        }
+
+        if ( !Connect() )
+        {
+            RzLib::Log(RzLib::LogLevel::ERR, "client connect error, error code : ", WSAGetLastError());
+            return;
+        }
+    }
 }

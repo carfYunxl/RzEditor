@@ -46,21 +46,11 @@ int main()
 
     client.LoadIni();
 
+    client.Run();
+
     printf("\n//===========  当前客户端版本 =================//\n");
     printf("RzLibrary Client : %s\n", client.GetClientVer().c_str());
     printf("//============================================//\n");
-
-    if (!client.Init())
-    {
-        RzLib::Log(RzLib::LogLevel::ERR, "client init error, error code : ", WSAGetLastError());
-        return 0;
-    }
-
-    if (!client.Connect())
-    {
-        RzLib::Log(RzLib::LogLevel::ERR, "client connect error, error code : ", WSAGetLastError());
-        return 0;
-    }
 
     return 0;
 }

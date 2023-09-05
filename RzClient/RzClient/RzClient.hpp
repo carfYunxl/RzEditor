@@ -28,13 +28,12 @@ namespace RzLib
 
         ~RzClient();
 
+        void Run();
+
         const SOCKET GetSocket() const { return m_socket; }
 
         bool Recv();
         bool Send();
-
-        bool Init();
-        bool Connect();
 
         bool UpdateClient();
 
@@ -44,6 +43,8 @@ namespace RzLib
         void SaveIni();
 
     private:
+        bool Init();
+        bool Connect();
         void CreateDir(const std::string& dirName);
         void Update(const std::filesystem::path& path);
         void StopClient() { m_Running = false; }
@@ -57,9 +58,7 @@ namespace RzLib
         std::filesystem::path   m_pCurPath;
         std::filesystem::path   m_pRootPath;    //exeËùÔÚÄ¿Â¼
         std::string             m_fCurContent;
-
         bool                    m_Running{ true };
-
         IniInfo                 m_iniInfo;
     };
 }

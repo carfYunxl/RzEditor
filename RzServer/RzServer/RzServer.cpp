@@ -287,4 +287,25 @@ namespace RzLib
 			return pair.first == static_cast<SOCKET>(nSocket);
 		});
 	}
+
+	void RzServer::Start()
+	{
+		if ( !Init() )
+		{
+			RzLib::Log(RzLib::LogLevel::ERR, "server init error, error code : ", WSAGetLastError());
+			return;
+		}
+
+		if ( !Listen() )
+		{
+			RzLib::Log(RzLib::LogLevel::ERR, "server listen error, error code : ", WSAGetLastError());
+			return;
+		}
+
+		if ( !Accept() )
+		{
+			RzLib::Log(RzLib::LogLevel::ERR, "server accept error, error code : ", WSAGetLastError());
+			return;
+		}
+	}
 }
