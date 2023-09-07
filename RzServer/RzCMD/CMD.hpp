@@ -33,37 +33,19 @@ namespace RzLib
         RzServer*       m_Server;
     };
 
-    class SendCMD : public CMD
+    class SelectCMD : public CMD
     {
     public:
-        SendCMD(CONSOLE_CMD cmd, RzServer* server, SOCKET socket, const std::string& msg)
+        SelectCMD(CONSOLE_CMD cmd, RzServer* server, SOCKET socket, const std::string& msg)
             : CMD(cmd, server)
             , m_socket(socket)
             , m_message(msg)
         {}
-        virtual ~SendCMD() = default;
+        virtual ~SelectCMD() = default;
         virtual void Run() override
         {
-            if (std::filesystem::exists(m_message))
-            {
-                //m_Server->SendFileToClient(m_socket, m_message);
-            }
-            else
-            {
-                // 不是路径就是一条信息
-                size_t size = m_message.size();
-                std::string strSend{
-                    static_cast<char>(0xF1),
-                    static_cast<char>(size & 0xFF),
-                    static_cast<char>((size >> 8) & 0xFF)
-                };
-                strSend += m_message;
-
-                if (SOCKET_ERROR == send(m_socket, strSend.c_str(), static_cast<int>(strSend.size()), 0))
-                {
-                    Log(LogLevel::ERR, "send info to client error!");
-                }
-            }
+            m_Server->SetInputMode(InputMode::SEND);
+            m_Server->SelectClient(m_socket);
         }
 
     private:
@@ -77,7 +59,6 @@ namespace RzLib
         virtual void Run() override
         {
             m_Server->StopServer();
-            Log(LogLevel::INFO, "server is closed!");
         }
     };
 
@@ -93,6 +74,24 @@ namespace RzLib
     struct VersionCMD : public CMD
     {
         VersionCMD(CONSOLE_CMD cmd, RzServer* server) : CMD(cmd, server) {}
+        virtual void Run() override
+        {
+            // ... TODO
+        }
+    };
+
+    struct LsCMD : public CMD
+    {
+        LsCMD(CONSOLE_CMD cmd, RzServer* server) : CMD(cmd, server) {}
+        virtual void Run() override
+        {
+            // ... TODO
+        }
+    };
+
+    struct CdCMD : public CMD
+    {
+        CdCMD(CONSOLE_CMD cmd, RzServer* server) : CMD(cmd, server) {}
         virtual void Run() override
         {
             // ... TODO

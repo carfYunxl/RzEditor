@@ -59,102 +59,73 @@ namespace RzLib
 	}
 
 	void ConsoleCMDParser::Parser(const std::string& CMD, char SPLIT)
-	{
+	{	
 		size_t index1 = CMD.find(SPLIT, 0);
 
 		std::string strCmd = CMD.substr(0, index1);
 
-		if ( IsCmd(strCmd) )
+		m_CMD = CMD_Cast(strCmd);
+
+		if (m_CMD == CONSOLE_CMD::UNKNOWN)
 		{
-			if (index1 == std::string::npos)
+			return;
+		}
+
+		// may be here will be more options
+		if (m_CMD == CONSOLE_CMD::SELECT)
+		{
+			std::string strSocket = strCmd.substr(index1 + 1, strCmd.size() - index1 - 1);
+			if (!Utility::IsAllDigits(strSocket))
 			{
-				// FUNC CMD
-				m_cmdType = CMDType::FUNC;
 				return;
 			}
-			else
-			{
-				// TRANSFER CMD
-				m_cmdType = CMDType::TRANSFER;
 
-				m_message = CMD.substr(index1 + 1, CMD.size() - index1 - 1);
+			size_t socket = stoi(strSocket);
+			if (m_Server->IsClientSocket(socket))
+			{
+				m_socket = socket;
 			}
 		}
-		else
-		{
-			m_cmdType = CMDType::NONE;
-			m_CMD = CONSOLE_CMD::UNKNOWN;
-		}
-	}
-
-	const bool ConsoleCMDParser::IsCmd(const std::string& sCmd)
-	{
-		// e.g. 235£ºsend something to client socket : 235
-		if ( IsTransCMD(sCmd) )
-		{
-			m_CMD = CONSOLE_CMD::SEND;
-			m_socket = stoi( sCmd.substr(0,sCmd.size()-1) );
-			return true;
-		}
-		else if ( IsFunCMD(sCmd) )
-		{
-			m_CMD = CastCMD(sCmd);
-			return true;
-		}
-		else
-		{
-			m_CMD = CONSOLE_CMD::UNKNOWN;
-		}
-
-		return false;
 	}
 
 
 	// New CMD add here
-	CONSOLE_CMD ConsoleCMDParser::CastCMD(const std::string& cmd)
+	CONSOLE_CMD ConsoleCMDParser::CMD_Cast(const std::string& cmd)
 	{
-		if (cmd == "exit" )
+		auto it = std::find_if(g_sMapCmd.begin(), g_sMapCmd.end(), [=](const std::pair<std::string, CONSOLE_CMD>& pair) {
+			return pair.first == cmd;
+		});
+
+		if (it != g_sMapCmd.end())
 		{
-			return CONSOLE_CMD::EXIT;
-		}
-		else if (cmd =="client" )
-		{
-			return CONSOLE_CMD::CLIENT;
-		}
-		else if (cmd == "version")
-		{
-			return CONSOLE_CMD::VERSION;
+			return (*it).second;
 		}
 
 		return CONSOLE_CMD::UNKNOWN;
 	}
 
-	const bool ConsoleCMDParser::IsFunCMD(const std::string& fCMD)
-	{
-		return g_FunCMD.end() != std::find( g_FunCMD.begin(), g_FunCMD.end(), fCMD);
-	}
-
-	const bool ConsoleCMDParser::IsTransCMD(const std::string& tCMD)
-	{
-		return tCMD.ends_with(':') && Utility::IsAllDigits(tCMD.substr(0, tCMD.size() - 1));
-	}
-
-	void ConsoleCMDParser::RunCmd(RzServer* server)
+	void ConsoleCMDParser::RunCmd()
 	{
 		std::unique_ptr<CMD> pCmd;
 		switch (m_CMD)
 		{
-		case CONSOLE_CMD::SEND:
-			pCmd = std::make_unique<SendCMD>(m_CMD, server, m_socket, m_message);
+		case CONSOLE_CMD::SELECT:
+			pCmd = std::make_unique<SelectCMD>(m_CMD, m_Server, m_socket, m_message);
 			break;
 		case CONSOLE_CMD::EXIT:
-			pCmd = std::make_unique<ExitCMD>(m_CMD, server);
+			pCmd = std::make_unique<ExitCMD>(m_CMD, m_Server);
 			break;
 		case CONSOLE_CMD::CLIENT:
-			pCmd = std::make_unique<ClientCMD>(m_CMD, server);
+			pCmd = std::make_unique<ClientCMD>(m_CMD, m_Server);
 			break;
 		case CONSOLE_CMD::VERSION:
-			pCmd = std::make_unique<VersionCMD>(m_CMD, server);
+			pCmd = std::make_unique<VersionCMD>(m_CMD, m_Server);
+			break;
+		case CONSOLE_CMD::LS:
+			pCmd = std::make_unique<LsCMD>(m_CMD, m_Server);
+			break;
+		case CONSOLE_CMD::CD:
+			pCmd = std::make_unique<CdCMD>(m_CMD, m_Server);
 			break;
 		case CONSOLE_CMD::UNKNOWN:
 			pCmd = nullptr;

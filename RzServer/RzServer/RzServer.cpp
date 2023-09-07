@@ -13,6 +13,8 @@ namespace RzLib
 		, m_port(std::move(port))
 		, m_listen_socket(INVALID_SOCKET)
 		, m_IsRunning(true)
+		, m_Mode {InputMode::CONSOLE}
+		, m_client_socket{ INVALID_SOCKET }
 	{
 	}
 	RzServer::~RzServer()
@@ -83,32 +85,56 @@ namespace RzLib
 	}
 
 	// 响应服务端的相关CMD
-	void RzServer::HandleServerCMD()
+	void RzServer::AcceptInput()
 	{
 		std::thread thread([&]()
 		{
-			ConsoleCMDParser parser;
-			char readBuf[128]{0};
-			while ( 1 )
+			ConsoleCMDParser parser(this);
+			std::string sInput;
+			while ( m_IsRunning && getline(std::cin, sInput) )
 			{
 				Utility::PrintConsoleHeader();
-				std::cin.getline( readBuf, 128 );
 
-				if (strlen(readBuf) == 0) continue;
+				if (sInput.empty()) continue;
 
-				parser.SetCMD(readBuf);
+				switch (m_Mode)
+				{
+					case InputMode::CONSOLE:
+					{
+						parser.SetCMD(sInput);
+						parser.RunCmd();
+						break;
+					}
+					case InputMode::SELECT:
+					{
+						//TO DO
+						break;
+					}
+					case InputMode::SEND:
+					{
+						// 被设置成该模式，意味着接下来获取到的输入都应当发送给client
+						// 或者是一条退出指令
+						if (sInput == QUIT )
+							SetInputMode(InputMode::CONSOLE);
 
-				parser.RunCmd(this);
+						// 发送给client
+						if (INVALID_SOCKET == send(m_client_socket, sInput.c_str(), sInput.size(), 0))
+							Log(LogLevel::ERR, "Send message to client error : ", WSAGetLastError());
 
-				memset(readBuf,0,128);
+
+						break;
+					}
+				}
 			}
+
+			Log(LogLevel::WARN, "Server closed input!");
 		});
 
 		thread.detach();
 	}
 
 	// 处理客户端发过来的请求
-	void RzServer::HandleClientCMD(SOCKET socket, const char* CMD, int rtLen)
+	void RzServer::AcceptClient(SOCKET socket, const char* CMD, int rtLen)
 	{
 		TcpCmdParser parser(socket, CMD, rtLen);
 
@@ -123,9 +149,9 @@ namespace RzLib
 		Log(LogLevel::INFO, "Server is listening ...\n");
 
 		// 处理服务器的CMD
-		HandleServerCMD();
+		AcceptInput();
 
-		while (m_IsRunning)
+		while ( m_IsRunning )
 		{
 			fd_set tmp = m_All_FD;
 			int res = select(0, &tmp, NULL, NULL, 0);
@@ -147,7 +173,7 @@ namespace RzLib
 					if (tmp.fd_array[i] == m_listen_socket)
 					{
 						// 处理客户端连接请求
-						AcceptClient();
+						AcceptConnection();
 					}
 					else
 					{
@@ -160,13 +186,15 @@ namespace RzLib
 						}
 
 						// 接收到了数据
-						HandleClientCMD(tmp.fd_array[i], readBuf, len);
+						AcceptClient(tmp.fd_array[i], readBuf, len);
 					}
 				}
 			}
 
 			//Utility::PrintConsoleHeader();
 		}
+
+		Log(LogLevel::WARN, "Server stop accept client request!");
 
 		return true;
 	}
@@ -204,7 +232,7 @@ namespace RzLib
 		return -1;
 	}
 
-	void RzServer::AcceptClient()
+	void RzServer::AcceptConnection()
 	{
 		sockaddr_in clientaddr;
 		int len = sizeof(sockaddr_in);

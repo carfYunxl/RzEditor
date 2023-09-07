@@ -26,10 +26,12 @@
 enum class CONSOLE_CMD
 {
     UNKNOWN = 0,    // 未知CMD
+    SELECT,         // 选择client
     EXIT,           // 退出
     CLIENT,         // 列出所有客户端的SOCKET
     VERSION,        // 客户端版本信息
-    SEND
+    LS,             // 列出当前路径下的文件和文件夹
+    CD              // 切换到指定路径
 };
 
 enum class TCP_CMD
@@ -44,24 +46,8 @@ enum class TCP_CMD
     UPDATE_FIN      = 0xF8
 };
 
-enum class CMDType
-{
-    NONE = 0,
-    FUNC,
-    TRANSFER,
-};
-
 #include <vector>
 #include <string>
-
-static const std::vector<std::string> g_FunCMD
-{
-    "exit",
-    "client",
-    "version",
-    "ls"
-};
-
 static const std::vector<unsigned char> g_ClientCMD
 {
     0xF1,
