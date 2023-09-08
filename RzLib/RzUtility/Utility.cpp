@@ -33,8 +33,8 @@ namespace RzLib
 
     void Utility::PrintConsoleHeader()
     {
-        Print(LogLevel::CONSOLE, GetUserInfo() + ":\n");
-        Print(LogLevel::CONSOLE, "$ ");
+        Print(LogLevel::CONSOLE, GetUserInfo() + ": ");
+        Print(LogLevel::WARN, "$ ");
     }
 
     void Utility::EnSTDOutputColor()
@@ -46,13 +46,13 @@ namespace RzLib
         SetConsoleMode(hOut, dwMode);
     }
 
-    void Utility::ChangeConsoleFont(const std::wstring& faceName)
+    void Utility::ChangeConsoleFont(short nFontSize, const std::wstring& faceName)
     {
         CONSOLE_FONT_INFOEX cfi;
         cfi.cbSize = sizeof cfi;
         cfi.nFont = 0;
         cfi.dwFontSize.X = 0;
-        cfi.dwFontSize.Y = 15;
+        cfi.dwFontSize.Y = nFontSize;
         cfi.FontFamily = FF_DONTCARE;
         cfi.FontWeight = FW_NORMAL;
         wcscpy_s(cfi.FaceName, faceName.c_str());

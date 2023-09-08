@@ -36,11 +36,12 @@ namespace RzLib
         void StopServer() { m_IsRunning = false; }
         void ListClient();
         int  GetPort(SOCKET socket);
-        bool SendClientVersion(SOCKET socket);
         bool IsClientSocket(size_t nSocket);
 
         void SetInputMode(InputMode mode) { m_Mode = mode; }
         void SelectClient(SOCKET socket) { m_client_socket = socket; }
+
+        void SendInfo( TCP_CMD cmd, const std::string& msg);
 
     private:
         bool Init();

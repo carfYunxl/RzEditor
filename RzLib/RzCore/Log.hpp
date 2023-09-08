@@ -72,7 +72,7 @@ namespace RzLib
                 fmt::print(fg(fmt::color::red), title);
                 break;
             case LogLevel::CONSOLE:
-                fmt::print(fg(fmt::color::yellow), title);
+                fmt::print(fg(fmt::color::green), title);
                 break;
         }
     }

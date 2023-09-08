@@ -14,6 +14,6 @@ namespace RzLib
 
         static void EnSTDOutputColor();
 
-        static void ChangeConsoleFont(const std::wstring& faceName);
+        static void ChangeConsoleFont(short nFontSize, const std::wstring& faceName);
     };
 }

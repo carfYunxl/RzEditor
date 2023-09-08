@@ -74,7 +74,7 @@ namespace RzLib
 		// may be here will be more options
 		if (m_CMD == CONSOLE_CMD::SELECT)
 		{
-			std::string strSocket = strCmd.substr(index1 + 1, strCmd.size() - index1 - 1);
+			std::string strSocket = CMD.substr(index1 + 1, CMD.size() - index1 - 1);
 			if (!Utility::IsAllDigits(strSocket))
 			{
 				return;

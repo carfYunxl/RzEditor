@@ -114,14 +114,14 @@ namespace RzLib
 					{
 						// 被设置成该模式，意味着接下来获取到的输入都应当发送给client
 						// 或者是一条退出指令
-						if (sInput == QUIT )
+						if (sInput == QUIT)
+						{
 							SetInputMode(InputMode::CONSOLE);
+							continue;
+						}
 
 						// 发送给client
-						if (INVALID_SOCKET == send(m_client_socket, sInput.c_str(), sInput.size(), 0))
-							Log(LogLevel::ERR, "Send message to client error : ", WSAGetLastError());
-
-
+						SendInfo( TCP_CMD::NORMAL, sInput );
 						break;
 					}
 				}
@@ -190,8 +190,6 @@ namespace RzLib
 					}
 				}
 			}
-
-			//Utility::PrintConsoleHeader();
 		}
 
 		Log(LogLevel::WARN, "Server stop accept client request!");
@@ -247,7 +245,7 @@ namespace RzLib
 		FD_SET(socket_client, &m_All_FD);
 
 		// when client connected to server, we send client version to client
-		SendClientVersion(socket_client);
+		SendInfo(TCP_CMD::VERSION,"");
 	}
 
 	bool RzServer::GetClientMsg(SOCKET socket, char* buf, int* rtlen)
@@ -288,26 +286,6 @@ namespace RzLib
 		return true;
 	}
 
-	// 发送最新的客户端版本给client
-	bool RzServer::SendClientVersion(SOCKET socket)
-	{
-		std::string strVer{
-			static_cast<char>(0xF2),
-			static_cast<char>(0x02),
-			static_cast<char>(0x00),
-			static_cast<char>(CLIENT_VERSION & 0xFF),
-			static_cast<char>((CLIENT_VERSION >> 8) & 0xFF),
-		};
-
-		if ( SOCKET_ERROR == send(socket, strVer.c_str(), static_cast<int>(strVer.size()), 0))
-		{
-			Log(LogLevel::ERR, "send to client failed! error code = ", WSAGetLastError());
-			return false;
-		}
-
-		return true;
-	}
-
 	bool RzServer::IsClientSocket(size_t nSocket)
 	{
 		return m_client.end() != std::find_if(m_client.begin(), m_client.end(), [=](const std::pair<SOCKET,int>& pair)
@@ -334,6 +312,20 @@ namespace RzLib
 		{
 			RzLib::Log(RzLib::LogLevel::ERR, "server accept error, error code : ", WSAGetLastError());
 			return;
+		}
+	}
+
+	void RzServer::SendInfo( TCP_CMD cmd, const std::string& msg )
+	{
+		std::string sSend;
+		sSend.push_back(static_cast<char>(cmd));
+		sSend.push_back( msg.size() & 0xFF );
+		sSend.push_back( (msg.size() >> 8) & 0xFF );
+		sSend += msg;
+
+		if ( INVALID_SOCKET == send(m_client_socket, sSend.c_str(), sSend.size(), 0) )
+		{
+			Log(LogLevel::ERR, "send message to client error : ", WSAGetLastError());
 		}
 	}
 }
