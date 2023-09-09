@@ -68,6 +68,52 @@ namespace RzLib
 
 		if (m_CMD == CONSOLE_CMD::UNKNOWN)
 		{
+			//不是CMD，再检查看看是不是文件，如果是的话，尝试打开文件
+			std::filesystem::path path = m_Server->GetCurrentDir() / strCmd;
+			if (std::filesystem::exists(path) && path.has_extension())
+			{
+				//如果路径确实存在，且是一个具有扩展名的文件，这时候就尝试打开该文件
+				FILE_EXTENSION eExt = EXT_Cast(path.extension().string());
+				switch (eExt)
+				{
+					case FILE_EXTENSION::EXE:
+					{
+						STARTUPINFO si;
+						PROCESS_INFORMATION pi;
+						ZeroMemory(&si, sizeof(si));
+						si.cb = sizeof(si);
+						ZeroMemory(&pi, sizeof(pi));
+
+						// Start the child process. 
+						if (
+							CreateProcess
+							(
+								NULL,
+								(LPSTR)(path.string().c_str()),  // No module name (use command line)                                                          // Command line
+								NULL,                              // Process handle not inheritable
+								NULL,                              // Thread handle not inheritable
+								FALSE,                             // Set handle inheritance to FALSE
+								0,                                 // No creation flags
+								NULL,                              // Use parent's environment block
+								NULL,                              // Use parent's starting directory 
+								&si,                               // Pointer to STARTUPINFO structure
+								&pi)                               // Pointer to PROCESS_INFORMATION structure
+							)
+						{
+							Log(LogLevel::INFO, "CreateProcess success!");
+							CloseHandle(pi.hProcess);
+							CloseHandle(pi.hThread);
+							return;
+						}
+						break;
+					}
+					case FILE_EXTENSION::TXT:
+					{
+						//TO DO
+						break;
+					}
+				}
+			}
 			return;
 		}
 
@@ -111,6 +157,20 @@ namespace RzLib
 		}
 
 		return CONSOLE_CMD::UNKNOWN;
+	}
+
+	FILE_EXTENSION ConsoleCMDParser::EXT_Cast(const std::string& ext)
+	{
+		auto it = std::find_if(g_sMapEXT.begin(), g_sMapEXT.end(), [=](const std::pair<std::string, FILE_EXTENSION>& pair) {
+			return pair.first == ext;
+			});
+
+		if (it != g_sMapEXT.end())
+		{
+			return (*it).second;
+		}
+
+		return FILE_EXTENSION::UNKNOWN;
 	}
 
 	void ConsoleCMDParser::RunCmd()

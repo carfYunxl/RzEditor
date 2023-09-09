@@ -144,10 +144,17 @@ namespace RzLib
 
         virtual void Run() override
         {
-            std::filesystem::path path = m_Server->GetCurrentDir() / m_DirName;
-            if ( !std::filesystem::exists(path) && !path.has_extension() )
+            if (std::filesystem::is_directory(m_DirName))
             {
-                std::filesystem::create_directories(path);
+                m_Server->SetCurrentDir(m_DirName);
+            }
+            else
+            {
+                std::filesystem::path path = m_Server->GetCurrentDir() / m_DirName;
+                if (!std::filesystem::exists(path) && !path.has_extension())
+                {
+                    std::filesystem::create_directories(path);
+                }
             }
         }
 

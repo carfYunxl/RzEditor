@@ -37,6 +37,14 @@ enum class CONSOLE_CMD
     REMOVE          // 删除文件和目录
 };
 
+enum class FILE_EXTENSION
+{
+    UNKNOWN = 0,
+    EXE,
+    TXT
+    // ... others maybe
+};
+
 enum class TCP_CMD
 {
     NORMAL          = 0xF1,

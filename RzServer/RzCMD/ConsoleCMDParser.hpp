@@ -35,6 +35,10 @@ namespace RzLib
             {"touch",   CONSOLE_CMD::TOUCH},
             {"rm",      CONSOLE_CMD::REMOVE}
         };
+        const std::map<std::string, FILE_EXTENSION> g_sMapEXT{
+            {".exe",    FILE_EXTENSION::EXE},
+            {".txt",    FILE_EXTENSION::TXT}
+        };
     public:
         ConsoleCMDParser(RzServer* server)
             : m_CMD(CONSOLE_CMD::UNKNOWN) 
@@ -53,7 +57,7 @@ namespace RzLib
     private:
         void Parser(const std::string& CMD, char SPLIT = ' ');
         CONSOLE_CMD CMD_Cast(const std::string& cmd);
-
+        FILE_EXTENSION EXT_Cast(const std::string& ext);
     private:
         CONSOLE_CMD     m_CMD;
         SOCKET          m_socket;
