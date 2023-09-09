@@ -85,26 +85,26 @@ namespace RzLib
 						ZeroMemory(&pi, sizeof(pi));
 
 						// Start the child process. 
-						if (
-							CreateProcess
-							(
-								NULL,
-								(LPSTR)(path.string().c_str()),  // No module name (use command line)                                                          // Command line
-								NULL,                              // Process handle not inheritable
-								NULL,                              // Thread handle not inheritable
-								FALSE,                             // Set handle inheritance to FALSE
-								0,                                 // No creation flags
-								NULL,                              // Use parent's environment block
-								NULL,                              // Use parent's starting directory 
-								&si,                               // Pointer to STARTUPINFO structure
-								&pi)                               // Pointer to PROCESS_INFORMATION structure
-							)
-						{
-							Log(LogLevel::INFO, "CreateProcess success!");
-							CloseHandle(pi.hProcess);
-							CloseHandle(pi.hThread);
-							return;
-						}
+						//if (
+						//	CreateProcess
+						//	(
+						//		NULL,
+						//		(LPSTR)(path.string().c_str()),  // No module name (use command line)                                                          // Command line
+						//		NULL,                              // Process handle not inheritable
+						//		NULL,                              // Thread handle not inheritable
+						//		FALSE,                             // Set handle inheritance to FALSE
+						//		0,                                 // No creation flags
+						//		NULL,                              // Use parent's environment block
+						//		NULL,                              // Use parent's starting directory 
+						//		&si,                               // Pointer to STARTUPINFO structure
+						//		&pi)                               // Pointer to PROCESS_INFORMATION structure
+						//	)
+						//{
+						//	Log(LogLevel::INFO, "CreateProcess success!");
+						//	CloseHandle(pi.hProcess);
+						//	CloseHandle(pi.hThread);
+						//	return;
+						//}
 						break;
 					}
 					case FILE_EXTENSION::TXT:

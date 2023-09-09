@@ -37,26 +37,4 @@ namespace RzLib
         Print(LogLevel::WARN, path + "\n");
         Print(LogLevel::INFO, "$ ");
     }
-
-    void Utility::EnSTDOutputColor()
-    {
-        HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-        DWORD dwMode = 0;
-        GetConsoleMode(hOut, &dwMode);
-        dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-        SetConsoleMode(hOut, dwMode);
-    }
-
-    void Utility::ChangeConsoleFont(short nFontSize, const std::wstring& faceName)
-    {
-        CONSOLE_FONT_INFOEX cfi;
-        cfi.cbSize = sizeof cfi;
-        cfi.nFont = 0;
-        cfi.dwFontSize.X = 0;
-        cfi.dwFontSize.Y = nFontSize;
-        cfi.FontFamily = FF_DONTCARE;
-        cfi.FontWeight = FW_NORMAL;
-        wcscpy_s(cfi.FaceName, faceName.c_str());
-        SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), FALSE, &cfi);
-    }
 }

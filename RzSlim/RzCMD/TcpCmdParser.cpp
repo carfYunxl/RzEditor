@@ -56,7 +56,7 @@ namespace RzLib
 				binPath /= "binClient";
 				if (!std::filesystem::exists(binPath))
 				{
-					Log(LogLevel::ERR, "directory ", binPath, " not exist, please check!");
+					->Log(LogLevel::ERR, "directory ", binPath, " not exist, please check!");
 					return;
 				}
 
@@ -68,7 +68,7 @@ namespace RzLib
 				};
 				if (send(m_socket, buffer.c_str(), static_cast<int>(buffer.size()), 0) == SOCKET_ERROR)
 				{
-					Log(LogLevel::ERR, "Send update start error!");
+					m_UI->Log(LogLevel::ERR, "Send update start error!");
 				}
 
 				for (auto const& dir_entry : std::filesystem::recursive_directory_iterator{ binPath })

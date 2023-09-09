@@ -15,7 +15,6 @@
 #include <winsock2.h>
 #include "RzCore/Core.hpp"
 #include "RzServer/RzServer.hpp"
-#include "RzCore/Log.hpp"
 #include <filesystem>
 
 namespace RzLib
@@ -89,9 +88,9 @@ namespace RzLib
             // 列出当前目录下的所有文件名
             for (const auto& dir_entry : std::filesystem::directory_iterator{ m_Server->GetCurrentDir() })
             {
-                std::cout << "\t";
-                Print(LogLevel::NORMAL, dir_entry.path().filename().string());
-                std::cout << std::endl;
+                m_Server->GetUI()->AppendText("    ");
+                m_Server->GetUI()->Print(LogLevel::NORMAL, dir_entry.path().filename().string());
+                m_Server->GetUI()->AppendText("");
             }
         }
     };
@@ -108,9 +107,9 @@ namespace RzLib
             {
                 for (const auto& dir_entry : std::filesystem::directory_iterator{ m_Server->GetCurrentDir() })
                 {
-                    std::cout << "\t";
-                    Print(LogLevel::NORMAL, dir_entry.path().filename().string());
-                    std::cout << std::endl;
+                    m_Server->GetUI()->AppendText("    ");
+                    m_Server->GetUI()->Print(LogLevel::NORMAL, dir_entry.path().filename().string());
+                    m_Server->GetUI()->AppendText("");
                 }
                 return;
             }
@@ -127,7 +126,7 @@ namespace RzLib
                 }
                 else
                 {
-                    Log(LogLevel::ERR, "directory not exist!");
+                    m_Server->GetUI()->Log(LogLevel::ERR, "directory not exist!");
                 }
             }
         }

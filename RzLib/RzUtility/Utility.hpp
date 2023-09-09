@@ -11,9 +11,5 @@ namespace RzLib
         static const bool IsAllDigits(const std::string& digits);
 
         static void PrintConsoleHeader(const std::string& path);
-
-        static void EnSTDOutputColor();
-
-        static void ChangeConsoleFont(short nFontSize, const std::wstring& faceName);
     };
 }

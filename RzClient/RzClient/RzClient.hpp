@@ -60,5 +60,7 @@ namespace RzLib
         std::string             m_fCurContent;
         bool                    m_Running{ true };
         IniInfo                 m_iniInfo;
+
+        std::filesystem::path   m_clientPath;
     };
 }

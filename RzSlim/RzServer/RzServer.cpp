@@ -1,5 +1,4 @@
 #include "pch.h"
-#include "RzCore/Log.hpp"
 #include "RzServer/RzServer.hpp"
 #include "RzCMD/TcpCmdParser.h"
 #include "RzCMD/CMD.hpp"
@@ -9,8 +8,9 @@
 
 namespace RzLib
 {
-	RzServer::RzServer(std::string&& ip, int port)
-		: m_ip(std::move(ip))
+	RzServer::RzServer(RzSlim* UI, std::string&& ip, int port)
+		: m_UI(UI)
+		, m_ip(std::move(ip))
 		, m_port(std::move(port))
 		, m_listen_socket(INVALID_SOCKET)
 		, m_IsRunning(true)
@@ -59,8 +59,7 @@ namespace RzLib
 		m_listen_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		if (m_listen_socket == INVALID_SOCKET)
 		{
-
-			Log(LogLevel::ERR, "create server socket failed, error code = ", WSAGetLastError());
+			m_UI->Log(LogLevel::ERR, "create server socket failed, error code = ", WSAGetLastError());
 			return false;
 		}
 
@@ -69,7 +68,7 @@ namespace RzLib
 		*/
 		if (bind(m_listen_socket, (sockaddr*)&addr_server, sizeof(sockaddr)) == SOCKET_ERROR)
 		{
-			Log(LogLevel::ERR, "socket bind error,error code = ", WSAGetLastError());
+			m_UI->Log(LogLevel::ERR, "socket bind error,error code = ", WSAGetLastError());
 			return false;
 		}
 
@@ -79,7 +78,7 @@ namespace RzLib
 		const int maxConnection = 5;
 		if (listen(m_listen_socket, maxConnection) == SOCKET_ERROR)
 		{
-			Log(LogLevel::ERR, "listen socket error,error code = ", WSAGetLastError());
+			m_UI->Log(LogLevel::ERR, "listen socket error,error code = ", WSAGetLastError());
 			return false;
 		}
 
@@ -130,7 +129,7 @@ namespace RzLib
 				}
 			}
 
-			Log(LogLevel::WARN, "Server closed input!");
+			m_UI->Log(LogLevel::WARN, "Server closed input!");
 		});
 
 		thread.detach();
@@ -149,7 +148,7 @@ namespace RzLib
 		FD_ZERO(&m_All_FD);
 		FD_SET(m_listen_socket, &m_All_FD);
 
-		Log(LogLevel::INFO, "Server is listening ...\n");
+		m_UI->Log(LogLevel::INFO, "Server is listening ...\n");
 
 		// 处理服务器的CMD
 		AcceptInput();
@@ -162,12 +161,12 @@ namespace RzLib
 			std::cout << std::endl;
 			if (res == SOCKET_ERROR)
 			{
-				Log(LogLevel::ERR, " select error, error code : ", WSAGetLastError());
+				m_UI->Log(LogLevel::ERR, " select error, error code : ", WSAGetLastError());
 				return false;
 			}
 			if (res == 0)
 			{
-				Log(LogLevel::INFO, "expired time limited ...");
+				m_UI->Log(LogLevel::INFO, "expired time limited ...");
 				continue;
 			}
 			if (res > 0)
@@ -196,7 +195,7 @@ namespace RzLib
 			}
 		}
 
-		Log(LogLevel::WARN, "Server stop accept client request!");
+		m_UI->Log(LogLevel::WARN, "Server stop accept client request!");
 
 		return true;
 	}
@@ -205,11 +204,11 @@ namespace RzLib
 	{
 		if (m_client.empty())
 		{
-			Log(LogLevel::WARN, "No client is online...\n");
+			m_UI->Log(LogLevel::WARN, "No client is online...\n");
 			return;
 		}
 
-		Log(LogLevel::INFO,"client:");
+		m_UI->Log(LogLevel::INFO,"client:");
 		std::cout << "\t=======" << std::endl;
 		for (size_t i = 0;i < m_client.size();++i)
 		{
@@ -243,7 +242,7 @@ namespace RzLib
 		{
 			return;
 		}
-		Log(LogLevel::INFO, "客户端已连接, socket : ", socket_client, " port : ", ntohs(clientaddr.sin_port), "\n");
+		m_UI->Log(LogLevel::INFO, "客户端已连接, socket : ", socket_client, " port : ", ntohs(clientaddr.sin_port), "\n");
 		m_client.emplace_back(socket_client, ntohs(clientaddr.sin_port));
 
 		FD_SET(socket_client, &m_All_FD);
@@ -263,7 +262,7 @@ namespace RzLib
 		if (res == 0)
 		{
 			// 连接被正常关闭
-			Log(LogLevel::INFO, "Client ", socket, " offline...!\n");
+			m_UI->Log(LogLevel::INFO, "Client ", socket, " offline...!\n");
 			closesocket(socket);
 			FD_CLR(socket, &m_All_FD);
 
@@ -278,7 +277,7 @@ namespace RzLib
 			res = WSAGetLastError();
 			if (res == WSAECONNRESET)
 			{
-				Log(LogLevel::INFO, "client ", socket, " offline...!\n");
+				m_UI->Log(LogLevel::INFO, "client ", socket, " offline...!\n");
 				closesocket(socket);
 				FD_CLR(socket, &m_All_FD);
 
@@ -307,19 +306,19 @@ namespace RzLib
 	{
 		if ( !Init() )
 		{
-			RzLib::Log(RzLib::LogLevel::ERR, "server init error, error code : ", WSAGetLastError());
+			m_UI->Log(RzLib::LogLevel::ERR, "server init error, error code : ", WSAGetLastError());
 			return;
 		}
 
 		if ( !Listen() )
 		{
-			RzLib::Log(RzLib::LogLevel::ERR, "server listen error, error code : ", WSAGetLastError());
+			m_UI->Log(RzLib::LogLevel::ERR, "server listen error, error code : ", WSAGetLastError());
 			return;
 		}
 
 		if ( !Accept() )
 		{
-			RzLib::Log(RzLib::LogLevel::ERR, "server accept error, error code : ", WSAGetLastError());
+			m_UI->Log(RzLib::LogLevel::ERR, "server accept error, error code : ", WSAGetLastError());
 			return;
 		}
 	}
@@ -334,7 +333,7 @@ namespace RzLib
 
 		if ( INVALID_SOCKET == send(m_client_socket, sSend.c_str(), static_cast<int>(sSend.size()), 0) )
 		{
-			Log(LogLevel::ERR, "send message to client error : ", WSAGetLastError());
+			m_UI->Log(LogLevel::ERR, "send message to client error : ", WSAGetLastError());
 		}
 	}
 }

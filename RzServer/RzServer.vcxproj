@@ -29,26 +29,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -166,19 +166,6 @@
       <AdditionalDependencies>ws2_32.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="RzCMD\CMD.cpp" />
-    <ClCompile Include="RzCMD\ConsoleCMDParser.cpp" />
-    <ClCompile Include="RzCMD\TcpCmdParser.cpp" />
-    <ClCompile Include="ServerDemo.cpp" />
-    <ClCompile Include="RzServer\RzServer.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="RzCMD\CMD.hpp" />
-    <ClInclude Include="RzCMD\ConsoleCMDParser.hpp" />
-    <ClInclude Include="RzCMD\TcpCmdParser.h" />
-    <ClInclude Include="RzServer\RzServer.hpp" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RzLib\RzLib.vcxproj">
       <Project>{06e4dcb0-5d41-452b-8147-6dabba750aad}</Project>

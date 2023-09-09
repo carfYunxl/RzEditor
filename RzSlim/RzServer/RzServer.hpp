@@ -4,7 +4,7 @@
 #include <winsock2.h>
 #include <filesystem>
 #include "RzCMD/ConsoleCMDParser.hpp"
-
+#include "RzSlim.h"
 
 namespace RzLib
 {
@@ -29,7 +29,7 @@ namespace RzLib
     class RzServer
     {
     public:
-        RzServer(std::string&& ip, int port);
+        RzServer(RzSlim* UI, std::string&& ip, int port);
         ~RzServer();
 
         void Start();
@@ -46,6 +46,8 @@ namespace RzLib
         const std::filesystem::path GetCurrentDir() const { return m_DirPath; }
         void SetCurrentDir(const std::filesystem::path path) { m_DirPath = path; }
 
+        RzSlim* GetUI() { return m_UI; }
+
     private:
         bool Init();
         bool Listen();
@@ -55,6 +57,7 @@ namespace RzLib
         void AcceptConnection();
         bool GetClientMsg(SOCKET socket, char* buf, int* rtlen);
     private:
+        RzSlim*         m_UI;
         std::string     m_ip;
         int             m_port;
         SOCKET          m_listen_socket;

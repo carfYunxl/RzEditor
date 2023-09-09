@@ -16,12 +16,15 @@ namespace RzLib
         : m_serverIp(server_ip)
         , m_serverPort(server_port)
         , m_socket(INVALID_SOCKET)
+        , m_clientPath(std::filesystem::current_path())
     {
+
     }
     RzClient::RzClient(std::string&& server_ip, uint32_t&& server_port)
         : m_serverIp(std::move(server_ip))
         , m_serverPort(std::move(server_port))
         , m_socket(INVALID_SOCKET)
+        , m_clientPath(std::filesystem::current_path())
     {
     }
 
@@ -74,7 +77,7 @@ namespace RzLib
 
         Log(LogLevel::INFO, "Connect to server success!");
 
-        Utility::PrintConsoleHeader();
+        Utility::PrintConsoleHeader(m_clientPath.string());
 
         Recv();
         Send();
