@@ -86,6 +86,15 @@ namespace RzLib
 				m_socket = socket;
 			}
 		}
+		else if (
+			m_CMD == CONSOLE_CMD::CD ||
+			m_CMD == CONSOLE_CMD::MKDIR ||
+			m_CMD == CONSOLE_CMD::TOUCH ||
+			m_CMD == CONSOLE_CMD::REMOVE
+			)
+		{
+			m_message = CMD.substr(index1 + 1, CMD.size() - index1 - 1);
+		}
 	}
 
 
@@ -125,7 +134,16 @@ namespace RzLib
 			pCmd = std::make_unique<LsCMD>(m_CMD, m_Server);
 			break;
 		case CONSOLE_CMD::CD:
-			pCmd = std::make_unique<CdCMD>(m_CMD, m_Server);
+			pCmd = std::make_unique<CdCMD>(m_CMD, m_Server, m_message);
+			break;
+		case CONSOLE_CMD::MKDIR:
+			pCmd = std::make_unique<MkdirCMD>(m_CMD, m_Server, m_message);
+			break;
+		case CONSOLE_CMD::TOUCH:
+			pCmd = std::make_unique<TouchCMD>(m_CMD, m_Server, m_message);
+			break;
+		case CONSOLE_CMD::REMOVE:
+			pCmd = std::make_unique<RmCMD>(m_CMD, m_Server, m_message);
 			break;
 		case CONSOLE_CMD::UNKNOWN:
 			pCmd = nullptr;

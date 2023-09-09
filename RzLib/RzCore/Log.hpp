@@ -15,7 +15,8 @@ namespace RzLib
         INFO = 0,
         WARN,
         ERR,
-        CONSOLE
+        CONSOLE,
+        NORMAL
     };
 
     template<typename T, char SEPERATOR>
@@ -53,8 +54,6 @@ namespace RzLib
         }
 
         (std::cout << ... << AddSeperator<Args,' '>(args)) << std::endl;
-
-        Utility::PrintConsoleHeader();
     }
 
     template<typename LogLevel>
@@ -73,6 +72,9 @@ namespace RzLib
                 break;
             case LogLevel::CONSOLE:
                 fmt::print(fg(fmt::color::green), title);
+                break;
+            case LogLevel::NORMAL:
+                fmt::print(fg(fmt::color::white), title);
                 break;
         }
     }

@@ -16,6 +16,7 @@
 #include "RzCore/Core.hpp"
 #include "RzServer/RzServer.hpp"
 #include "RzCore/Log.hpp"
+#include <filesystem>
 
 namespace RzLib
 {
@@ -85,16 +86,111 @@ namespace RzLib
         LsCMD(CONSOLE_CMD cmd, RzServer* server) : CMD(cmd, server) {}
         virtual void Run() override
         {
-            // ... TODO
+            // 列出当前目录下的所有文件名
+            for (const auto& dir_entry : std::filesystem::directory_iterator{ m_Server->GetCurrentDir() })
+            {
+                std::cout << "\t";
+                Print(LogLevel::NORMAL, dir_entry.path().filename().string());
+                std::cout << std::endl;
+            }
         }
     };
 
     struct CdCMD : public CMD
     {
-        CdCMD(CONSOLE_CMD cmd, RzServer* server) : CMD(cmd, server) {}
+        CdCMD(CONSOLE_CMD cmd, RzServer* server, const std::string& path)
+            : CMD(cmd, server)
+            , m_path(path) {}
+
         virtual void Run() override
         {
-            // ... TODO
+            if (m_path == ".")
+            {
+                for (const auto& dir_entry : std::filesystem::directory_iterator{ m_Server->GetCurrentDir() })
+                {
+                    std::cout << "\t";
+                    Print(LogLevel::NORMAL, dir_entry.path().filename().string());
+                    std::cout << std::endl;
+                }
+                return;
+            }
+            else if (m_path == "..")
+            {
+                m_Server->SetCurrentDir(m_Server->GetCurrentDir().parent_path());
+            }
+            else
+            {
+                std::filesystem::path path = m_Server->GetCurrentDir() / m_path;
+                if (std::filesystem::is_directory(path))
+                {
+                    m_Server->SetCurrentDir(path);
+                }
+                else
+                {
+                    Log(LogLevel::ERR, "directory not exist!");
+                }
+            }
         }
+
+    private:
+        std::string m_path;
+    };
+
+    struct MkdirCMD : public CMD
+    {
+        MkdirCMD(CONSOLE_CMD cmd, RzServer* server, const std::string& path)
+            : CMD(cmd, server)
+            , m_DirName(path) {}
+
+        virtual void Run() override
+        {
+            std::filesystem::path path = m_Server->GetCurrentDir() / m_DirName;
+            if ( !std::filesystem::exists(path) && !path.has_extension() )
+            {
+                std::filesystem::create_directories(path);
+            }
+        }
+
+    private:
+        std::string m_DirName;
+    };
+
+    struct TouchCMD : public CMD
+    {
+        TouchCMD(CONSOLE_CMD cmd, RzServer* server, const std::string& path)
+            : CMD(cmd, server)
+            , m_FileName(path) {}
+
+        virtual void Run() override
+        {
+            std::filesystem::path path = m_Server->GetCurrentDir() / m_FileName;
+            if (!std::filesystem::exists(path))
+            {
+                std::ofstream ofs(path);
+                ofs.close();
+            }
+        }
+
+    private:
+        std::string m_FileName;
+    };
+
+    struct RmCMD : public CMD
+    {
+        RmCMD(CONSOLE_CMD cmd, RzServer* server, const std::string& path)
+            : CMD(cmd, server)
+            , m_path(path) {}
+
+        virtual void Run() override
+        {
+            std::filesystem::path path = m_Server->GetCurrentDir() / m_path;
+            if (std::filesystem::exists(path))
+            {
+                std::filesystem::remove_all(path);
+            }
+        }
+
+    private:
+        std::string m_path;
     };
 }

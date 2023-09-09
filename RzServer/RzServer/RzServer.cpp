@@ -5,6 +5,7 @@
 #include "RzCMD/CMD.hpp"
 #include "RzUtility/Utility.hpp"
 #include "RzFile/FileTraveler.hpp"
+#include "RzConsole/RzConsole.hpp"
 
 namespace RzLib
 {
@@ -15,6 +16,7 @@ namespace RzLib
 		, m_IsRunning(true)
 		, m_Mode {InputMode::CONSOLE}
 		, m_client_socket{ INVALID_SOCKET }
+		, m_DirPath{ std::filesystem::current_path() }
 	{
 	}
 	RzServer::~RzServer()
@@ -91,10 +93,11 @@ namespace RzLib
 		{
 			ConsoleCMDParser parser(this);
 			std::string sInput;
-			while ( m_IsRunning && getline(std::cin, sInput) )
-			{
-				Utility::PrintConsoleHeader();
 
+			while ( m_IsRunning )
+			{
+				Utility::PrintConsoleHeader(m_DirPath.string());
+				getline(std::cin, sInput);
 				if (sInput.empty()) continue;
 
 				switch (m_Mode)
@@ -150,6 +153,7 @@ namespace RzLib
 
 		// 处理服务器的CMD
 		AcceptInput();
+
 
 		while ( m_IsRunning )
 		{
@@ -244,8 +248,13 @@ namespace RzLib
 
 		FD_SET(socket_client, &m_All_FD);
 
+		m_client_socket = socket_client;
+
 		// when client connected to server, we send client version to client
-		SendInfo(TCP_CMD::VERSION,"");
+		std::string version;
+		version.push_back(CLIENT_VERSION & 0xFF);
+		version.push_back((CLIENT_VERSION >> 8) & 0xFF);
+		SendInfo( TCP_CMD::VERSION, version );
 	}
 
 	bool RzServer::GetClientMsg(SOCKET socket, char* buf, int* rtlen)
@@ -323,7 +332,7 @@ namespace RzLib
 		sSend.push_back( (msg.size() >> 8) & 0xFF );
 		sSend += msg;
 
-		if ( INVALID_SOCKET == send(m_client_socket, sSend.c_str(), sSend.size(), 0) )
+		if ( INVALID_SOCKET == send(m_client_socket, sSend.c_str(), static_cast<int>(sSend.size()), 0) )
 		{
 			Log(LogLevel::ERR, "send message to client error : ", WSAGetLastError());
 		}

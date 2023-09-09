@@ -31,7 +31,10 @@ enum class CONSOLE_CMD
     CLIENT,         // 列出所有客户端的SOCKET
     VERSION,        // 客户端版本信息
     LS,             // 列出当前路径下的文件和文件夹
-    CD              // 切换到指定路径
+    CD,             // 切换到指定路径
+    MKDIR,          // 创建目录
+    TOUCH,          // 创建文件
+    REMOVE          // 删除文件和目录
 };
 
 enum class TCP_CMD

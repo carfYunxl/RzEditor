@@ -2,7 +2,7 @@
 #include <vector>
 #include <string>
 #include <winsock2.h>
-
+#include <filesystem>
 #include "RzCMD/ConsoleCMDParser.hpp"
 
 
@@ -10,7 +10,7 @@ namespace RzLib
 {
     constexpr size_t MAX_TCP_PACKAGE_SIZE = 1450;
 
-    constexpr short CLIENT_VERSION = 0x1009;        // 客户端版本协定 v1.0.0.9
+    constexpr short CLIENT_VERSION = 0x1021;        // 客户端版本协定 v1.0.0.9
 
     static const std::string QUIT = "q";
 
@@ -43,6 +43,9 @@ namespace RzLib
 
         void SendInfo( TCP_CMD cmd, const std::string& msg);
 
+        const std::filesystem::path GetCurrentDir() const { return m_DirPath; }
+        void SetCurrentDir(const std::filesystem::path path) { m_DirPath = path; }
+
     private:
         bool Init();
         bool Listen();
@@ -60,5 +63,7 @@ namespace RzLib
         bool            m_IsRunning;
         InputMode       m_Mode;
         SOCKET          m_client_socket;
+
+        std::filesystem::path m_DirPath;
     };
 }

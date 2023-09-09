@@ -30,7 +30,10 @@ namespace RzLib
             {"client",  CONSOLE_CMD::CLIENT},
             {"version", CONSOLE_CMD::VERSION},
             {"ls",      CONSOLE_CMD::LS},
-            {"cd",      CONSOLE_CMD::CD}
+            {"cd",      CONSOLE_CMD::CD},
+            {"mkdir",   CONSOLE_CMD::MKDIR},
+            {"touch",   CONSOLE_CMD::TOUCH},
+            {"rm",      CONSOLE_CMD::REMOVE}
         };
     public:
         ConsoleCMDParser(RzServer* server)

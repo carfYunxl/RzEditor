@@ -10,7 +10,7 @@ namespace RzLib
 
         static const bool IsAllDigits(const std::string& digits);
 
-        static void PrintConsoleHeader();
+        static void PrintConsoleHeader(const std::string& path);
 
         static void EnSTDOutputColor();
 
