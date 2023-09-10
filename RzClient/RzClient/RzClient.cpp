@@ -77,7 +77,7 @@ namespace RzLib
 
         Log(LogLevel::INFO, "Connect to server success!");
 
-        Utility::PrintConsoleHeader(m_clientPath.string());
+        //Utility::PrintConsoleHeader(m_clientPath.string());
 
         Recv();
         Send();

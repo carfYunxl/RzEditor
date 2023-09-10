@@ -52,6 +52,9 @@
     <ClCompile Include="RzServer\RzServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RzContrls\RzTextEdit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="RzCMD\CMD.hpp">
@@ -64,6 +67,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RzServer\RzServer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RzContrls\RzTextEdit.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

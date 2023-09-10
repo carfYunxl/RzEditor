@@ -5,6 +5,7 @@
 #include "RzUtility/Utility.hpp"
 #include "RzFile/FileTraveler.hpp"
 #include "RzConsole/RzConsole.hpp"
+#include "RzThread/RzThread.hpp"
 
 namespace RzLib
 {
@@ -34,9 +35,12 @@ namespace RzLib
 		* socket start
 		*/
 		WSAData data;
-		if (WSAStartup(MAKEWORD(2, 2), &data) != 0)
+		int ret = WSAStartup(MAKEWORD(2, 2), &data);
+		int res = WSAGetLastError();
+
+		if (ret!= 0)
 		{
-			Log(LogLevel::ERR, "Initialize win32 socket function failed!");
+			m_UI->Log_NextLine(LogLevel::ERR, "Initialize win32 socket function failed!");
 			return false;
 		}
 
@@ -59,7 +63,7 @@ namespace RzLib
 		m_listen_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		if (m_listen_socket == INVALID_SOCKET)
 		{
-			m_UI->Log(LogLevel::ERR, "create server socket failed, error code = ", WSAGetLastError());
+			m_UI->Log_NextLine( LogLevel::ERR, QString("create server socket failed, error code = %1").arg(WSAGetLastError()) );
 			return false;
 		}
 
@@ -68,7 +72,7 @@ namespace RzLib
 		*/
 		if (bind(m_listen_socket, (sockaddr*)&addr_server, sizeof(sockaddr)) == SOCKET_ERROR)
 		{
-			m_UI->Log(LogLevel::ERR, "socket bind error,error code = ", WSAGetLastError());
+			m_UI->Log_NextLine( LogLevel::ERR, QString("socket bind error,error code = %1").arg(WSAGetLastError()) );
 			return false;
 		}
 
@@ -78,7 +82,7 @@ namespace RzLib
 		const int maxConnection = 5;
 		if (listen(m_listen_socket, maxConnection) == SOCKET_ERROR)
 		{
-			m_UI->Log(LogLevel::ERR, "listen socket error,error code = ", WSAGetLastError());
+			m_UI->Log_NextLine( LogLevel::ERR, QString("listen socket error,error code = %1").arg(WSAGetLastError()) );
 			return false;
 		}
 
@@ -88,85 +92,72 @@ namespace RzLib
 	// 响应服务端的相关CMD
 	void RzServer::AcceptInput()
 	{
-		std::thread thread([&]()
+		ConsoleCMDParser parser(this);
+		std::string sInput;
+
+		PrintConsoleHeader(m_DirPath.string());
+		while (m_IsRunning)
 		{
-			ConsoleCMDParser parser(this);
-			std::string sInput;
+			getline(std::cin, sInput);
+			if (sInput.empty()) continue;
 
-			while ( m_IsRunning )
+			PrintConsoleHeader(m_DirPath.string());
+
+			switch (m_Mode)
 			{
-				Utility::PrintConsoleHeader(m_DirPath.string());
-				getline(std::cin, sInput);
-				if (sInput.empty()) continue;
-
-				switch (m_Mode)
-				{
-					case InputMode::CONSOLE:
-					{
-						parser.SetCMD(sInput);
-						parser.RunCmd();
-						break;
-					}
-					case InputMode::SELECT:
-					{
-						//TO DO
-						break;
-					}
-					case InputMode::SEND:
-					{
-						// 被设置成该模式，意味着接下来获取到的输入都应当发送给client
-						// 或者是一条退出指令
-						if (sInput == QUIT)
-						{
-							SetInputMode(InputMode::CONSOLE);
-							continue;
-						}
-
-						// 发送给client
-						SendInfo( TCP_CMD::NORMAL, sInput );
-						break;
-					}
-				}
+			case InputMode::CONSOLE:
+			{
+				parser.SetCMD(sInput);
+				parser.RunCmd();
+				break;
 			}
+			case InputMode::SELECT:
+			{
+				//TO DO
+				break;
+			}
+			case InputMode::SEND:
+			{
+				// 被设置成该模式，意味着接下来获取到的输入都应当发送给client
+				// 或者是一条退出指令
+				if (sInput == QUIT)
+				{
+					SetInputMode(InputMode::CONSOLE);
+					continue;
+				}
 
-			m_UI->Log(LogLevel::WARN, "Server closed input!");
-		});
+				// 发送给client
+				SendInfo(TCP_CMD::NORMAL, sInput);
+				break;
+			}
+			}
+		}
 
-		thread.detach();
+		m_UI->Log_NextLine(LogLevel::WARN, "Server closed input!");
 	}
 
 	// 处理客户端发过来的请求
 	void RzServer::AcceptClient(SOCKET socket, const char* CMD, int rtLen)
 	{
-		TcpCmdParser parser(socket, CMD, rtLen);
+		TcpCmdParser parser(this, socket, CMD, rtLen);
 
 		parser.RunCmd();
 	}
 
-	bool RzServer::Accept()
+	void RzServer::AcceptRequest()
 	{
-		FD_ZERO(&m_All_FD);
-		FD_SET(m_listen_socket, &m_All_FD);
-
-		m_UI->Log(LogLevel::INFO, "Server is listening ...\n");
-
-		// 处理服务器的CMD
-		AcceptInput();
-
-
 		while ( m_IsRunning )
 		{
 			fd_set tmp = m_All_FD;
 			int res = select(0, &tmp, NULL, NULL, 0);
-			std::cout << std::endl;
 			if (res == SOCKET_ERROR)
 			{
-				m_UI->Log(LogLevel::ERR, " select error, error code : ", WSAGetLastError());
-				return false;
+				//m_UI->Log_NextLine(LogLevel::ERR, QString(" select error, error code : %1").arg(WSAGetLastError()));
+				return;
 			}
 			if (res == 0)
 			{
-				m_UI->Log(LogLevel::INFO, "expired time limited ...");
+				m_UI->Log_NextLine(LogLevel::INFO, "expired time limited ... ");
 				continue;
 			}
 			if (res > 0)
@@ -194,9 +185,21 @@ namespace RzLib
 				}
 			}
 		}
+		m_UI->Log_NextLine(LogLevel::WARN, "Server stop accept client request!");
+	}
 
-		m_UI->Log(LogLevel::WARN, "Server stop accept client request!");
+	bool RzServer::Accept()
+	{
+		FD_ZERO(&m_All_FD);
+		FD_SET(m_listen_socket, &m_All_FD);
 
+		m_UI->Log_NextLine(LogLevel::INFO, "Server is listening ...");
+
+		// 处理服务器的CMD
+		std::thread th_input(std::bind(&RzServer::AcceptInput, this));
+		std::thread th_request(std::bind(&RzServer::AcceptRequest, this));
+		th_input.detach();
+		th_request.detach();
 		return true;
 	}
 
@@ -204,18 +207,17 @@ namespace RzLib
 	{
 		if (m_client.empty())
 		{
-			m_UI->Log(LogLevel::WARN, "No client is online...\n");
+			m_UI->Log_NextLine(LogLevel::WARN, "No client is online..." );
 			return;
 		}
 
-		m_UI->Log(LogLevel::INFO,"client:");
-		std::cout << "\t=======" << std::endl;
+		m_UI->Log_NextLine(LogLevel::INFO, "client:" );
+		m_UI->Log_NextLine(LogLevel::INFO, "\t=======" );
 		for (size_t i = 0;i < m_client.size();++i)
 		{
-			std::cout << "\t| " << i << ". " << m_client.at(i).first << std::endl;
+			m_UI->Log_NextLine(LogLevel::INFO, QString("\t| %1. %2").arg(i).arg(m_client.at(i).first) );
 		}
-
-		std::cout << std::endl;
+		m_UI->Log_NextLine( LogLevel::INFO, " " );
 	}
 
 	int RzServer::GetPort(SOCKET socket)
@@ -242,7 +244,7 @@ namespace RzLib
 		{
 			return;
 		}
-		m_UI->Log(LogLevel::INFO, "客户端已连接, socket : ", socket_client, " port : ", ntohs(clientaddr.sin_port), "\n");
+		m_UI->Log_NextLine(LogLevel::INFO, QString("Client connected, socket : %1 port : %2").arg(socket_client).arg(ntohs(clientaddr.sin_port)));
 		m_client.emplace_back(socket_client, ntohs(clientaddr.sin_port));
 
 		FD_SET(socket_client, &m_All_FD);
@@ -262,7 +264,7 @@ namespace RzLib
 		if (res == 0)
 		{
 			// 连接被正常关闭
-			m_UI->Log(LogLevel::INFO, "Client ", socket, " offline...!\n");
+			m_UI->Log_NextLine( LogLevel::INFO, QString("Client %1 offline...!").arg(socket) );
 			closesocket(socket);
 			FD_CLR(socket, &m_All_FD);
 
@@ -277,7 +279,7 @@ namespace RzLib
 			res = WSAGetLastError();
 			if (res == WSAECONNRESET)
 			{
-				m_UI->Log(LogLevel::INFO, "client ", socket, " offline...!\n");
+				m_UI->Log_NextLine( LogLevel::INFO, QString("client %1 offline...!").arg(socket) );
 				closesocket(socket);
 				FD_CLR(socket, &m_All_FD);
 
@@ -306,19 +308,19 @@ namespace RzLib
 	{
 		if ( !Init() )
 		{
-			m_UI->Log(RzLib::LogLevel::ERR, "server init error, error code : ", WSAGetLastError());
+			m_UI->Log_NextLine( RzLib::LogLevel::ERR, QString( "server init error, error code : %1").arg(WSAGetLastError()) );
 			return;
 		}
 
 		if ( !Listen() )
 		{
-			m_UI->Log(RzLib::LogLevel::ERR, "server listen error, error code : ", WSAGetLastError());
+			m_UI->Log_NextLine( RzLib::LogLevel::ERR, QString( "server listen error, error code : %1").arg(WSAGetLastError()) );
 			return;
 		}
 
 		if ( !Accept() )
 		{
-			m_UI->Log(RzLib::LogLevel::ERR, "server accept error, error code : ", WSAGetLastError());
+			m_UI->Log_NextLine( RzLib::LogLevel::ERR, QString( "server accept error, error code : %1").arg(WSAGetLastError()) );
 			return;
 		}
 	}
@@ -333,7 +335,15 @@ namespace RzLib
 
 		if ( INVALID_SOCKET == send(m_client_socket, sSend.c_str(), static_cast<int>(sSend.size()), 0) )
 		{
-			m_UI->Log(LogLevel::ERR, "send message to client error : ", WSAGetLastError());
+			m_UI->Log_NextLine(LogLevel::ERR, QString("send message to client error : %1").arg(WSAGetLastError()) );
 		}
+	}
+
+	void RzServer::PrintConsoleHeader(const std::string& path)
+	{
+		m_UI->Log_NextLine(LogLevel::NORMAL,"");
+		m_UI->Log_ThisLine(LogLevel::CONSOLE, QString("%1: ").arg(Utility::GetUserInfo().c_str()));
+		m_UI->Log_ThisLine(LogLevel::WARN, QString("%1: ").arg(path.c_str()));
+		m_UI->Log_NextLine(LogLevel::INFO, QString("$ "));
 	}
 }

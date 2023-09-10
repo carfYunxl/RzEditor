@@ -4,11 +4,13 @@
 #include "RzCore/Log.hpp"
 #include <filesystem>
 #include "RzFile/FileTraveler.hpp"
+#include "RzServer/RzServer.hpp"
 
 namespace RzLib
 {
-	TcpCmdParser::TcpCmdParser(SOCKET socket, const char* bufCmd, int rtLen)
-		: m_socket(socket)
+	TcpCmdParser::TcpCmdParser(RzServer* server, SOCKET socket, const char* bufCmd, int rtLen)
+		: m_server(server)
+		, m_socket(socket)
 		, m_Cmd(0)
 		, m_msg("")
     {
@@ -45,18 +47,18 @@ namespace RzLib
 		switch (m_Cmd)
 		{
 			case 0xF1:
-				Log(LogLevel::INFO, "Client ", m_socket, " Say:", m_msg, "\n");
+				m_server->GetUI()->Log_NextLine(LogLevel::INFO, QString("Client %1 Say:%2").arg(m_socket).arg(m_msg.c_str()));
 				break;
 
 			case 0xF3:
 			{
-				Log(LogLevel::INFO, "files in binClient : ");
+				m_server->GetUI()->Log_NextLine(LogLevel::INFO, "files in binClient : ");
 				// 找到binClient的目录， 服务器需要在此处放置最新的客户端文件
 				std::filesystem::path binPath = std::filesystem::current_path();
 				binPath /= "binClient";
 				if (!std::filesystem::exists(binPath))
 				{
-					->Log(LogLevel::ERR, "directory ", binPath, " not exist, please check!");
+					m_server->GetUI()->Log_NextLine( LogLevel::ERR, QString("directory %1 not exist, please check!").arg(binPath.string().c_str()) );
 					return;
 				}
 
@@ -68,7 +70,7 @@ namespace RzLib
 				};
 				if (send(m_socket, buffer.c_str(), static_cast<int>(buffer.size()), 0) == SOCKET_ERROR)
 				{
-					m_UI->Log(LogLevel::ERR, "Send update start error!");
+					m_server->GetUI()->Log_NextLine(LogLevel::ERR, "Send update start error!");
 				}
 
 				for (auto const& dir_entry : std::filesystem::recursive_directory_iterator{ binPath })
@@ -91,10 +93,10 @@ namespace RzLib
 					buffer += path;
 					if (send(m_socket, buffer.c_str(), static_cast<int>(buffer.size()), 0) == SOCKET_ERROR)
 					{
-						Log(LogLevel::ERR, "Send file name error!");
+						m_server->GetUI()->Log_NextLine(LogLevel::ERR, "Send file name error!");
 					}
 
-					Log(LogLevel::WARN, "发送文件/名：", path);
+					m_server->GetUI()->Log_NextLine(LogLevel::WARN, QString("send file name ：%1").arg(path.c_str()));
 
 					if (dir_entry.path().has_extension())
 					{
@@ -113,7 +115,7 @@ namespace RzLib
 				std::cout << "buffer size = " << buffer.size() << std::endl;
 				if (SOCKET_ERROR == send(m_socket, buffer.c_str(), static_cast<int>(buffer.size()), 0))
 				{
-					Log(LogLevel::ERR, "Send file end error!");
+					m_server->GetUI()->Log_NextLine(LogLevel::ERR, "Send file end error!");
 				}
 				break;
 			}
@@ -128,7 +130,7 @@ namespace RzLib
 		FileTraveler file(path);
 		if (!file.open(Mode::Binary))
 		{
-			Log(LogLevel::ERR, "open file : ", path, " failed!");
+			m_server->GetUI()->Log_NextLine(LogLevel::ERR, QString("open file : %1 failed!").arg(path.c_str()));
 			return false;
 		}
 		std::string strFile = file.GetFileContent();
@@ -138,7 +140,7 @@ namespace RzLib
 
 		// 每次向client发送MAX_TCP_PACKAGE_SIZE数据，直到文件内容发送完毕
 		size_t index = 0;
-		Log(LogLevel::ERR, "All file size = ", size);
+		m_server->GetUI()->Log_NextLine(LogLevel::ERR, QString("All file size = %1").arg(size));
 
 		std::string strSend;
 
@@ -158,7 +160,7 @@ namespace RzLib
 
 			if (send(m_socket, strSend.c_str(), static_cast<int>(strSend.size()), 0) == SOCKET_ERROR)
 			{
-				Log(LogLevel::ERR, "Send to client failed! \n");
+				m_server->GetUI()->Log_NextLine(LogLevel::ERR, "Send to client failed!");
 				return false;
 			}
 
@@ -177,11 +179,11 @@ namespace RzLib
 
 		if (send(m_socket, strSend.c_str(), static_cast<int>(strSend.size()), 0) == SOCKET_ERROR)
 		{
-			Log(LogLevel::ERR, "Send to client failed! \n");
+			m_server->GetUI()->Log_NextLine(LogLevel::ERR, "Send to client failed!");
 			return false;
 		}
 
-		Log(LogLevel::INFO, "Send file to client success! \n");
+		m_server->GetUI()->Log_NextLine(LogLevel::INFO, "Send file to client success!");
 
 		return true;
 	}

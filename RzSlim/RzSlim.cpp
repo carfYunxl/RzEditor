@@ -10,78 +10,78 @@ namespace RzLib {
     {
         ui.setupUi(this);
 
-        this->setWindowTitle("RzSlim_Server : 8080");
+        setWindowTitle("RzSlim_Server : 8080");
+        resize(1920,1080);
 
-        RzLib::RzServer server(this,"127.0.0.1", 8080);
+        m_pTextEdit = new RzTextEdit(this);
+        m_pTextEdit->setParent(this);
+        m_pTextEdit->resize(this->width(), this->height());
+        m_pTextEdit->setFont(QFont("Consolas", 12));
+        m_pTextEdit->setStyleSheet("background-color:rgb(0,0,0)");
 
-        server.Start();
+        server = new RzServer(this, "127.0.0.1", 8080);
+
+        server->Start();
     }
 
     RzSlim::~RzSlim()
     {
-
+        if (server)
+            delete server;
+        server = nullptr;
     }
 
-    template<typename...Args>
-    void RzSlim::Log(LogLevel level, Args...args)
+    void RzSlim::SetTextColor(LogLevel level)
     {
         switch (level)
         {
-        case LogLevel::INFO:
-        {
-            this->ui.m_pTextEdit->setTextColor(Qt::white);
-            break;
-        }
-        case LogLevel::WARN:
-            this->ui.m_pTextEdit->setTextColor(Qt::yellow);
-            break;
-        case LogLevel::ERR:
-            this->ui.m_pTextEdit->setTextColor(Qt::red);
-            break;
-        case LogLevel::CONSOLE:
-            this->ui.m_pTextEdit->setTextColor(Qt::gray);
-            break;
-        case LogLevel::NORMAL:
-            this->ui.m_pTextEdit->setTextColor(Qt::green);
-            break;
-        }
-
-        this->ui.m_pTextEdit->insertPlainText(QString(title.c_str()));
-    }
-
-    void RzSlim::Print(LogLevel level, const std::string& title)
-    {
-        switch(level)
-        {
             case LogLevel::INFO:
             {
-                this->ui.m_pTextEdit->setTextColor(Qt::white);
+                this->m_pTextEdit->setTextColor(Qt::white);
                 break;
             }
             case LogLevel::WARN:
-                this->ui.m_pTextEdit->setTextColor(Qt::yellow);
+            {
+                this->m_pTextEdit->setTextColor(Qt::yellow);
                 break;
+            }
             case LogLevel::ERR:
-                this->ui.m_pTextEdit->setTextColor(Qt::red);
+            {
+                this->m_pTextEdit->setTextColor(Qt::red);
                 break;
+            }
             case LogLevel::CONSOLE:
-                this->ui.m_pTextEdit->setTextColor(Qt::gray);
+            {
+                this->m_pTextEdit->setTextColor(Qt::gray);
                 break;
+            }
             case LogLevel::NORMAL:
-                this->ui.m_pTextEdit->setTextColor(Qt::green);
+            {
+                this->m_pTextEdit->setTextColor(Qt::green);
                 break;
+            }
         }
+    }
 
-        this->ui.m_pTextEdit->insertPlainText(QString(title.c_str()));
+    void RzSlim::Log_NextLine(LogLevel level, const QString& list)
+    {      
+        SetTextColor(level);
+        this->m_pTextEdit->append(list);
+    }
+
+    void RzSlim::Log_ThisLine(LogLevel level, const QString& list)
+    {
+        SetTextColor(level);
+        this->m_pTextEdit->insertPlainText(list);
     }
 
     void RzSlim::AppendText(const QString& sText)
     {
-        this->ui.m_pTextEdit->append(sText);
+        this->m_pTextEdit->append(sText);
     }
 
     void RzSlim::InsertText(const QString& sText)
     {
-        this->ui.m_pTextEdit->insertPlainText(sText);
+        this->m_pTextEdit->insertPlainText(sText);
     }
 }

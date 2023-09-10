@@ -2,17 +2,14 @@
 
 #include <QtWidgets/QWidget>
 #include "ui_RzSlim.h"
+#include "RzCore/Core.hpp"
+#include "RzCore/Log.hpp"
+#include "RzContrls/RzTextEdit.hpp"
 
 namespace RzLib 
 {
-    enum class LogLevel
-    {
-        INFO = 0,
-        WARN,
-        ERR,
-        CONSOLE,
-        NORMAL
-    };
+    class RzServer;
+    class RzTextEdit;
 
     class RzSlim : public QWidget
     {
@@ -22,15 +19,17 @@ namespace RzLib
         RzSlim(QWidget* parent = nullptr);
         ~RzSlim();
 
-        template<typename...Args>
-        void Log(LogLevel level, Args...args);
-
-        void Print(LogLevel level, const std::string& title);
-
         void AppendText(const QString& sText);
         void InsertText(const QString& sText);
 
+        void Log_NextLine(LogLevel level, const QString& list);
+        void Log_ThisLine(LogLevel level, const QString& list);
+    private:
+        void SetTextColor(LogLevel level);
+
     private:
         Ui::RzSlimClass ui;
+        RzServer* server;
+        RzTextEdit* m_pTextEdit;
     };
 }

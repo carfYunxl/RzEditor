@@ -30,11 +30,4 @@ namespace RzLib
     {
         return digits.cend() == std::find_if(digits.cbegin(), digits.cend(), [](const char ch) { return isalpha(ch); });
     }
-
-    void Utility::PrintConsoleHeader(const std::string& path)
-    {
-        Print(LogLevel::CONSOLE, GetUserInfo() + ": ");
-        Print(LogLevel::WARN, path + "\n");
-        Print(LogLevel::INFO, "$ ");
-    }
 }

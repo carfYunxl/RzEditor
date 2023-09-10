@@ -40,6 +40,7 @@
 #include "ConsoleCMDParser.hpp"
 #include "RzUtility/Utility.hpp"
 #include "RzServer/RzServer.hpp"
+#include "RzCore/Log.hpp"
 
 namespace RzLib
 {
@@ -213,6 +214,6 @@ namespace RzLib
 		if (pCmd)
 			pCmd->Run();
 		else
-			Log(LogLevel::ERR, "unknown command!\n");
+			m_Server->GetUI()->Log_NextLine(LogLevel::ERR, "unknown command!");
 	}
 }

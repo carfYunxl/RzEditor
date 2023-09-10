@@ -56,6 +56,10 @@ namespace RzLib
         void AcceptClient(SOCKET socket, const char* CMD, int rtLen);
         void AcceptConnection();
         bool GetClientMsg(SOCKET socket, char* buf, int* rtlen);
+
+        void PrintConsoleHeader(const std::string& path);
+
+        void AcceptRequest();
     private:
         RzSlim*         m_UI;
         std::string     m_ip;

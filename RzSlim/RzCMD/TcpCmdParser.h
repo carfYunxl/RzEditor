@@ -19,7 +19,7 @@ namespace RzLib
     class TcpCmdParser
     {
     public:
-        TcpCmdParser(SOCKET socket, const char* bufCmd, int rtLen);
+        TcpCmdParser(RzServer* server, SOCKET socket, const char* bufCmd, int rtLen);
 
     public:
         const size_t        GetCmd() const { return m_Cmd; }
@@ -34,5 +34,6 @@ namespace RzLib
         SOCKET              m_socket;
         unsigned char       m_Cmd;
         std::string         m_msg;
+        RzServer*           m_server;
     };
 }
