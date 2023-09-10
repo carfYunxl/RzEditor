@@ -11,15 +11,16 @@ namespace RzLib {
         ui.setupUi(this);
 
         setWindowTitle("RzSlim_Server : 8080");
-        resize(1920,1080);
-
-        m_pTextEdit = new RzTextEdit(this);
-        m_pTextEdit->setParent(this);
-        m_pTextEdit->resize(this->width(), this->height());
-        m_pTextEdit->setFont(QFont("Consolas", 12));
-        m_pTextEdit->setStyleSheet("background-color:rgb(0,0,0)");
+        resize(600,800);
 
         server = new RzServer(this, "127.0.0.1", 8080);
+
+        m_pTextEdit = new RzTextEdit(server);
+        m_pTextEdit->setParent(this);
+        m_pTextEdit->resize(this->width(), this->height());
+        m_pTextEdit->setFont(QFont("Consolas", 11));
+        m_pTextEdit->setStyleSheet("background-color:rgb(0,0,0)");
+        //m_pTextEdit->setReadOnly(true);
 
         server->Start();
     }
@@ -37,7 +38,7 @@ namespace RzLib {
         {
             case LogLevel::INFO:
             {
-                this->m_pTextEdit->setTextColor(Qt::white);
+                this->m_pTextEdit->setTextColor(Qt::green);
                 break;
             }
             case LogLevel::WARN:
@@ -57,7 +58,7 @@ namespace RzLib {
             }
             case LogLevel::NORMAL:
             {
-                this->m_pTextEdit->setTextColor(Qt::green);
+                this->m_pTextEdit->setTextColor(Qt::white);
                 break;
             }
         }

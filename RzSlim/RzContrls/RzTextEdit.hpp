@@ -4,20 +4,20 @@
 
 namespace RzLib
 {
-    class RzSlim;
+    class RzServer;
 
     class RzTextEdit : public QTextEdit
     {
     public:
-        explicit RzTextEdit(RzSlim* parent = nullptr)
-            : pParent(parent)
+        explicit RzTextEdit(RzServer* parent = nullptr)
+            : m_pServer(parent)
         {}
         ~RzTextEdit() {}
     protected:
         virtual void keyPressEvent(QKeyEvent* event) override;
 
     private:
-        RzSlim* pParent;
+        RzServer* m_pServer;
     };
 }
 

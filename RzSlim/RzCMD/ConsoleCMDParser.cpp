@@ -215,5 +215,7 @@ namespace RzLib
 			pCmd->Run();
 		else
 			m_Server->GetUI()->Log_NextLine(LogLevel::ERR, "unknown command!");
+
+		m_Server->GetUI()->Log_ThisLine(LogLevel::NORMAL,"");
 	}
 }

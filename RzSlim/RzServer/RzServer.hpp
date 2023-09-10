@@ -39,6 +39,8 @@ namespace RzLib
         bool IsClientSocket(size_t nSocket);
 
         void SetInputMode(InputMode mode) { m_Mode = mode; }
+        const InputMode GetInputMode() const { return m_Mode; }
+
         void SelectClient(SOCKET socket) { m_client_socket = socket; }
 
         void SendInfo( TCP_CMD cmd, const std::string& msg);
@@ -48,16 +50,16 @@ namespace RzLib
 
         RzSlim* GetUI() { return m_UI; }
 
+        void PrintConsoleHeader(const std::string& path);
+
     private:
         bool Init();
         bool Listen();
         bool Accept();
-        void AcceptInput();
         void AcceptClient(SOCKET socket, const char* CMD, int rtLen);
         void AcceptConnection();
         bool GetClientMsg(SOCKET socket, char* buf, int* rtlen);
 
-        void PrintConsoleHeader(const std::string& path);
 
         void AcceptRequest();
     private:

@@ -89,53 +89,6 @@ namespace RzLib
 		return true;
 	}
 
-	// 响应服务端的相关CMD
-	void RzServer::AcceptInput()
-	{
-		ConsoleCMDParser parser(this);
-		std::string sInput;
-
-		PrintConsoleHeader(m_DirPath.string());
-		while (m_IsRunning)
-		{
-			getline(std::cin, sInput);
-			if (sInput.empty()) continue;
-
-			PrintConsoleHeader(m_DirPath.string());
-
-			switch (m_Mode)
-			{
-			case InputMode::CONSOLE:
-			{
-				parser.SetCMD(sInput);
-				parser.RunCmd();
-				break;
-			}
-			case InputMode::SELECT:
-			{
-				//TO DO
-				break;
-			}
-			case InputMode::SEND:
-			{
-				// 被设置成该模式，意味着接下来获取到的输入都应当发送给client
-				// 或者是一条退出指令
-				if (sInput == QUIT)
-				{
-					SetInputMode(InputMode::CONSOLE);
-					continue;
-				}
-
-				// 发送给client
-				SendInfo(TCP_CMD::NORMAL, sInput);
-				break;
-			}
-			}
-		}
-
-		m_UI->Log_NextLine(LogLevel::WARN, "Server closed input!");
-	}
-
 	// 处理客户端发过来的请求
 	void RzServer::AcceptClient(SOCKET socket, const char* CMD, int rtLen)
 	{
@@ -193,12 +146,11 @@ namespace RzLib
 		FD_ZERO(&m_All_FD);
 		FD_SET(m_listen_socket, &m_All_FD);
 
-		m_UI->Log_NextLine(LogLevel::INFO, "Server is listening ...");
+		m_UI->Log_NextLine(LogLevel::INFO, "Server is listening ...\n");
+		PrintConsoleHeader(m_DirPath.string());
 
 		// 处理服务器的CMD
-		std::thread th_input(std::bind(&RzServer::AcceptInput, this));
 		std::thread th_request(std::bind(&RzServer::AcceptRequest, this));
-		th_input.detach();
 		th_request.detach();
 		return true;
 	}
@@ -345,5 +297,6 @@ namespace RzLib
 		m_UI->Log_ThisLine(LogLevel::CONSOLE, QString("%1: ").arg(Utility::GetUserInfo().c_str()));
 		m_UI->Log_ThisLine(LogLevel::WARN, QString("%1: ").arg(path.c_str()));
 		m_UI->Log_NextLine(LogLevel::INFO, QString("$ "));
+		m_UI->Log_ThisLine(LogLevel::NORMAL, "");
 	}
 }
