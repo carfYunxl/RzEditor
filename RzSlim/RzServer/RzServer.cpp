@@ -146,7 +146,7 @@ namespace RzLib
 		FD_ZERO(&m_All_FD);
 		FD_SET(m_listen_socket, &m_All_FD);
 
-		m_UI->Log_NextLine(LogLevel::INFO, "Server is listening ...\n");
+		m_UI->InsertStatus("Server is listening ...");
 		PrintConsoleHeader(m_DirPath.string());
 
 		// 处理服务器的CMD
@@ -196,7 +196,7 @@ namespace RzLib
 		{
 			return;
 		}
-		m_UI->Log_NextLine(LogLevel::INFO, QString("Client connected, socket : %1 port : %2").arg(socket_client).arg(ntohs(clientaddr.sin_port)));
+		m_UI->InsertStatus(QString("Client connected, socket : %1 port : %2").arg(socket_client).arg(ntohs(clientaddr.sin_port)));
 		m_client.emplace_back(socket_client, ntohs(clientaddr.sin_port));
 
 		FD_SET(socket_client, &m_All_FD);
@@ -294,8 +294,8 @@ namespace RzLib
 	void RzServer::PrintConsoleHeader(const std::string& path)
 	{
 		m_UI->Log_NextLine(LogLevel::NORMAL,"");
-		m_UI->Log_ThisLine(LogLevel::CONSOLE, QString("%1: ").arg(Utility::GetUserInfo().c_str()));
-		m_UI->Log_ThisLine(LogLevel::WARN, QString("%1: ").arg(path.c_str()));
+		m_UI->Log_ThisLine(LogLevel::CONSOLE, QString("%1 ").arg(Utility::GetUserInfo().c_str()));
+		m_UI->Log_ThisLine(LogLevel::WARN, QString("%1 ").arg(path.c_str()));
 		m_UI->Log_NextLine(LogLevel::INFO, QString("$ "));
 		m_UI->Log_ThisLine(LogLevel::NORMAL, "");
 	}

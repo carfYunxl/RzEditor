@@ -2,6 +2,7 @@
 
 #include "RzServer/RzServer.hpp"
 #include "RzUtility/Utility.hpp"
+#include <QResizeEvent>
 
 namespace RzLib {
 
@@ -13,23 +14,38 @@ namespace RzLib {
         setWindowTitle("RzSlim_Server : 8080");
         resize(600,800);
 
-        server = new RzServer(this, "127.0.0.1", 8080);
+        m_server = new RzServer(this, "127.0.0.1", 8080);
 
-        m_pTextEdit = new RzTextEdit(server);
+        m_pTextEdit = new RzTextEdit(m_server);
         m_pTextEdit->setParent(this);
-        m_pTextEdit->resize(this->width(), this->height());
+        m_pTextEdit->resize(this->width(), this->height() - HEIGHT);
         m_pTextEdit->setFont(QFont("Consolas", 11));
         m_pTextEdit->setStyleSheet("background-color:rgb(0,0,0)");
-        //m_pTextEdit->setReadOnly(true);
 
-        server->Start();
+        m_statusbar = new QStatusBar(this);
+        m_statusbar->move(0, this->height() - HEIGHT);
+        m_statusbar->resize(this->width(), HEIGHT);
+        m_statusbar->setStyleSheet("background-color:rgb(0,0,0)");
+        m_statusbar->show();
+
+        m_statuslabel = new QLabel("Hello", this);
+        m_statuslabel->resize(this->width(), HEIGHT);
+        m_statuslabel->show();
+        m_statuslabel->setText("World! -------------------------------");
+        m_statuslabel->setFont(QFont("Consolas", 11));
+        m_statuslabel->setStyleSheet("background-color:rgb(0,0,0);"
+                             "color:rgb(255,255,255)");
+
+        m_statusbar->addWidget(m_statuslabel);
+
+        m_server->Start();
     }
 
     RzSlim::~RzSlim()
     {
-        if (server)
-            delete server;
-        server = nullptr;
+        if (m_server)
+            delete m_server;
+        m_server = nullptr;
     }
 
     void RzSlim::SetTextColor(LogLevel level)
@@ -84,5 +100,17 @@ namespace RzLib {
     void RzSlim::InsertText(const QString& sText)
     {
         this->m_pTextEdit->insertPlainText(sText);
+    }
+    void RzSlim::resizeEvent(QResizeEvent* event)
+    {
+        m_pTextEdit->resize(event->size().width(), event->size().height() - HEIGHT);
+
+        m_statusbar->move(0, event->size().height() - HEIGHT);
+        m_statusbar->resize(event->size().width(), HEIGHT);
+    }
+
+    void RzSlim::InsertStatus(const QString& sStatus)
+    {
+        m_statuslabel->setText(sStatus);
     }
 }

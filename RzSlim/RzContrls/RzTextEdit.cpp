@@ -108,21 +108,21 @@ namespace RzLib
 		QTextDocument* doc = document();
 		QTextBlock tb = doc->findBlockByLineNumber(doc->lineCount() - 1);
 
-		std::string sInput = tb.text().toStdString();
+		QString sInput = tb.text();
 
-		if (sInput.find("$ ") != std::string::npos)
+		if (sInput.left(2) == "$ ")
 		{
-			sInput = sInput.substr(2, sInput.size() - 2);
+			sInput = sInput.right(sInput.size() - 2);
 		}
 
 		ConsoleCMDParser parser(m_pServer);
-		parser.SetCMD(sInput);
+		parser.SetCMD(sInput.toStdString());
 
 		switch (m_pServer->GetInputMode())
 		{
 			case InputMode::CONSOLE:
 			{
-				parser.SetCMD(sInput);
+				parser.SetCMD(sInput.toStdString());
 				parser.RunCmd();
 				break;
 			}
@@ -135,13 +135,13 @@ namespace RzLib
 			{
 				// 被设置成该模式，意味着接下来获取到的输入都应当发送给client
 				// 或者是一条退出指令
-				if (sInput == QUIT)
+				if (sInput.toStdString() == QUIT)
 				{
 					m_pServer->SetInputMode(InputMode::CONSOLE);
 				}
 
 				// 发送给client
-				m_pServer->SendInfo(TCP_CMD::NORMAL, sInput);
+				m_pServer->SendInfo(TCP_CMD::NORMAL, sInput.toStdString());
 				break;
 			}
 		}
