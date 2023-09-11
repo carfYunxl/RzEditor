@@ -90,9 +90,25 @@
   </ItemDefinitionGroup>
   <PropertyGroup Label="QtDeploy" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <QtDeploy>true</QtDeploy>
+    <QtDeployNoPlugins>true</QtDeployNoPlugins>
+    <QtDeployNoQuickImport>true</QtDeployNoQuickImport>
+    <QtDeployNoTranslations>true</QtDeployNoTranslations>
+    <QtDeployNoSystemD3dCompiler>true</QtDeployNoSystemD3dCompiler>
+    <QtDeployNoVirtualKeyboard>true</QtDeployNoVirtualKeyboard>
+    <QtDeployWebkit2>skip</QtDeployWebkit2>
+    <QtDeployAngle>skip</QtDeployAngle>
+    <QtDeployNoOpenglSw>true</QtDeployNoOpenglSw>
   </PropertyGroup>
   <PropertyGroup Label="QtDeploy" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <QtDeploy>true</QtDeploy>
+    <QtDeployNoPlugins>true</QtDeployNoPlugins>
+    <QtDeployNoQuickImport>true</QtDeployNoQuickImport>
+    <QtDeployNoTranslations>true</QtDeployNoTranslations>
+    <QtDeployNoSystemD3dCompiler>true</QtDeployNoSystemD3dCompiler>
+    <QtDeployNoVirtualKeyboard>true</QtDeployNoVirtualKeyboard>
+    <QtDeployWebkit2>skip</QtDeployWebkit2>
+    <QtDeployAngle>skip</QtDeployAngle>
+    <QtDeployNoOpenglSw>true</QtDeployNoOpenglSw>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ClCompile>

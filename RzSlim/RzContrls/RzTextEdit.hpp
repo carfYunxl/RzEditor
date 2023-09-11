@@ -15,9 +15,16 @@ namespace RzLib
         ~RzTextEdit() {}
     protected:
         virtual void keyPressEvent(QKeyEvent* event) override;
+        virtual void mousePressEvent(QMouseEvent* event) override;
 
     private:
-        RzServer* m_pServer;
+        void ProcessKeyTab();
+        void ProcessKeyReturn();
+        void ProcessKeyBackspace();
+    private:
+        RzServer*   m_pServer;
+        size_t      m_Cnt{0};
+        QString     m_sInput;
     };
 }
 
