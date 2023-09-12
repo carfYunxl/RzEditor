@@ -1,21 +1,18 @@
 # RzLib
 - some personal like library for daily work
   - FileTraveler : a easy use file operation class
-- windows native socket API server
-  - RzServer : a windows server
-- others...
+  - ScopeThread
+  - ...
 
-# RzServer
+# RzSlim
 ## Introduction
-  a console windows server App that use native winsock2 API
-## CMD
-- **send**
-  - gramma : send socket message
-  - socket : client socket
-  - message : anything you want to send to client
-- **file**
-  - gramma : file socket filepath
-  - socket : client socket
-  - filepath : can be abs path or relative path
-- **exit** : close the server
-- **client** : list all connected client socket
+  - a vim like code editor for windows.
+  - 
+## what can we get from this editor?
+- **file and directory operations**
+  - linux terminal command : ls, cd, rm, mkdir, tab自动补全...
+  - run file automatiocally : exe, txt, pdf, doc...
+  - file editor
+- **TCP transfer**
+  - client update automatically
+  - Tcp socket client
