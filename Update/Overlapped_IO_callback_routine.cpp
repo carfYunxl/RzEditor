@@ -32,7 +32,7 @@ void CALLBACK WorkerRoutine(DWORD Error, DWORD BytesTransferred, LPWSAOVERLAPPED
 DWORD WINAPI WorkerThread(LPVOID lpParameter);
 SOCKET AcceptSocket;
 
-int main(int argc, char** argv)
+int main4(int argc, char** argv)
 {
     WSADATA wsaData;
     SOCKET ListenSocket;

@@ -24,7 +24,7 @@ WSAEVENT EventArray[WSA_MAXIMUM_WAIT_EVENTS];
 
 LPSOCKET_INFORMATION SocketArray[WSA_MAXIMUM_WAIT_EVENTS];
 
-int main(int argc, char** argv)
+int main1(int argc, char** argv)
 {
     SOCKET Listen;
     SOCKET Accept;

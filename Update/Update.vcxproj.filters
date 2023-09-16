@@ -15,23 +15,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="WSAAsyncSelect.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="WSAEventSelect.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Overlapped_IO.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Overlapped_IO_AcceptEx.cpp">
+    <ClCompile Include="Classes\OIpIO.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Overlapped_IO_callback_routine.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="CompletionPort.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Classes\OlpIO.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

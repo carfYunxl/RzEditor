@@ -30,7 +30,7 @@ typedef struct _SOCKET_INFORMATION {
     DWORD BytesRECV;
 } SOCKET_INFORMATION, * LPSOCKET_INFORMATION;
 
-int main(int argc, char** argv)
+int main5(int argc, char** argv)
 {
     DWORD EventTotal = 0;
     WSAEVENT EventArray[WSA_MAXIMUM_WAIT_EVENTS];
