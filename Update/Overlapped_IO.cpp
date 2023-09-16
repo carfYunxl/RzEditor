@@ -20,22 +20,18 @@ struct SOCK_INFO
 
 using pSOCK_INFO = SOCK_INFO*;
 
-DWORD WINAPI ProcessIO(LPVOID lpParameter);
-
 DWORD dwTotalEvent = 0;
 
 std::array<WSAEVENT, WSA_MAXIMUM_WAIT_EVENTS> EventArray;
 
-pSOCK_INFO SocketArray[WSA_MAXIMUM_WAIT_EVENTS];
+std::array<pSOCK_INFO, WSA_MAXIMUM_WAIT_EVENTS> SocketArray;
 
 std::mutex g_mutex;
 
 void Process()
 {
     DWORD Index;
-    pSOCK_INFO SI;
     DWORD BytesTransferred;
-    DWORD i;
     DWORD RecvBytes, SendBytes;
     // Process asynchronous WSASend, WSARecv requests
     while (TRUE)
@@ -55,7 +51,7 @@ void Process()
             continue;
         }
 
-        SI = SocketArray[Index - WSA_WAIT_EVENT_0];
+        pSOCK_INFO SI = SocketArray[Index - WSA_WAIT_EVENT_0];
         WSAResetEvent(EventArray[Index - WSA_WAIT_EVENT_0]);
         DWORD Flags = 0;
         if (WSAGetOverlappedResult(SI->Socket, &(SI->Overlapped), &BytesTransferred, FALSE, &Flags) == FALSE || BytesTransferred == 0)
@@ -75,7 +71,7 @@ void Process()
             // and socket information structure if they are not at the end of the arrays
             std::lock_guard<std::mutex> locker(g_mutex);
             if ((Index - WSA_WAIT_EVENT_0) + 1 != dwTotalEvent)
-                for (i = Index - WSA_WAIT_EVENT_0; i < dwTotalEvent; i++)
+                for (DWORD i = Index - WSA_WAIT_EVENT_0; i < dwTotalEvent; i++)
                 {
                     EventArray[i] = EventArray[i + 1];
                     SocketArray[i] = SocketArray[i + 1];
@@ -141,7 +137,7 @@ void Process()
     }
 }
 
-int main(int argc, char** argv)
+int mainxx(int argc, char** argv)
 {
     WSADATA sData;
     SOCKET sListenSocket, sAcceptSocket;

@@ -8,8 +8,8 @@
 int main()
 {
     // must add this to eable color out to console
-    RzLib::Utility::EnSTDOutputColor();
-    RzLib::Utility::ChangeConsoleFont(15, L"Consolas");
+    //RzLib::Utility::EnSTDOutputColor();
+    //RzLib::Utility::ChangeConsoleFont(15, L"Consolas");
 
     //检查当前目录下是否含有_old的exe和dll档案，有的话就直接删除
 #if 0
