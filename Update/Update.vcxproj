@@ -161,8 +161,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Classes\OIpIO.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Overlapped_IO.cpp" />
+    <ClCompile Include="CompletionPort.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RzLib\RzLib.vcxproj">

@@ -1,44 +1,29 @@
-// Description:
-//
-//    This sample illustrates how to develop a simple echo server Winsock
-//    application using the completeion port I/O model. This
-//    sample is implemented as a console-style application and simply prints
-//    messages when connections are established and removed from the server.
-//    The application listens for TCP connections on port 5150 and accepts them
-//    as they arrive. When this application receives data from a client, it
-//    simply echos (this is why we call it an echo server) the data back in
-//    it's original form until the client closes the connection.
-//
-//    Note: There are no command line options for this sample.
-//
-// Link to ws2_32.lib
-
 #include <winsock2.h>
 #include <windows.h>
 #include <stdio.h>
 
-#define PORT 5150
+#define PORT 8080
 #define DATA_BUFSIZE 8192
 
-typedef struct
+struct PER_IO_OPERATION_DATA
 {
     OVERLAPPED Overlapped;
     WSABUF DataBuf;
     CHAR Buffer[DATA_BUFSIZE];
     DWORD BytesSEND;
     DWORD BytesRECV;
-} PER_IO_OPERATION_DATA, * LPPER_IO_OPERATION_DATA;
+};
 
 // Structure definition
-typedef struct
+struct PER_HANDLE_DATA
 {
     SOCKET Socket;
-} PER_HANDLE_DATA, * LPPER_HANDLE_DATA;
+};
 
 // Prototype
 DWORD WINAPI ServerWorkerThread(LPVOID CompletionPortID);
 
-int main3(int argc, char** argv)
+int main(int argc, char** argv)
 {
     SOCKADDR_IN InternetAddr;
     SOCKET Listen;
@@ -46,8 +31,8 @@ int main3(int argc, char** argv)
     SOCKET Accept;
     HANDLE CompletionPort;
     SYSTEM_INFO SystemInfo;
-    LPPER_HANDLE_DATA PerHandleData;
-    LPPER_IO_OPERATION_DATA PerIoData;
+    PER_HANDLE_DATA* PerHandleData = nullptr;
+    PER_IO_OPERATION_DATA* PerIoData = nullptr;
     int i;
     DWORD RecvBytes;
     DWORD Flags;
@@ -79,7 +64,7 @@ int main3(int argc, char** argv)
     for (i = 0; i < (int)SystemInfo.dwNumberOfProcessors * 2; i++)
     {
         // Create a server worker thread and pass the completion port to the thread
-        if ((ThreadHandle = CreateThread(NULL, 0, ServerWorkerThread, CompletionPort, 0, &ThreadID)) == NULL)
+        if ((ThreadHandle = CreateThread(NULL, 0, ServerWorkerThread, (LPVOID)CompletionPort, 0, &ThreadID)) == NULL)
         {
             printf("CreateThread() failed with error %d\n", GetLastError());
             return 1;
@@ -132,73 +117,73 @@ int main3(int argc, char** argv)
             printf("WSAAccept() looks fine!\n");
 
         // Create a socket information structure to associate with the socket
-        if ((PerHandleData = (LPPER_HANDLE_DATA)GlobalAlloc(GPTR, sizeof(PER_HANDLE_DATA))) == NULL)
-            printf("GlobalAlloc() failed with error %d\n", GetLastError());
-        else
-            printf("GlobalAlloc() for LPPER_HANDLE_DATA is OK!\n");
-        return 1;
-    }
-
-    // Associate the accepted socket with the original completion port
-    printf("Socket number %d got connected...\n", static_cast<int>(Accept));
-    PerHandleData->Socket = Accept;
-
-    /*if (CreateIoCompletionPort((HANDLE)Accept, CompletionPort, (DWORD)PerHandleData, 0) == NULL)
-    {
-        printf("CreateIoCompletionPort() failed with error %d\n", GetLastError());
-        return 1;
-    }
-    else
-        printf("CreateIoCompletionPort() is OK!\n");*/
-
-    // Create per I/O socket information structure to associate with the WSARecv call below
-    if ((PerIoData = (LPPER_IO_OPERATION_DATA)GlobalAlloc(GPTR, sizeof(PER_IO_OPERATION_DATA))) == NULL)
-    {
-        printf("GlobalAlloc() failed with error %d\n", GetLastError());
-        return 1;
-    }
-    else
-        printf("GlobalAlloc() for LPPER_IO_OPERATION_DATA is OK!\n");
-
-    ZeroMemory(&(PerIoData->Overlapped), sizeof(OVERLAPPED));
-    PerIoData->BytesSEND = 0;
-    PerIoData->BytesRECV = 0;
-    PerIoData->DataBuf.len = DATA_BUFSIZE;
-    PerIoData->DataBuf.buf = PerIoData->Buffer;
-
-    Flags = 0;
-    if (WSARecv(Accept, &(PerIoData->DataBuf), 1, &RecvBytes, &Flags, &(PerIoData->Overlapped), NULL) == SOCKET_ERROR)
-    {
-        if (WSAGetLastError() != ERROR_IO_PENDING)
+        PerHandleData = new PER_HANDLE_DATA;;
+        if (PerHandleData == NULL)
         {
-            printf("WSARecv() failed with error %d\n", WSAGetLastError());
+            printf("new PerHandleData failed with error %d\n", GetLastError());
             return 1;
         }
-    }
-    else
+
+        printf("new PerHandleData for LPPER_HANDLE_DATA is OK!\n");
+
+        // Associate the accepted socket with the original completion port
+        printf("Socket number %d got connected...\n", static_cast<int>(Accept));
+        PerHandleData->Socket = Accept;
+
+        if (CreateIoCompletionPort((HANDLE)Accept, CompletionPort, (ULONG_PTR)PerHandleData, 0) == NULL)
+        {
+            printf("CreateIoCompletionPort() failed with error %d\n", GetLastError());
+            return 1;
+        }
+        printf("CreateIoCompletionPort() is OK!\n");
+
+        // Create per I/O socket information structure to associate with the WSARecv call below
+        PerIoData = new PER_IO_OPERATION_DATA;
+        if (PerIoData == NULL)
+        {
+            printf("new PerIoData failed with error %d\n", GetLastError());
+            return 1;
+        }
+        printf("new PerIoData for LPPER_IO_OPERATION_DATA is OK!\n");
+
+        ZeroMemory(&(PerIoData->Overlapped), sizeof(OVERLAPPED));
+        PerIoData->BytesSEND = 0;
+        PerIoData->BytesRECV = 0;
+        PerIoData->DataBuf.len = DATA_BUFSIZE;
+        PerIoData->DataBuf.buf = PerIoData->Buffer;
+
+        Flags = 0;
+        if (WSARecv(Accept, &(PerIoData->DataBuf), 1, &RecvBytes, &Flags, &(PerIoData->Overlapped), NULL) == SOCKET_ERROR)
+        {
+            if (WSAGetLastError() != ERROR_IO_PENDING)
+            {
+                printf("WSARecv() failed with error %d\n", WSAGetLastError());
+                return 1;
+            }
+        }
         printf("WSARecv() is OK!\n");
+    }
 }
 
 DWORD WINAPI ServerWorkerThread(LPVOID CompletionPortID)
 {
-#if 0
     HANDLE CompletionPort = (HANDLE)CompletionPortID;
     DWORD BytesTransferred;
-    LPPER_HANDLE_DATA PerHandleData;
-    LPPER_IO_OPERATION_DATA PerIoData;
+    PER_HANDLE_DATA* PerHandleData = new PER_HANDLE_DATA;
+    memset(PerHandleData, 0, sizeof(PER_HANDLE_DATA));
+    PER_IO_OPERATION_DATA* PerIoData = new PER_IO_OPERATION_DATA;;
     DWORD SendBytes, RecvBytes;
     DWORD Flags;
 
     while (TRUE)
-    {/*
+    {
         if (GetQueuedCompletionStatus(
-            CompletionPort, &BytesTransferred, (LPDWORD)&PerHandleData, (LPOVERLAPPED*)&PerIoData, INFINITE) == 0)
+            CompletionPort, &BytesTransferred, (PULONG_PTR)&PerHandleData, (LPOVERLAPPED*)&PerIoData, INFINITE) == FALSE)
         {
             printf("GetQueuedCompletionStatus() failed with error %d\n", GetLastError());
             return 0;
         }
-        else
-            printf("GetQueuedCompletionStatus() is OK!\n");*/
+        printf("GetQueuedCompletionStatus() is OK!\n");
 
         // First check to see if an error has occurred on the socket and if so
         // then close the socket and cleanup the SOCKET_INFORMATION structure
@@ -214,8 +199,8 @@ DWORD WINAPI ServerWorkerThread(LPVOID CompletionPortID)
             else
                 printf("closesocket() is fine!\n");
 
-            GlobalFree(PerHandleData);
-            GlobalFree(PerIoData);
+            delete PerHandleData;
+            delete PerIoData;
             continue;
         }
 
@@ -241,8 +226,9 @@ DWORD WINAPI ServerWorkerThread(LPVOID CompletionPortID)
             PerIoData->DataBuf.buf = PerIoData->Buffer + PerIoData->BytesSEND;
             PerIoData->DataBuf.len = PerIoData->BytesRECV - PerIoData->BytesSEND;
 
-            if (WSASend(PerHandleData->Socket, &(PerIoData->DataBuf), 1, &SendBytes, 0,
-                &(PerIoData->Overlapped), NULL) == SOCKET_ERROR)
+            SendBytes = PerIoData->BytesRECV;
+
+            if (WSASend(PerHandleData->Socket, &(PerIoData->DataBuf), 1, &SendBytes, 0, &(PerIoData->Overlapped), NULL) == SOCKET_ERROR)
             {
                 if (WSAGetLastError() != ERROR_IO_PENDING)
                 {
@@ -275,6 +261,5 @@ DWORD WINAPI ServerWorkerThread(LPVOID CompletionPortID)
                 printf("WSARecv() is OK!\n");
         }
     }
-#endif
     return 0;
 }

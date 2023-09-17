@@ -1,17 +1,3 @@
-// Description:
-//
-//    This sample illustrates how to develop a simple echo server Winsock
-//    application using the Overlapped I/O model with callback routines.
-//    This sample is implemented as a console-style application and simply prints
-//    messages when connections are established and removed from the server.
-//    The application listens for TCP connections on port 5150 and accepts them
-//    as they arrive. When this application receives data from a client, it
-//    simply echos (this is why we call it an echo server) the data back in
-//    it's original form until the client closes the connection.
-//
-//    Note: There are no command line options for this sample.
-// Link to ws2_32.lib
-
 #include <winsock2.h>
 #include <windows.h>
 #include <stdio.h>
