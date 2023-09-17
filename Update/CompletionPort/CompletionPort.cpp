@@ -23,7 +23,7 @@ struct PER_HANDLE_DATA
 // Prototype
 DWORD WINAPI ServerWorkerThread(LPVOID CompletionPortID);
 
-int main(int argc, char** argv)
+int mainxx(int argc, char** argv)
 {
     SOCKADDR_IN InternetAddr;
     SOCKET Listen;

@@ -15,15 +15,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Classes\OIpIO.cpp">
+    <ClCompile Include="OverLappedIO\OIpIO.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="CompletionPort.cpp">
+    <ClCompile Include="CompletionPort\CompletionPort.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Classes\OlpIO.hpp">
+    <ClInclude Include="OverLappedIO\OlpIO.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

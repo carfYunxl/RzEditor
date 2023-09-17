@@ -160,8 +160,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Classes\OIpIO.cpp" />
-    <ClCompile Include="CompletionPort.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="OverLappedIO\OIpIO.cpp" />
+    <ClCompile Include="CompletionPort\CompletionPort.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RzLib\RzLib.vcxproj">
@@ -169,7 +170,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Classes\OlpIO.hpp" />
+    <ClInclude Include="OverLappedIO\OlpIO.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
