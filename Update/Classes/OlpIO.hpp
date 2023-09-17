@@ -47,6 +47,6 @@ namespace RzLib
         SOCKET                  m_ListenSocket;
         std::vector<WSAEVENT>   m_EventVec;
         std::mutex              m_mutex;
-        std::vector<SocketUnit> m_SocketUnitVec;
+        std::vector<SocketUnit*> m_SocketUnitVec;
     };
 }

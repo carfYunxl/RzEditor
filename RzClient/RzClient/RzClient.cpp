@@ -81,7 +81,6 @@ namespace RzLib
 
         Recv();
         Send();
-
         return true;
     }
 

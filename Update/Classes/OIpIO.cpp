@@ -55,7 +55,7 @@ namespace RzLib
         std::thread thread(&OverLappedIO::ProcessIO, this);
         thread.detach();
 
-        m_SocketUnitVec.push_back({});
+        m_SocketUnitVec.push_back(new SocketUnit);
 
         while (1)
         {
@@ -78,18 +78,18 @@ namespace RzLib
             }
             m_EventVec.push_back(hEvent);
 
-            SocketUnit sUnit;
-            sUnit.Socket = sAcceptSocket;
-            ZeroMemory(&(sUnit.Overlapped), sizeof(OVERLAPPED));
-            sUnit.BytesSEND = 0;
-            sUnit.BytesRECV = 0;
-            sUnit.DataBuf.len = DATA_BUFSIZE;
-            sUnit.DataBuf.buf = sUnit.Buffer;
-            sUnit.Overlapped.hEvent = hEvent;
+            SocketUnit* sUnit = new SocketUnit;
+            sUnit->Socket = sAcceptSocket;
+            ZeroMemory(&(sUnit->Overlapped), sizeof(OVERLAPPED));
+            sUnit->BytesSEND = 0;
+            sUnit->BytesRECV = 0;
+            sUnit->DataBuf.len = DATA_BUFSIZE;
+            sUnit->DataBuf.buf = sUnit->Buffer;
+            sUnit->Overlapped.hEvent = hEvent;
 
             DWORD Flags = 0;
             DWORD RecvBytes = 0;
-            if (WSARecv(sUnit.Socket, &(sUnit.DataBuf), 1, &RecvBytes, &Flags, &(sUnit.Overlapped), NULL) == SOCKET_ERROR)
+            if (WSARecv(sUnit->Socket, &(sUnit->DataBuf), 1, &RecvBytes, &Flags, &(sUnit->Overlapped), NULL) == SOCKET_ERROR)
             {
                 int ret = WSAGetLastError();
                 if (ret != ERROR_IO_PENDING)
@@ -133,15 +133,17 @@ namespace RzLib
                 continue;
             }
 
-            SocketUnit sUnit = m_SocketUnitVec[nIndex - WSA_WAIT_EVENT_0];
+            SocketUnit* sUnit = m_SocketUnitVec[nIndex - WSA_WAIT_EVENT_0];
             WSAResetEvent(m_EventVec[nIndex - WSA_WAIT_EVENT_0]);
 
             DWORD Flags = 0;
-            if (WSAGetOverlappedResult(sUnit.Socket, &(sUnit.Overlapped), &BytesTransferred, FALSE, &Flags) == FALSE || BytesTransferred == 0)
+            if (WSAGetOverlappedResult(sUnit->Socket, &(sUnit->Overlapped), &BytesTransferred, FALSE, &Flags) == FALSE || BytesTransferred == 0)
             {
-                Log(LogLevel::INFO, "Closing socket ", static_cast<int>(sUnit.Socket));
+                Log(LogLevel::INFO, "WSAGetOverlappedResult failed with error ", WSAGetLastError());
 
-                if (closesocket(sUnit.Socket) == SOCKET_ERROR)
+                Log(LogLevel::INFO, "Closing socket ", static_cast<int>(sUnit->Socket));
+
+                if (closesocket(sUnit->Socket) == SOCKET_ERROR)
                 {
                     Log(LogLevel::ERR, "closesocket failed with error ", WSAGetLastError());
                 }
@@ -150,41 +152,44 @@ namespace RzLib
                 // Cleanup SocketArray and EventArray by removing the socket event handle
                 // and socket information structure if they are not at the end of the arrays
                 std::lock_guard<std::mutex> locker(m_mutex);
-                if ((nIndex - WSA_WAIT_EVENT_0) + 1 != m_EventVec.size())
-                {
-                    for (DWORD i = nIndex - WSA_WAIT_EVENT_0; i < m_EventVec.size(); i++)
-                    {
-                        m_EventVec.pop_back();
-                        m_SocketUnitVec.pop_back();
-                    }
-                }
+
+                Log(LogLevel::WARN, "delete event and socket : ", sUnit->Overlapped.hEvent, " ", sUnit->Socket);
+
+                std::erase_if(m_EventVec, [=](HANDLE hEvent) {
+                    return hEvent == sUnit->Overlapped.hEvent;
+                    });
+
+                std::erase_if(m_SocketUnitVec, [=](const SocketUnit* si) {
+                    return si->Socket == sUnit->Socket;
+                    });
+                delete sUnit;
                 continue;
             }
 
             // Check to see if the BytesRECV field equals zero. If this is so, then
             // this means a WSARecv call just completed so update the BytesRECV field
             // with the BytesTransferred value from the completed WSARecv() call.
-            if (sUnit.BytesRECV == 0)
+            if (sUnit->BytesRECV == 0)
             {
-                sUnit.BytesRECV = BytesTransferred;
-                sUnit.BytesSEND = 0;
+                sUnit->BytesRECV = BytesTransferred;
+                sUnit->BytesSEND = 0;
             }
             else
             {
-                sUnit.BytesSEND += BytesTransferred;
+                sUnit->BytesSEND += BytesTransferred;
             }
 
-            if (sUnit.BytesRECV > sUnit.BytesSEND)
+            if (sUnit->BytesRECV > sUnit->BytesSEND)
             {
                 // Post another WSASend() request.
                 // Since WSASend() is not guaranteed to send all of the bytes requested,
                 // continue posting WSASend() calls until all received bytes are sent
-                ZeroMemory(&(sUnit.Overlapped), sizeof(WSAOVERLAPPED));
-                sUnit.Overlapped.hEvent = m_EventVec[nIndex - WSA_WAIT_EVENT_0];
-                sUnit.DataBuf.buf = sUnit.Buffer + sUnit.BytesSEND;
-                sUnit.DataBuf.len = sUnit.BytesRECV - sUnit.BytesSEND;
+                ZeroMemory(&(sUnit->Overlapped), sizeof(WSAOVERLAPPED));
+                sUnit->Overlapped.hEvent = m_EventVec[nIndex - WSA_WAIT_EVENT_0];
+                sUnit->DataBuf.buf = sUnit->Buffer + sUnit->BytesSEND;
+                sUnit->DataBuf.len = sUnit->BytesRECV - sUnit->BytesSEND;
 
-                if (WSASend(sUnit.Socket, &(sUnit.DataBuf), 1, &SendBytes, 0, &(sUnit.Overlapped), NULL) == SOCKET_ERROR)
+                if (WSASend(sUnit->Socket, &(sUnit->DataBuf), 1, &SendBytes, 0, &(sUnit->Overlapped), NULL) == SOCKET_ERROR)
                 {
                     if (WSAGetLastError() != ERROR_IO_PENDING)
                     {
@@ -195,14 +200,14 @@ namespace RzLib
             }
             else
             {
-                sUnit.BytesRECV = 0;
+                sUnit->BytesRECV = 0;
                 // Now that there are no more bytes to send post another WSARecv() request
                 Flags = 0;
-                ZeroMemory(&(sUnit.Overlapped), sizeof(WSAOVERLAPPED));
-                sUnit.Overlapped.hEvent = m_EventVec[ nIndex-WSA_WAIT_EVENT_0 ];
-                sUnit.DataBuf.len = DATA_BUFSIZE;
-                sUnit.DataBuf.buf = sUnit.Buffer;
-                if (WSARecv(sUnit.Socket, &(sUnit.DataBuf), 1, &RecvBytes, &Flags, &(sUnit.Overlapped), NULL) == SOCKET_ERROR)
+                ZeroMemory(&(sUnit->Overlapped), sizeof(WSAOVERLAPPED));
+                sUnit->Overlapped.hEvent = m_EventVec[ nIndex-WSA_WAIT_EVENT_0 ];
+                sUnit->DataBuf.len = DATA_BUFSIZE;
+                sUnit->DataBuf.buf = sUnit->Buffer;
+                if (WSARecv(sUnit->Socket, &(sUnit->DataBuf), 1, &RecvBytes, &Flags, &(sUnit->Overlapped), NULL) == SOCKET_ERROR)
                 {
                     if (WSAGetLastError() != ERROR_IO_PENDING)
                     {
