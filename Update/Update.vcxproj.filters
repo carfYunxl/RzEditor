@@ -18,9 +18,6 @@
     <ClCompile Include="OverLappedIO\OIpIO.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="CompletionPort\CompletionPort.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
