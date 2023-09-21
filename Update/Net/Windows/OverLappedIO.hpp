@@ -4,22 +4,12 @@
 #include <vector>
 #include <mutex>
 
+
 namespace RzLib
 {
     constexpr size_t PORT = 8080;
 
     constexpr size_t DATA_BUFSIZE = 4096;
-
-    class Server
-    {
-    public:
-        void init();
-        void install();
-        bool start();
-        bool stop();
-    private:
-
-    };
 
     struct SocketUnit
     {
@@ -48,22 +38,5 @@ namespace RzLib
         std::vector<WSAEVENT>   m_EventVec;
         std::mutex              m_mutex;
         std::vector<SocketUnit*> m_SocketUnitVec;
-    };
-
-    class OverLappedIO_AcceptEx
-    {
-    public:
-        OverLappedIO_AcceptEx() = default;
-        ~OverLappedIO_AcceptEx() { WSACleanup(); }
-
-        bool Init();
-        bool Run();
-
-    private:
-        SOCKET                      m_ListenSocket;
-        SOCKET                      m_AcceptSocket;
-        std::vector<WSAEVENT>       m_EventVec;
-        std::mutex                  m_mutex;
-        std::vector<SocketUnit*>    m_SocketUnitVec;
     };
 }

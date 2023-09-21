@@ -160,8 +160,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="OverLappedIO\OIpIO.cpp" />
+    <ClCompile Include="Net\Windows\OverLappedIO.cpp" />
+    <ClCompile Include="Net\Windows\OverLappedIO_AcceptEx.cpp" />
+    <ClCompile Include="Net\Windows\OverLappedIO_CompletionPort.cpp" />
+    <ClCompile Include="Net\WinServerExample\IOComplePortServersrc.cpp" />
+    <ClCompile Include="Net\WinServerExample\resolve.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RzLib\RzLib.vcxproj">
@@ -169,7 +172,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="OverLappedIO\OlpIO.hpp" />
+    <ClInclude Include="Net\Windows\OverLappedIO.hpp" />
+    <ClInclude Include="Net\Windows\OverLappedIO_AcceptEx.h" />
+    <ClInclude Include="Net\Windows\OverLappedIO_CompletionPort.h" />
+    <ClInclude Include="Net\WinServerExample\resolve.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
