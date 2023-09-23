@@ -30,7 +30,10 @@
     <ClCompile Include="Net\WinServerExample\resolve.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="mainxx.cpp">
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Net\WinServerExample\HighPerformanceServer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -45,6 +48,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Net\WinServerExample\resolve.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Net\WinServerExample\HighPerformanceServer.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

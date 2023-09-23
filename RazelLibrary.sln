@@ -5,7 +5,7 @@ VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RzClient", "RzClient\RzClient.vcxproj", "{DD416D29-AA28-41F0-BDC3-A352E5B1ADC4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CodeTesting", "Update\Update.vcxproj", "{1F935CE0-202B-41B7-98AC-0CD513B1ECEF}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CodeTesting", "CodeTest\Update.vcxproj", "{1F935CE0-202B-41B7-98AC-0CD513B1ECEF}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RzLib", "RzLib\RzLib.vcxproj", "{06E4DCB0-5D41-452B-8147-6DABBA750AAD}"
 EndProject

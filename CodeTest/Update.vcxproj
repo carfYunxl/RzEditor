@@ -160,10 +160,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="mainxx.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="Net\Windows\OverLappedIO.cpp" />
     <ClCompile Include="Net\Windows\OverLappedIO_AcceptEx.cpp" />
     <ClCompile Include="Net\Windows\OverLappedIO_CompletionPort.cpp" />
+    <ClCompile Include="Net\WinServerExample\HighPerformanceServer.cpp" />
     <ClCompile Include="Net\WinServerExample\IOComplePortServersrc.cpp" />
     <ClCompile Include="Net\WinServerExample\resolve.cpp" />
   </ItemGroup>
@@ -176,6 +177,7 @@
     <ClInclude Include="Net\Windows\OverLappedIO.hpp" />
     <ClInclude Include="Net\Windows\OverLappedIO_AcceptEx.h" />
     <ClInclude Include="Net\Windows\OverLappedIO_CompletionPort.h" />
+    <ClInclude Include="Net\WinServerExample\HighPerformanceServer.h" />
     <ClInclude Include="Net\WinServerExample\resolve.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

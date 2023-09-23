@@ -223,6 +223,7 @@ void dbgprint(const char* format, ...)
     OutputDebugString((LPCWSTR)dbgbuf);
 #endif
 }
+
 // Function: EnqueuePendingOperation
 // Description: Enqueues a buffer object into a list (at the end).
 void EnqueuePendingOperation(BUFFER_OBJ** head, BUFFER_OBJ** end, BUFFER_OBJ* obj, int op)
@@ -886,7 +887,7 @@ DWORD WINAPI CompletionThread(LPVOID lpParam)
 //      a worker thread which will receive any data on that connection
 //      until the connection is closed.
 
-int main(int argc, char** argv)
+int mainxx(int argc, char** argv)
 {
     WSADATA             wsd;
     SYSTEM_INFO         sysinfo;
