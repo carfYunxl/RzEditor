@@ -30,6 +30,9 @@
     <ClCompile Include="Net\WinServerExample\resolve.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="mainxx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Net\Windows\OverLappedIO.hpp">

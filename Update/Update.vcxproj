@@ -160,6 +160,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="mainxx.cpp" />
     <ClCompile Include="Net\Windows\OverLappedIO.cpp" />
     <ClCompile Include="Net\Windows\OverLappedIO_AcceptEx.cpp" />
     <ClCompile Include="Net\Windows\OverLappedIO_CompletionPort.cpp" />

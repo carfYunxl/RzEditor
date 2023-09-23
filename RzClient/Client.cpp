@@ -42,7 +42,7 @@ int main()
     }
 #endif
 
-    RzLib::RzClient client("127.0.0.1", 8080);
+    RzLib::RzClient client("192.168.2.5", 8080);
 
     client.LoadIni();
 

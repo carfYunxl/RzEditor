@@ -90,6 +90,8 @@
 #include <stdlib.h>
 #include "resolve.h"
 
+#include <thread>
+
 #define DEFAULT_BUFFER_SIZE         4096   // default buffer size
 #define DEFAULT_OVERLAPPED_COUNT    5      // Number of overlapped recv per socket
 #define MAX_OVERLAPPED_ACCEPTS      500
@@ -645,11 +647,11 @@ int PostAccept(LISTEN_OBJ* listen, BUFFER_OBJ* acceptobj)
 //    is posted. For completed sends, the buffer is freed.
 void HandleIo(ULONG_PTR key, BUFFER_OBJ* buf, HANDLE CompPort, DWORD BytesTransfered, DWORD error)
 {
-    LISTEN_OBJ* listenobj = NULL;
-    SOCKET_OBJ* sockobj = NULL,
-        * clientobj = NULL;                     // New client object for accepted connections
-    BUFFER_OBJ* recvobj = NULL,       // Used to post new receives on accepted connections
-        * sendobj = NULL;                      // Used to post new sends for data received
+    LISTEN_OBJ* listenobj   = NULL;
+    SOCKET_OBJ* sockobj     = NULL;
+    SOCKET_OBJ* clientobj   = NULL;      // New client object for accepted connections
+    BUFFER_OBJ* recvobj     = NULL;      // Used to post new receives on accepted connections
+    BUFFER_OBJ* sendobj     = NULL;      // Used to post new sends for data received
     BOOL        bCleanupSocket;
     if (error != 0)
     {
@@ -889,7 +891,7 @@ int main(int argc, char** argv)
     WSADATA             wsd;
     SYSTEM_INFO         sysinfo;
 
-    LISTEN_OBJ*         ListenSockets = NULL;
+    LISTEN_OBJ*         ListenSockets = NULL;   //µ±Ç°µÄ
     LISTEN_OBJ*         listenobj = NULL;
 
     SOCKET_OBJ*         sockobj = NULL;
@@ -911,14 +913,14 @@ int main(int argc, char** argv)
     int                 i = 0;
     struct addrinfo*    res = NULL;
     struct addrinfo*    ptr = NULL;
-    if (argc < 2)
-    {
-        usage(argv[0]);
-        exit(1);
-    }
+    //if (argc < 2)
+    //{
+    //    usage(argv[0]);
+    //    exit(1);
+    //}
 
-    // Validate the command line
-    ValidateArgs(argc, argv);
+    //// Validate the command line
+    //ValidateArgs(argc, argv);
 
     // Load Winsock
     if (WSAStartup(MAKEWORD(2, 2), &wsd) != 0)
@@ -929,6 +931,7 @@ int main(int argc, char** argv)
     InitializeCriticalSection(&gSocketListCs);
     InitializeCriticalSection(&gBufferListCs);
     InitializeCriticalSection(&gPendingCritSec);
+
     // Create the completion port used by this server
     CompletionPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, (ULONG_PTR)NULL, 0);
     if (CompletionPort == NULL)
@@ -950,6 +953,11 @@ int main(int argc, char** argv)
         gBufferSize = ((gBufferSize / sysinfo.dwPageSize) + 1) * sysinfo.dwPageSize;
     }
     printf("Buffer size = %lu (page size = %lu)\n", gBufferSize, sysinfo.dwPageSize);
+
+    std::thread thread([]() {});
+    std::thread::native_handle_type t = thread.native_handle();
+    HANDLE hId = static_cast<HANDLE>(t);
+
 
     // Create the worker threads to service the completion notifications
     for (waitcount = 0; waitcount < (int)sysinfo.dwNumberOfProcessors; waitcount++)
