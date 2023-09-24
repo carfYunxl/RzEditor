@@ -1,10 +1,11 @@
 #pragma once
 
-#include <windows.h>
 #include <winsock2.h>
 #include <mswsock.h>
 #include <ws2tcpip.h>
+#include <windows.h>
 #include <list>
+#include <vector>
 
 namespace RzLib
 {
@@ -28,7 +29,6 @@ namespace RzLib
         volatile LONG       OutstandingRecv;    // Number of outstanding overlapped ops on
         volatile LONG       OutstandingSend;
         volatile LONG       PendingSend;
-        CRITICAL_SECTION    SockCritSec;        // Protect access to this structure
     } ;
 
     struct BUFFER_OBJ
@@ -55,10 +55,9 @@ namespace RzLib
         HANDLE                      AcceptEvent;
         HANDLE                      RepostAccept;
         volatile long               RepostCount;
-        // Pointers to Microsoft specific extensions.
+
         LPFN_ACCEPTEX               lpfnAcceptEx;
         LPFN_GETACCEPTEXSOCKADDRS   lpfnGetAcceptExSockaddrs;
-        CRITICAL_SECTION            ListenCritSec;
     };
 
     class HighPerformanceServer
@@ -67,10 +66,15 @@ namespace RzLib
         bool Init();
 
     private:
+        void ProcessEvent(HANDLE nComPort);
+
+    private:
         std::list<SOCKET_OBJ> m_sock_objs;
         std::list<BUFFER_OBJ> m_buff_objs;
         std::list<LISTEN_OBJ> m_lisn_objs;
 
         size_t mBufferSize{4096};
+
+        std::vector<HANDLE> m_Events;
     };
 }

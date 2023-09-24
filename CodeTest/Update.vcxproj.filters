@@ -24,16 +24,19 @@
     <ClCompile Include="Net\Windows\OverLappedIO_CompletionPort.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Net\WinServerExample\HighPerformanceServer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
     <ClCompile Include="Net\WinServerExample\IOComplePortServersrc.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Net\WinServerExample\resolve.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Net\WinServerExample\HighPerformanceServer.cpp">
+    <ClCompile Include="Net\WinServerExample\AddrInfoWrapper.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -47,10 +50,13 @@
     <ClInclude Include="Net\Windows\OverLappedIO_CompletionPort.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Net\WinServerExample\HighPerformanceServer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
     <ClInclude Include="Net\WinServerExample\resolve.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Net\WinServerExample\HighPerformanceServer.h">
+    <ClInclude Include="Net\WinServerExample\AddrInfoWrapper.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
