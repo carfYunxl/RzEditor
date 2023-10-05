@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Net/WinServerExample/HighPerformanceServer.h"
 
-int __cdecl main()
+int __cdecl mainxx()
 {
     RzLib::HighPerformanceServer server;
     server.Init();

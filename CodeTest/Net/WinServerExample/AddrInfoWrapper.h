@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <string>
 #include <string.h>
+#include <cassert>
 
 namespace RzLib
 {
@@ -50,8 +51,9 @@ namespace RzLib
         int             socktype;
         int             protocol;
         sockaddr*       addr;
-        const char*     ip;
-        const char*     name;
+        size_t          addr_len;
+        char            ip[128];
+        char            name[128];
     };
 
     class AddrInfoWrapper
@@ -60,6 +62,22 @@ namespace RzLib
         AddrInfoWrapper();
         ~AddrInfoWrapper();
 
+        const AddrInfo GetAdrInfo(size_t index) const
+        {
+            assert(index >= m_AddrInfo.size());
+
+            return m_AddrInfo[index];
+        }
+
+        std::vector<AddrInfo> GetAllAdrInfo()
+        {
+            return m_AddrInfo;
+        }
+
+        const std::vector<AddrInfo> GetAllAdrInfo() const
+        {
+            return m_AddrInfo;
+        }
     private:
         void Initialized();
     private:

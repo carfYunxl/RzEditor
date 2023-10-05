@@ -6,11 +6,18 @@
 #include <windows.h>
 #include <list>
 #include <vector>
+#include "AddrInfoWrapper.h"
 
 namespace RzLib
 {
     constexpr size_t MAX_OVERLAPPED_RECVS = 200;
     constexpr size_t MAX_COMPLETION_THREAD_COUNT = 32;
+
+    constexpr size_t INITIAL_ACCEPTS = 5;
+    constexpr size_t BUFFER_SIZE = 4096;
+
+    constexpr size_t BURST_ACCEPT_COUNT = 100;
+    constexpr size_t MAX_OVERLAPPED_ACCEPTS = 500;
 
     enum class OPERATION
     {
@@ -41,7 +48,7 @@ namespace RzLib
         int                     operation;     // Type of operation issued
         SOCKADDR_STORAGE        addr;
         int                     addrlen;
-        struct SOCKET_OBJ*      sock;
+        struct SOCKET_OBJ*      sock_obj;
     };
 
     //
@@ -49,7 +56,7 @@ namespace RzLib
     {
         SOCKET                      socket;
         int                         AddressFamily;
-        BUFFER_OBJ*                 PendingAccepts; // Pending AcceptEx buffers
+        std::vector<BUFFER_OBJ*>      PendingAccepts; // Pending AcceptEx buffers
         volatile long               PendingAcceptCount;
         int                         HiWaterMark, LoWaterMark;
         HANDLE                      AcceptEvent;
@@ -65,16 +72,23 @@ namespace RzLib
     public:
         bool Init();
 
-    private:
-        void ProcessEvent(HANDLE nComPort);
+        void Run();
 
     private:
-        std::list<SOCKET_OBJ> m_sock_objs;
-        std::list<BUFFER_OBJ> m_buff_objs;
-        std::list<LISTEN_OBJ> m_lisn_objs;
+        void ProcessEvent();
+        void HandleIO(ULONG_PTR key, BUFFER_OBJ* buf, HANDLE CompPort, DWORD BytesTransfered, DWORD error);
 
-        size_t mBufferSize{4096};
+    private:
+        std::list<SOCKET_OBJ>   m_sock_objs;
+        std::list<BUFFER_OBJ>   m_buff_objs;
+        std::vector<LISTEN_OBJ> m_lisn_objs;
+        size_t                  mBufferSize{4096};
+        std::vector<HANDLE>     m_Events;
+        std::vector<AddrInfo>   m_AddrInfo;
+        HANDLE                  m_ComPort;
 
-        std::vector<HANDLE> m_Events;
+        std::vector<SOCKET_OBJ*>  m_StoreSocketBuffer;
+        std::vector<BUFFER_OBJ*>  m_StoreBuffer;
+        DWORD                   m_dwProcessNumber;
     };
 }

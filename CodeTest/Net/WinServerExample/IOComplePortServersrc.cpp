@@ -887,7 +887,7 @@ DWORD WINAPI CompletionThread(LPVOID lpParam)
 //      a worker thread which will receive any data on that connection
 //      until the connection is closed.
 
-int mainxx(int argc, char** argv)
+int main(int argc, char** argv)
 {
     WSADATA             wsd;
     SYSTEM_INFO         sysinfo;
@@ -955,11 +955,6 @@ int mainxx(int argc, char** argv)
     }
     printf("Buffer size = %lu (page size = %lu)\n", gBufferSize, sysinfo.dwPageSize);
 
-    std::thread thread([]() {});
-    std::thread::native_handle_type t = thread.native_handle();
-    HANDLE hId = static_cast<HANDLE>(t);
-
-
     // Create the worker threads to service the completion notifications
     for (waitcount = 0; waitcount < (int)sysinfo.dwNumberOfProcessors; waitcount++)
     {
@@ -1024,6 +1019,7 @@ int mainxx(int argc, char** argv)
         {
             fprintf(stderr, "CreateIoCompletionPort failed: %d\n", GetLastError());
             return -1;
+
         }
         // bind the socket to a local address and port
         rc = bind(listenobj->s, ptr->ai_addr, static_cast<int>(ptr->ai_addrlen));
