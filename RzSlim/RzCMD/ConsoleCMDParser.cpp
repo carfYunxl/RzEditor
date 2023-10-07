@@ -179,36 +179,39 @@ namespace RzLib
 		std::unique_ptr<CMD> pCmd;
 		switch (m_CMD)
 		{
-		case CONSOLE_CMD::SELECT:
-			pCmd = std::make_unique<SelectCMD>(m_CMD, m_Server, m_socket, m_message);
-			break;
-		case CONSOLE_CMD::EXIT:
-			pCmd = std::make_unique<ExitCMD>(m_CMD, m_Server);
-			break;
-		case CONSOLE_CMD::CLIENT:
-			pCmd = std::make_unique<ClientCMD>(m_CMD, m_Server);
-			break;
-		case CONSOLE_CMD::VERSION:
-			pCmd = std::make_unique<VersionCMD>(m_CMD, m_Server);
-			break;
-		case CONSOLE_CMD::LS:
-			pCmd = std::make_unique<LsCMD>(m_CMD, m_Server);
-			break;
-		case CONSOLE_CMD::CD:
-			pCmd = std::make_unique<CdCMD>(m_CMD, m_Server, m_message);
-			break;
-		case CONSOLE_CMD::MKDIR:
-			pCmd = std::make_unique<MkdirCMD>(m_CMD, m_Server, m_message);
-			break;
-		case CONSOLE_CMD::TOUCH:
-			pCmd = std::make_unique<TouchCMD>(m_CMD, m_Server, m_message);
-			break;
-		case CONSOLE_CMD::REMOVE:
-			pCmd = std::make_unique<RmCMD>(m_CMD, m_Server, m_message);
-			break;
-		case CONSOLE_CMD::UNKNOWN:
-			pCmd = nullptr;
-			break;
+			case CONSOLE_CMD::SELECT:
+				pCmd = std::make_unique<SelectCMD>(m_CMD, m_Server, m_socket, m_message);
+				break;
+			case CONSOLE_CMD::EXIT:
+				pCmd = std::make_unique<ExitCMD>(m_CMD, m_Server);
+				break;
+			case CONSOLE_CMD::CLIENT:
+				pCmd = std::make_unique<ClientCMD>(m_CMD, m_Server);
+				break;
+			case CONSOLE_CMD::VERSION:
+				pCmd = std::make_unique<VersionCMD>(m_CMD, m_Server);
+				break;
+			case CONSOLE_CMD::LS:
+				pCmd = std::make_unique<LsCMD>(m_CMD, m_Server);
+				break;
+			case CONSOLE_CMD::CD:
+				pCmd = std::make_unique<CdCMD>(m_CMD, m_Server, m_message);
+				break;
+			case CONSOLE_CMD::MKDIR:
+				pCmd = std::make_unique<MkdirCMD>(m_CMD, m_Server, m_message);
+				break;
+			case CONSOLE_CMD::TOUCH:
+				pCmd = std::make_unique<TouchCMD>(m_CMD, m_Server, m_message);
+				break;
+			case CONSOLE_CMD::REMOVE:
+				pCmd = std::make_unique<RmCMD>(m_CMD, m_Server, m_message);
+				break;
+			case CONSOLE_CMD::CLEAR:
+				pCmd = std::make_unique<ClearCMD>(m_CMD, m_Server);
+				break;
+			case CONSOLE_CMD::UNKNOWN:
+				pCmd = nullptr;
+				break;
 		}
 		
 		if (pCmd)

@@ -29,14 +29,20 @@ namespace RzLib {
         m_statusbar->show();
 
         m_statuslabel = new QLabel("Hello", this);
-        m_statuslabel->resize(this->width(), HEIGHT);
         m_statuslabel->show();
         m_statuslabel->setText("World! -------------------------------");
-        m_statuslabel->setFont(QFont("Consolas", 11));
+        m_statuslabel->setFont(QFont("Consolas", 10));
         m_statuslabel->setStyleSheet("background-color:rgb(0,0,0);"
                              "color:rgb(255,255,255)");
 
-        m_statusbar->addWidget(m_statuslabel);
+        m_ModeLabel = new QLabel("Console", this);
+        m_ModeLabel->show();
+        m_ModeLabel->setFont(QFont("Consolas", 10));
+        m_ModeLabel->setStyleSheet("background-color:rgb(0,0,0);"
+            "color:rgb(255,255,255)");
+
+        m_statusbar->addWidget(m_statuslabel,1);
+        m_statusbar->addWidget(m_ModeLabel,0);
 
         m_server->Start();
     }
@@ -95,6 +101,27 @@ namespace RzLib {
     void RzSlim::AppendText(const QString& sText)
     {
         this->m_pTextEdit->append(sText);
+    }
+
+    void RzSlim::ChangeMode(InputMode mode)
+    {
+        QString sMode;
+        switch (mode)
+        {
+            case InputMode::CONSOLE:
+                sMode = "Console";
+                break;
+            case InputMode::SELECT:
+                sMode = "Select";
+                break;
+            case InputMode::SEND:
+                sMode = "Send";
+                break;
+            default:
+                sMode = "Unknown";
+                break;
+        }
+        m_ModeLabel->setText(sMode);
     }
 
     void RzSlim::InsertText(const QString& sText)

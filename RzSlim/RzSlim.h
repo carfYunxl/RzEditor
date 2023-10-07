@@ -12,6 +12,7 @@ namespace RzLib
 {
     class RzServer;
     class RzTextEdit;
+    enum class InputMode;
 
     constexpr size_t HEIGHT = 30;
 
@@ -26,10 +27,14 @@ namespace RzLib
         void AppendText(const QString& sText);
         void InsertText(const QString& sText);
 
+        void ChangeMode(InputMode mode);
+
         void Log_NextLine(LogLevel level, const QString& list);
         void Log_ThisLine(LogLevel level, const QString& list);
 
         void InsertStatus(const QString& sStatus);
+
+        void Clear() { m_pTextEdit->clear(); }
 
     protected:
         virtual void resizeEvent(QResizeEvent* event) override;
@@ -42,5 +47,6 @@ namespace RzLib
         RzTextEdit*     m_pTextEdit;
         QStatusBar*     m_statusbar;
         QLabel*         m_statuslabel;
+        QLabel*         m_ModeLabel;
     };
 }

@@ -45,8 +45,9 @@ namespace RzLib
         virtual ~SelectCMD() = default;
         virtual void Run() override
         {
-            m_Server->SetInputMode(InputMode::SEND);
+            m_Server->SetInputMode(InputMode::SELECT);
             m_Server->SelectClient(m_socket);
+            m_Server->GetUI()->ChangeMode(InputMode::SELECT);
         }
 
     private:
@@ -195,5 +196,17 @@ namespace RzLib
 
     private:
         std::string m_path;
+    };
+
+    struct ClearCMD : public CMD
+    {
+        ClearCMD(CONSOLE_CMD cmd, RzServer* server)
+            : CMD(cmd, server)
+            {}
+
+        virtual void Run() override
+        {
+            m_Server->GetUI()->Clear();
+        }
     };
 }
