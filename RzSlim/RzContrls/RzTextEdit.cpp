@@ -122,26 +122,41 @@ namespace RzLib
 		{
 			case InputMode::CONSOLE:
 			{
-				parser.SetCMD(sInput.toStdString());
+				parser.SetCMD( sInput.toStdString() );
 				parser.RunCmd();
 				break;
 			}
 			case InputMode::SELECT:
-			{
-				//TO DO
-				break;
-			}
-			case InputMode::SEND:
 			{
 				// 被设置成该模式，意味着接下来获取到的输入都应当发送给client
 				// 或者是一条退出指令
 				if (sInput.toStdString() == QUIT)
 				{
 					m_pServer->SetInputMode(InputMode::CONSOLE);
+					m_pServer->GetUI()->ChangeMode(InputMode::CONSOLE);
 				}
 
 				// 发送给client
 				m_pServer->SendInfo(TCP_CMD::NORMAL, sInput.toStdString());
+				break;
+			}
+			case InputMode::SEND:
+			{
+				// 被设置成该模式，意味着要发送文件等相关信息
+				if (sInput.toStdString() == QUIT)
+				{
+					m_pServer->SetInputMode(InputMode::CONSOLE);
+					m_pServer->GetUI()->ChangeMode(InputMode::CONSOLE);
+				}
+				break;
+			}
+			case InputMode::EDITOR:
+			{
+				if (sInput.toStdString() == QUIT)
+				{
+					m_pServer->SetInputMode(InputMode::CONSOLE);
+					m_pServer->GetUI()->ChangeMode(InputMode::CONSOLE);
+				}
 				break;
 			}
 		}

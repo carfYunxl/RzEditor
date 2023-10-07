@@ -34,7 +34,8 @@ enum class CONSOLE_CMD
     CD,             // 切换到指定路径
     MKDIR,          // 创建目录
     TOUCH,          // 创建文件
-    REMOVE          // 删除文件和目录
+    REMOVE,         // 删除文件和目录
+    CLEAR           // 清空屏幕信息
 };
 
 enum class FILE_EXTENSION

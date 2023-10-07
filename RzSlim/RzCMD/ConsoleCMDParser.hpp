@@ -33,7 +33,8 @@ namespace RzLib
             {"cd",      CONSOLE_CMD::CD},
             {"mkdir",   CONSOLE_CMD::MKDIR},
             {"touch",   CONSOLE_CMD::TOUCH},
-            {"rm",      CONSOLE_CMD::REMOVE}
+            {"rm",      CONSOLE_CMD::REMOVE},
+            {"clear",   CONSOLE_CMD::CLEAR}
         };
         const std::map<std::string, FILE_EXTENSION> g_sMapEXT{
             {".exe",    FILE_EXTENSION::EXE},
@@ -52,12 +53,13 @@ namespace RzLib
         std::string     GetMsg()        const { return m_message; }
 
         void SetCMD(const std::string& CMD, char SPLIT = ' ');
+
         void RunCmd();
 
     private:
-        void Parser(const std::string& CMD, char SPLIT = ' ');
-        CONSOLE_CMD CMD_Cast(const std::string& cmd);
-        FILE_EXTENSION EXT_Cast(const std::string& ext);
+        void            Parser(const std::string& CMD, char SPLIT = ' ');
+        CONSOLE_CMD     CMD_Cast(const std::string& cmd);
+        FILE_EXTENSION  EXT_Cast(const std::string& ext);
     private:
         CONSOLE_CMD     m_CMD;
         SOCKET          m_socket;

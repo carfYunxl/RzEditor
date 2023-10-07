@@ -22,9 +22,9 @@ namespace RzLib
         void ProcessKeyReturn();
         void ProcessKeyBackspace();
     private:
-        RzServer*   m_pServer;
-        size_t      m_Cnt{0};
-        QString     m_sInput;
+        RzServer*       m_pServer;
+        size_t          m_Cnt{0};
+        QString         m_sInput;
     };
 }
 

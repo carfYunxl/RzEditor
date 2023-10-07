@@ -41,6 +41,7 @@
 #include "RzUtility/Utility.hpp"
 #include "RzServer/RzServer.hpp"
 #include "RzCore/Log.hpp"
+#include <fstream>
 
 namespace RzLib
 {
@@ -79,38 +80,35 @@ namespace RzLib
 				{
 					case FILE_EXTENSION::EXE:
 					{
-						STARTUPINFO si;
-						PROCESS_INFORMATION pi;
-						ZeroMemory(&si, sizeof(si));
-						si.cb = sizeof(si);
-						ZeroMemory(&pi, sizeof(pi));
-
-						// Start the child process. 
-						//if (
-						//	CreateProcess
-						//	(
-						//		NULL,
-						//		(LPSTR)(path.string().c_str()),  // No module name (use command line)                                                          // Command line
-						//		NULL,                              // Process handle not inheritable
-						//		NULL,                              // Thread handle not inheritable
-						//		FALSE,                             // Set handle inheritance to FALSE
-						//		0,                                 // No creation flags
-						//		NULL,                              // Use parent's environment block
-						//		NULL,                              // Use parent's starting directory 
-						//		&si,                               // Pointer to STARTUPINFO structure
-						//		&pi)                               // Pointer to PROCESS_INFORMATION structure
-						//	)
-						//{
-						//	Log(LogLevel::INFO, "CreateProcess success!");
-						//	CloseHandle(pi.hProcess);
-						//	CloseHandle(pi.hThread);
-						//	return;
-						//}
+						//TO DO
 						break;
 					}
 					case FILE_EXTENSION::TXT:
 					{
-						//TO DO
+						//首先保存当前UI的内容
+						QString sUI = m_Server->GetUI()->GetPlainText();
+
+						//读取这个txt，将其显示到UI上
+						std::ifstream inf(path, std::ios::in);
+						if (inf.is_open())
+						{
+							inf.seekg(0,std::ios::end);
+							size_t size = inf.tellg();
+
+							if (size != -1)
+							{
+								std::string sRead;
+								sRead.resize(size);
+								inf.seekg(0,std::ios::beg);
+								inf.read(&sRead[0], size);
+								inf.close();
+
+								m_Server->GetUI()->SetPlainText(sRead.c_str());
+								m_Server->GetUI()->ChangeMode(InputMode::EDITOR);
+								m_Server->SetInputMode(InputMode::EDITOR);
+							}
+						}
+
 						break;
 					}
 				}
@@ -179,36 +177,39 @@ namespace RzLib
 		std::unique_ptr<CMD> pCmd;
 		switch (m_CMD)
 		{
-		case CONSOLE_CMD::SELECT:
-			pCmd = std::make_unique<SelectCMD>(m_CMD, m_Server, m_socket, m_message);
-			break;
-		case CONSOLE_CMD::EXIT:
-			pCmd = std::make_unique<ExitCMD>(m_CMD, m_Server);
-			break;
-		case CONSOLE_CMD::CLIENT:
-			pCmd = std::make_unique<ClientCMD>(m_CMD, m_Server);
-			break;
-		case CONSOLE_CMD::VERSION:
-			pCmd = std::make_unique<VersionCMD>(m_CMD, m_Server);
-			break;
-		case CONSOLE_CMD::LS:
-			pCmd = std::make_unique<LsCMD>(m_CMD, m_Server);
-			break;
-		case CONSOLE_CMD::CD:
-			pCmd = std::make_unique<CdCMD>(m_CMD, m_Server, m_message);
-			break;
-		case CONSOLE_CMD::MKDIR:
-			pCmd = std::make_unique<MkdirCMD>(m_CMD, m_Server, m_message);
-			break;
-		case CONSOLE_CMD::TOUCH:
-			pCmd = std::make_unique<TouchCMD>(m_CMD, m_Server, m_message);
-			break;
-		case CONSOLE_CMD::REMOVE:
-			pCmd = std::make_unique<RmCMD>(m_CMD, m_Server, m_message);
-			break;
-		case CONSOLE_CMD::UNKNOWN:
-			pCmd = nullptr;
-			break;
+			case CONSOLE_CMD::SELECT:
+				pCmd = std::make_unique<SelectCMD>(m_CMD, m_Server, m_socket, m_message);
+				break;
+			case CONSOLE_CMD::EXIT:
+				pCmd = std::make_unique<ExitCMD>(m_CMD, m_Server);
+				break;
+			case CONSOLE_CMD::CLIENT:
+				pCmd = std::make_unique<ClientCMD>(m_CMD, m_Server);
+				break;
+			case CONSOLE_CMD::VERSION:
+				pCmd = std::make_unique<VersionCMD>(m_CMD, m_Server);
+				break;
+			case CONSOLE_CMD::LS:
+				pCmd = std::make_unique<LsCMD>(m_CMD, m_Server);
+				break;
+			case CONSOLE_CMD::CD:
+				pCmd = std::make_unique<CdCMD>(m_CMD, m_Server, m_message);
+				break;
+			case CONSOLE_CMD::MKDIR:
+				pCmd = std::make_unique<MkdirCMD>(m_CMD, m_Server, m_message);
+				break;
+			case CONSOLE_CMD::TOUCH:
+				pCmd = std::make_unique<TouchCMD>(m_CMD, m_Server, m_message);
+				break;
+			case CONSOLE_CMD::REMOVE:
+				pCmd = std::make_unique<RmCMD>(m_CMD, m_Server, m_message);
+				break;
+			case CONSOLE_CMD::CLEAR:
+				pCmd = std::make_unique<ClearCMD>(m_CMD, m_Server);
+				break;
+			case CONSOLE_CMD::UNKNOWN:
+				pCmd = nullptr;
+				break;
 		}
 		
 		if (pCmd)

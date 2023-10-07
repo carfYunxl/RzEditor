@@ -8,8 +8,25 @@
 int main()
 {
     // must add this to eable color out to console
-    //RzLib::Utility::EnSTDOutputColor();
-    //RzLib::Utility::ChangeConsoleFont(15, L"Consolas");
+    {
+        HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+        DWORD dwMode = 0;
+        GetConsoleMode(hOut, &dwMode);
+        dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+        SetConsoleMode(hOut, dwMode);
+    }
+
+    {
+        CONSOLE_FONT_INFOEX cfi;
+        cfi.cbSize = sizeof cfi;
+        cfi.nFont = 0;
+        cfi.dwFontSize.X = 0;
+        cfi.dwFontSize.Y = 15;
+        cfi.FontFamily = FF_DONTCARE;
+        cfi.FontWeight = FW_NORMAL;
+        wcscpy_s(cfi.FaceName, L"Consolas");
+        SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), FALSE, &cfi);
+    }
 
     //检查当前目录下是否含有_old的exe和dll档案，有的话就直接删除
 #if 0
@@ -42,7 +59,7 @@ int main()
     }
 #endif
 
-    RzLib::RzClient client("127.0.0.1", 5150);
+    RzLib::RzClient client("127.0.0.1", 8080);
 
     client.LoadIni();
 

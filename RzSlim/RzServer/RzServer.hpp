@@ -21,7 +21,8 @@ namespace RzLib
     {
         CONSOLE = 0,    // wait for console server cmd 
         SELECT,         // select some choice
-        SEND            // input message to send to someone
+        SEND,           // input message to send to someone
+        EDITOR
     };
 
     class CMD;
@@ -74,5 +75,6 @@ namespace RzLib
         SOCKET          m_client_socket;
 
         std::filesystem::path m_DirPath;
+        QString         m_UiText;
     };
 }
