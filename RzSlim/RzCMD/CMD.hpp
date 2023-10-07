@@ -1,12 +1,20 @@
 /*****************************************************************//**
- * \file   CMDType.hpp
- * \brief  Several classed about cmd type
- *          - Single Command : 
- *          - Double Command :
- *          - Triple Command :
+ * @file   CMD.hpp
+ * @brief  Several classes about cmd type
+ *          - CMD           : base class 
+ *          - SelectCMD     : select client socket, will let App switch InputMode to InputMode::Select
+ *          - ExitCMD       : exit server
+ *          - ClientCMD     : list client that connect to server
+ *          - VersionCMD    : show client version
+ *          - LsCMD         : list files and dirs of the current directory
+ *          - CdCMD         : change path
+ *          - MkdirCMD      : create directory
+ *          - TouchCMD      : create file
+ *          - RmCMD         : remove file
+ *          - ClearCMD      : clear all the information
  * 
- * \author yun
- * \date   August 2023
+ * @author yun
+ * @date   August 2023
  *********************************************************************/
 
 #pragma once

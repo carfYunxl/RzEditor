@@ -41,6 +41,7 @@
 #include "RzUtility/Utility.hpp"
 #include "RzServer/RzServer.hpp"
 #include "RzCore/Log.hpp"
+#include <fstream>
 
 namespace RzLib
 {
@@ -79,38 +80,35 @@ namespace RzLib
 				{
 					case FILE_EXTENSION::EXE:
 					{
-						STARTUPINFO si;
-						PROCESS_INFORMATION pi;
-						ZeroMemory(&si, sizeof(si));
-						si.cb = sizeof(si);
-						ZeroMemory(&pi, sizeof(pi));
-
-						// Start the child process. 
-						//if (
-						//	CreateProcess
-						//	(
-						//		NULL,
-						//		(LPSTR)(path.string().c_str()),  // No module name (use command line)                                                          // Command line
-						//		NULL,                              // Process handle not inheritable
-						//		NULL,                              // Thread handle not inheritable
-						//		FALSE,                             // Set handle inheritance to FALSE
-						//		0,                                 // No creation flags
-						//		NULL,                              // Use parent's environment block
-						//		NULL,                              // Use parent's starting directory 
-						//		&si,                               // Pointer to STARTUPINFO structure
-						//		&pi)                               // Pointer to PROCESS_INFORMATION structure
-						//	)
-						//{
-						//	Log(LogLevel::INFO, "CreateProcess success!");
-						//	CloseHandle(pi.hProcess);
-						//	CloseHandle(pi.hThread);
-						//	return;
-						//}
+						//TO DO
 						break;
 					}
 					case FILE_EXTENSION::TXT:
 					{
-						//TO DO
+						//首先保存当前UI的内容
+						QString sUI = m_Server->GetUI()->GetPlainText();
+
+						//读取这个txt，将其显示到UI上
+						std::ifstream inf(path, std::ios::in);
+						if (inf.is_open())
+						{
+							inf.seekg(0,std::ios::end);
+							size_t size = inf.tellg();
+
+							if (size != -1)
+							{
+								std::string sRead;
+								sRead.resize(size);
+								inf.seekg(0,std::ios::beg);
+								inf.read(&sRead[0], size);
+								inf.close();
+
+								m_Server->GetUI()->SetPlainText(sRead.c_str());
+								m_Server->GetUI()->ChangeMode(InputMode::EDITOR);
+								m_Server->SetInputMode(InputMode::EDITOR);
+							}
+						}
+
 						break;
 					}
 				}

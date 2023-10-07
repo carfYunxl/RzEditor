@@ -117,6 +117,9 @@ namespace RzLib {
             case InputMode::SEND:
                 sMode = "Send";
                 break;
+            case InputMode::EDITOR:
+                sMode = "Editor";
+                break;
             default:
                 sMode = "Unknown";
                 break;

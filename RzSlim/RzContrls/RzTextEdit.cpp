@@ -143,7 +143,15 @@ namespace RzLib
 			case InputMode::SEND:
 			{
 				// 被设置成该模式，意味着要发送文件等相关信息
-				m_pServer->GetUI()->ChangeMode(InputMode::SEND);
+				if (sInput.toStdString() == QUIT)
+				{
+					m_pServer->SetInputMode(InputMode::CONSOLE);
+					m_pServer->GetUI()->ChangeMode(InputMode::CONSOLE);
+				}
+				break;
+			}
+			case InputMode::EDITOR:
+			{
 				if (sInput.toStdString() == QUIT)
 				{
 					m_pServer->SetInputMode(InputMode::CONSOLE);

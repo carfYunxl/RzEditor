@@ -36,6 +36,9 @@ namespace RzLib
 
         void Clear() { m_pTextEdit->clear(); }
 
+        QString GetPlainText() const { return m_pTextEdit->toPlainText(); }
+        void SetPlainText(const char* txt) { m_pTextEdit->setText(QString(txt)); }
+
     protected:
         virtual void resizeEvent(QResizeEvent* event) override;
     private:
