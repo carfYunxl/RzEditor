@@ -4,20 +4,20 @@
 
 namespace RzLib
 {
-    bool HighPerformanceServer::Init()
+    void HighPerformanceServer::Init()
     {
         WSADATA sData;
-        if (WSAStartup(MAKEWORD(2, 2), &sData) != 0)
+        int ret = WSAStartup(MAKEWORD(2, 2), &sData);
+        if ( ret != 0)
         {
-            Log(LogLevel::ERR, "fail to load Winsock!");
-            return false;
+            Log(LogLevel::ERR, "fail to load Winsock!, error = ", ret);
+            throw wsock_error(ret);
         }
 
-        HANDLE CompletionPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, (ULONG_PTR)NULL, 0);
-        if (CompletionPort == NULL)
+        m_ComPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, (ULONG_PTR)NULL, 0);
+        if (m_ComPort == NULL)
         {
-            Log(LogLevel::ERR, "CreateIoCompletionPort failed : ", GetLastError());
-            return false;
+            throw wsock_error(GetLastError());
         }
 
         SYSTEM_INFO sInfo;
@@ -44,24 +44,14 @@ namespace RzLib
             th.detach();
         }
 
-        try 
-        {
-            AddrInfoWrapper wrapper;
+        AddrInfoWrapper wrapper;
 
-            m_AddrInfo = std::move( wrapper.GetAllAdrInfo() );
-        }
-        catch (const std::exception& exception)
-        {
-            std::cout << exception.what() << std::endl;
-            return false;
-        }
+        m_AddrInfo = std::move(wrapper.GetAllAdrInfo());
 
         if (m_AddrInfo.empty())
         {
-            return false;
+            throw wsock_error(GetLastError());
         }
-
-        return true;
     }
 
     void HighPerformanceServer::Run()
@@ -91,6 +81,7 @@ namespace RzLib
             listen_obj.AddressFamily = m_AddrInfo[i].family;
             listen_obj.AcceptEvent = hAcceptEvent;
             listen_obj.RepostAccept = hRepostEvent;
+            listen_obj.socket = soc;
 
             m_Events.push_back(hAcceptEvent);
             m_Events.push_back(hRepostEvent);
@@ -172,6 +163,9 @@ namespace RzLib
                 listen_obj.PendingAccepts.push_back(buffer_obj);
 
                 buffer_obj->sclient = socket(listen_obj.AddressFamily, SOCK_STREAM, IPPROTO_TCP);
+                buffer_obj->buf = (char*)((char*)(buffer_obj) + sizeof(BUFFER_OBJ));
+                buffer_obj->buflen = BUFFER_SIZE;
+                buffer_obj->operation = static_cast<int>(OPERATION::OP_ACCEPT);
                 if (buffer_obj->sclient == INVALID_SOCKET)
                 {
                     throw wsock_error(WSAGetLastError());
@@ -210,7 +204,8 @@ namespace RzLib
             {
                 throw wsock_error(WSAGetLastError());
             }
-            else if (ret == WAIT_TIMEOUT)
+
+            if (ret == WAIT_TIMEOUT)
             {
                 interval++;
 
@@ -360,7 +355,7 @@ namespace RzLib
         SOCKET          s = INVALID_SOCKET;
         while (1)
         {
-            int ret = GetQueuedCompletionStatus(m_ComPort, &BytesTransfered, (PULONG_PTR) & Key, &lpOverlapped, INFINITE);
+            int ret = GetQueuedCompletionStatus(m_ComPort, &BytesTransfered, (PULONG_PTR)&Key, &lpOverlapped, INFINITE);
 
             buffer_obj = CONTAINING_RECORD(lpOverlapped, BUFFER_OBJ, ol);
 
@@ -402,53 +397,53 @@ namespace RzLib
             // An error occurred on a TCP socket, free the associated per I/O buffer
             // and see if there are any more outstanding operations. If so we must
             // wait until they are complete as well.
-            if (buf->operation != static_cast<int>(OPERATION::OP_ACCEPT))
+            if (buf->operation == static_cast<int>(OPERATION::OP_ACCEPT))
             {
-                SOCKET_OBJ* sock_obj = (SOCKET_OBJ*)key;
-                if (buf->operation == static_cast<int>(OPERATION::OP_READ))
-                {
-                    sock_obj->OutstandingRecv--;
-                    if (sock_obj->OutstandingRecv == 0 && sock_obj->OutstandingSend == 0)
-                    {
-                        Log(LogLevel::INFO, "Freeing socket obj in GetOverlappedResult");
-
-                        if (sock_obj->socket != INVALID_SOCKET)
-                        {
-                            closesocket(sock_obj->socket);
-                            sock_obj->socket = INVALID_SOCKET;
-                        }
-
-                        memset(sock_obj, 0, sizeof(SOCKET_OBJ));
-                        m_StoreSocketBuffer.push_back(sock_obj);
-                    }
-                }
-                else if (buf->operation == static_cast<int>(OPERATION::OP_WRITE))
-                {
-                    sock_obj->OutstandingSend--;
-                    if (sock_obj->OutstandingRecv == 0 && sock_obj->OutstandingSend == 0)
-                    {
-                        Log(LogLevel::INFO, "Freeing socket obj in GetOverlappedResult");
-
-                        if (sock_obj->socket != INVALID_SOCKET)
-                        {
-                            closesocket(sock_obj->socket);
-                            sock_obj->socket = INVALID_SOCKET;
-                        }
-
-                        memset(sock_obj, 0, sizeof(SOCKET_OBJ));
-                        m_StoreSocketBuffer.push_back(sock_obj);
-                    }
-                }
-            }
-            else
-            {
-                listen_obj = (LISTEN_OBJ*)key;
+                listen_obj = reinterpret_cast<LISTEN_OBJ*>(key);
                 Log(LogLevel::ERR, "Accept Failed!");
 
                 closesocket(buf->sclient);
-                buf->sclient = INVALID_SOCKET;
+                buf->sclient = INVALID_SOCKET; 
+                memset(buf, 0, sizeof(BUFFER_OBJ) + BUFFER_SIZE);
+                m_StoreBuffer.push_back(buf);
+                return;
             }
 
+            SOCKET_OBJ* sock_obj = reinterpret_cast<SOCKET_OBJ*>(key);
+            if ( buf->operation == static_cast<int>(OPERATION::OP_READ) )
+            {
+                sock_obj->OutstandingRecv--;
+                if (sock_obj->OutstandingRecv == 0 && sock_obj->OutstandingSend == 0)
+                {
+                    Log(LogLevel::INFO, "Freeing socket obj in GetOverlappedResult");
+
+                    if (sock_obj->socket != INVALID_SOCKET)
+                    {
+                        closesocket(sock_obj->socket);
+                        sock_obj->socket = INVALID_SOCKET;
+                    }
+
+                    memset(sock_obj, 0, sizeof(SOCKET_OBJ));
+                    m_StoreSocketBuffer.push_back(sock_obj);
+                }
+            }
+            else if (buf->operation == static_cast<int>(OPERATION::OP_WRITE))
+            {
+                sock_obj->OutstandingSend--;
+                if (sock_obj->OutstandingRecv == 0 && sock_obj->OutstandingSend == 0)
+                {
+                    Log(LogLevel::INFO, "Freeing socket obj in GetOverlappedResult");
+
+                    if (sock_obj->socket != INVALID_SOCKET)
+                    {
+                        closesocket(sock_obj->socket);
+                        sock_obj->socket = INVALID_SOCKET;
+                    }
+
+                    memset(sock_obj, 0, sizeof(SOCKET_OBJ));
+                    m_StoreSocketBuffer.push_back(sock_obj);
+                }
+            }
             memset(buf, 0, sizeof(BUFFER_OBJ) + BUFFER_SIZE);
             m_StoreBuffer.push_back(buf);
             return;
@@ -522,6 +517,9 @@ namespace RzLib
             sock_obj->OutstandingRecv--;
             if (BytesTransfered > 0)
             {
+                BUFFER_OBJ* send_obj = buf;
+                send_obj->buflen = BytesTransfered;
+                send_obj->sock_obj = sock_obj;
             }
             else
             {

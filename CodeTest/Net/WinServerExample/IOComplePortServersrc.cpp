@@ -887,7 +887,7 @@ DWORD WINAPI CompletionThread(LPVOID lpParam)
 //      a worker thread which will receive any data on that connection
 //      until the connection is closed.
 
-int main(int argc, char** argv)
+int mainxx(int argc, char** argv)
 {
     WSADATA             wsd;
     SYSTEM_INFO         sysinfo;

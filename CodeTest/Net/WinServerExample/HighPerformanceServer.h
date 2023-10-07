@@ -36,7 +36,7 @@ namespace RzLib
         volatile LONG       OutstandingRecv;    // Number of outstanding overlapped ops on
         volatile LONG       OutstandingSend;
         volatile LONG       PendingSend;
-    } ;
+    };
 
     struct BUFFER_OBJ
     {
@@ -56,7 +56,7 @@ namespace RzLib
     {
         SOCKET                      socket;
         int                         AddressFamily;
-        std::vector<BUFFER_OBJ*>      PendingAccepts; // Pending AcceptEx buffers
+        std::vector<BUFFER_OBJ*>    PendingAccepts; // Pending AcceptEx buffers
         volatile long               PendingAcceptCount;
         int                         HiWaterMark, LoWaterMark;
         HANDLE                      AcceptEvent;
@@ -70,7 +70,7 @@ namespace RzLib
     class HighPerformanceServer
     {
     public:
-        bool Init();
+        void Init();
 
         void Run();
 
