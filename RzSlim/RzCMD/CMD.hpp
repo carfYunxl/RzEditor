@@ -55,7 +55,7 @@ namespace RzLib
         {
             m_Server->SetInputMode(InputMode::SELECT);
             m_Server->SelectClient(m_socket);
-            m_Server->GetUI()->ChangeMode(InputMode::SELECT);
+            m_Server->GetUI()->GetModeLabel()->setText("Select");
         }
 
     private:
@@ -214,7 +214,7 @@ namespace RzLib
 
         virtual void Run() override
         {
-            m_Server->GetUI()->Clear();
+            m_Server->GetUI()->GetMainEdit()->clear();
         }
     };
 }

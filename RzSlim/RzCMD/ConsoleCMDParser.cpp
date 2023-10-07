@@ -64,57 +64,9 @@ namespace RzLib
 	{	
 		size_t index1 = CMD.find(SPLIT, 0);
 
-		std::string strCmd = CMD.substr(0, index1);
+		m_sCMD = CMD.substr(0, index1);
 
-		m_CMD = CMD_Cast(strCmd);
-
-		if (m_CMD == CONSOLE_CMD::UNKNOWN)
-		{
-			//不是CMD，再检查看看是不是文件，如果是的话，尝试打开文件
-			std::filesystem::path path = m_Server->GetCurrentDir() / strCmd;
-			if (std::filesystem::exists(path) && path.has_extension())
-			{
-				//如果路径确实存在，且是一个具有扩展名的文件，这时候就尝试打开该文件
-				FILE_EXTENSION eExt = EXT_Cast(path.extension().string());
-				switch (eExt)
-				{
-					case FILE_EXTENSION::EXE:
-					{
-						//TO DO
-						break;
-					}
-					case FILE_EXTENSION::TXT:
-					{
-						//首先保存当前UI的内容
-						QString sUI = m_Server->GetUI()->GetPlainText();
-
-						//读取这个txt，将其显示到UI上
-						std::ifstream inf(path, std::ios::in);
-						if (inf.is_open())
-						{
-							inf.seekg(0,std::ios::end);
-							size_t size = inf.tellg();
-
-							if (size != -1)
-							{
-								std::string sRead;
-								sRead.resize(size);
-								inf.seekg(0,std::ios::beg);
-								inf.read(&sRead[0], size);
-								inf.close();
-
-								m_Server->GetUI()->SetPlainText(sRead.c_str());
-								m_Server->GetUI()->ChangeMode(InputMode::EDITOR);
-								m_Server->SetInputMode(InputMode::EDITOR);
-							}
-						}
-
-						break;
-					}
-				}
-			}
-			return;
-		}
+		m_CMD = CMD_Cast(m_sCMD);
 
 		// may be here will be more options
 		if (m_CMD == CONSOLE_CMD::SELECT)
@@ -213,9 +165,68 @@ namespace RzLib
 		}
 		
 		if (pCmd)
+		{
 			pCmd->Run();
+			//append("");
+			m_Server->PrintConsoleHeader(m_Server->GetCurrentDir().string());
+		}
 		else
+		{
 			m_Server->GetUI()->Log_NextLine(LogLevel::ERR, "unknown command!");
+
+			//不是CMD，再检查看看是不是文件，如果是的话，尝试打开文件
+			std::filesystem::path path = m_Server->GetCurrentDir() / m_sCMD;
+			if (std::filesystem::exists(path) && path.has_extension())
+			{
+				//如果路径确实存在，且是一个具有扩展名的文件，这时候就尝试打开该文件
+				FILE_EXTENSION eExt = EXT_Cast(path.extension().string());
+				switch (eExt)
+				{
+					case FILE_EXTENSION::EXE:
+					{
+						//TO DO
+						break;
+					}
+					case FILE_EXTENSION::TXT:
+					{
+						RzTextEdit* edit = m_Server->GetUI()->GetMainEdit();
+						//首先保存当前UI的内容
+						QString sUI = edit->toPlainText();
+
+						//读取这个txt，将其显示到UI上
+						std::ifstream inf(path, std::ios::in);
+						if (inf.is_open())
+						{
+							inf.seekg(0, std::ios::end);
+							size_t size = inf.tellg();
+
+							if (size != -1)
+							{
+								std::string sRead;
+								sRead.resize(size);
+								inf.seekg(0, std::ios::beg);
+								inf.read(&sRead[0], size);
+								inf.close();
+
+								m_Server->GetUI()->GetModeLabel()->setText("Editor");
+								m_Server->SetInputMode(InputMode::EDITOR);
+
+								edit->setText( QString::fromStdString(std::move(sRead)));
+
+								QTextCursor cursor = edit->textCursor();
+
+								cursor.movePosition(QTextCursor::End);
+
+								edit->setTextCursor(cursor);
+							}
+						}
+
+						break;
+					}
+				}
+			}
+			return;
+		}
 
 		m_Server->GetUI()->Log_ThisLine(LogLevel::NORMAL,"");
 	}

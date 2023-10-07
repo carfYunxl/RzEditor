@@ -133,11 +133,15 @@ namespace RzLib
 				if (sInput.toStdString() == QUIT)
 				{
 					m_pServer->SetInputMode(InputMode::CONSOLE);
-					m_pServer->GetUI()->ChangeMode(InputMode::CONSOLE);
+					m_pServer->GetUI()->GetModeLabel()->setText("Console");
 				}
-
-				// 发送给client
-				m_pServer->SendInfo(TCP_CMD::NORMAL, sInput.toStdString());
+				else
+				{
+					// 发送给client
+					m_pServer->SendInfo(TCP_CMD::NORMAL, sInput.toStdString());
+				}
+				append("");
+				m_pServer->PrintConsoleHeader(m_pServer->GetCurrentDir().string());
 				break;
 			}
 			case InputMode::SEND:
@@ -146,7 +150,8 @@ namespace RzLib
 				if (sInput.toStdString() == QUIT)
 				{
 					m_pServer->SetInputMode(InputMode::CONSOLE);
-					m_pServer->GetUI()->ChangeMode(InputMode::CONSOLE);
+					m_pServer->GetUI()->GetModeLabel()->setText("Console");
+					return;
 				}
 				break;
 			}
@@ -155,14 +160,13 @@ namespace RzLib
 				if (sInput.toStdString() == QUIT)
 				{
 					m_pServer->SetInputMode(InputMode::CONSOLE);
-					m_pServer->GetUI()->ChangeMode(InputMode::CONSOLE);
+					m_pServer->GetUI()->GetModeLabel()->setText("Console");
+					return;
 				}
+
 				break;
 			}
 		}
-
-		append("");
-		m_pServer->PrintConsoleHeader(m_pServer->GetCurrentDir().string());
 	}
 
 	void RzTextEdit::ProcessKeyBackspace()

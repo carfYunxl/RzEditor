@@ -146,7 +146,7 @@ namespace RzLib
 		FD_ZERO(&m_All_FD);
 		FD_SET(m_listen_socket, &m_All_FD);
 
-		m_UI->InsertStatus("Server is listening ...");
+		m_UI->GetStateLabel()->setText("Server is listening ...");
 		PrintConsoleHeader(m_DirPath.string());
 
 		// 处理服务器的CMD
@@ -196,7 +196,7 @@ namespace RzLib
 		{
 			return;
 		}
-		m_UI->InsertStatus(QString("Client connected, socket : %1 port : %2").arg(socket_client).arg(ntohs(clientaddr.sin_port)));
+		m_UI->GetStateLabel()->setText(QString("Client connected, socket : %1 port : %2").arg(socket_client).arg(ntohs(clientaddr.sin_port)));
 		m_client.emplace_back(socket_client, ntohs(clientaddr.sin_port));
 
 		FD_SET(socket_client, &m_All_FD);

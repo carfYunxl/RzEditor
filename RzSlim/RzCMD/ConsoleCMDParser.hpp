@@ -65,5 +65,6 @@ namespace RzLib
         SOCKET          m_socket;
         std::string     m_message;
         RzServer*       m_Server;
+        std::string     m_sCMD;
     };
 }

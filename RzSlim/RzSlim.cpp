@@ -98,49 +98,11 @@ namespace RzLib {
         this->m_pTextEdit->insertPlainText(list);
     }
 
-    void RzSlim::AppendText(const QString& sText)
-    {
-        this->m_pTextEdit->append(sText);
-    }
-
-    void RzSlim::ChangeMode(InputMode mode)
-    {
-        QString sMode;
-        switch (mode)
-        {
-            case InputMode::CONSOLE:
-                sMode = "Console";
-                break;
-            case InputMode::SELECT:
-                sMode = "Select";
-                break;
-            case InputMode::SEND:
-                sMode = "Send";
-                break;
-            case InputMode::EDITOR:
-                sMode = "Editor";
-                break;
-            default:
-                sMode = "Unknown";
-                break;
-        }
-        m_ModeLabel->setText(sMode);
-    }
-
-    void RzSlim::InsertText(const QString& sText)
-    {
-        this->m_pTextEdit->insertPlainText(sText);
-    }
     void RzSlim::resizeEvent(QResizeEvent* event)
     {
         m_pTextEdit->resize(event->size().width(), event->size().height() - HEIGHT);
 
         m_statusbar->move(0, event->size().height() - HEIGHT);
         m_statusbar->resize(event->size().width(), HEIGHT);
-    }
-
-    void RzSlim::InsertStatus(const QString& sStatus)
-    {
-        m_statuslabel->setText(sStatus);
     }
 }

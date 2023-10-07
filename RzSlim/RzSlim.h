@@ -24,23 +24,16 @@ namespace RzLib
         RzSlim(QWidget* parent = nullptr);
         ~RzSlim();
 
-        void AppendText(const QString& sText);
-        void InsertText(const QString& sText);
+        void        Log_NextLine(LogLevel level, const QString& list);
+        void        Log_ThisLine(LogLevel level, const QString& list);
 
-        void ChangeMode(InputMode mode);
-
-        void Log_NextLine(LogLevel level, const QString& list);
-        void Log_ThisLine(LogLevel level, const QString& list);
-
-        void InsertStatus(const QString& sStatus);
-
-        void Clear() { m_pTextEdit->clear(); }
-
-        QString GetPlainText() const { return m_pTextEdit->toPlainText(); }
-        void SetPlainText(const char* txt) { m_pTextEdit->setText(QString(txt)); }
+        RzTextEdit* GetMainEdit() { return m_pTextEdit; }
+        QLabel*     GetModeLabel() { return m_ModeLabel; }
+        QLabel*     GetStateLabel() { return m_statuslabel; }
 
     protected:
         virtual void resizeEvent(QResizeEvent* event) override;
+
     private:
         void SetTextColor(LogLevel level);
 
