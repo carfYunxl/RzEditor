@@ -9,13 +9,12 @@ namespace RzLib
     class RzTextEdit : public QTextEdit
     {
     public:
-        explicit RzTextEdit(RzServer* parent = nullptr)
-            : m_pServer(parent)
-        {}
-        ~RzTextEdit() {}
+        explicit RzTextEdit(RzServer* parent = nullptr);
+        ~RzTextEdit();
     protected:
         virtual void keyPressEvent(QKeyEvent* event) override;
         virtual void mousePressEvent(QMouseEvent* event) override;
+        virtual void paintEvent(QPaintEvent* event) override;
 
     private:
         void ProcessKeyTab();

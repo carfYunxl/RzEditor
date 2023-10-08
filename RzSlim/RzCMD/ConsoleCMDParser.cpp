@@ -191,7 +191,7 @@ namespace RzLib
 					{
 						RzTextEdit* edit = m_Server->GetUI()->GetMainEdit();
 						//首先保存当前UI的内容
-						QString sUI = edit->toPlainText();
+						m_Server->SetUIText(std::move(edit->toPlainText()));
 
 						//读取这个txt，将其显示到UI上
 						std::ifstream inf(path, std::ios::in);
@@ -211,6 +211,8 @@ namespace RzLib
 								m_Server->GetUI()->GetModeLabel()->setText("Editor");
 								m_Server->SetInputMode(InputMode::EDITOR);
 
+								edit->setStyleSheet("background-color:rgb(255,255,255);"
+									"color:rgb(0,0,0)");
 								edit->setText( QString::fromStdString(std::move(sRead)));
 
 								QTextCursor cursor = edit->textCursor();
@@ -224,6 +226,10 @@ namespace RzLib
 						break;
 					}
 				}
+			}
+			else
+			{
+				m_Server->PrintConsoleHeader(m_Server->GetCurrentDir().string());
 			}
 			return;
 		}

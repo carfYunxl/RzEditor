@@ -8,9 +8,46 @@
 #include <QTextDocument>
 #include <QTextBlock>
 #include <QMouseEvent>
+#include <QPainter>
 
 namespace RzLib
 {
+	RzTextEdit::RzTextEdit(RzServer* parent)
+		: m_pServer(parent)
+	{
+		int margin = fontMetrics().width(QString::number(document()->blockCount())) + 10;
+
+		setViewportMargins(margin, 0, 0, 0);
+	}
+
+	RzTextEdit::~RzTextEdit()
+	{
+
+	}
+
+	void RzTextEdit::paintEvent(QPaintEvent* event)
+	{
+		QTextEdit::paintEvent(event);
+		QPainter painter(viewport());
+		painter.setPen(Qt::gray);
+		painter.drawLine(0, 0, 0, height());
+		int blockNumber = 0;
+		int first_block = cursorForPosition(QPoint(0, 1)).blockNumber();
+		QTextBlock block = document()->findBlockByNumber(first_block);
+		while (block.isValid())
+		{
+			document()->documentLayout()->blockBoundingRect(blockNumber);
+			if (rect.top() > height())
+				break;
+			else if (rect.top() + rect.height() >= 0)
+			{
+				painter.drawText(0, rect.top(), width(), rect.height(), Qt::AlignRight, QString::number(blockNumber));
+			}
+			block = block.next();
+			blockNumber++;
+		}
+	}
+
     void RzTextEdit::keyPressEvent(QKeyEvent* event)
     {
 		switch (event->key())
@@ -28,6 +65,31 @@ namespace RzLib
 			case Qt::Key_Backspace:
 			{
 				ProcessKeyBackspace();
+				break;
+			}
+			case Qt::Key_Escape:
+			{
+				QTextEdit* edit = m_pServer->GetUI()->GetMainEdit();
+				m_pServer->SetInputMode(InputMode::CONSOLE);
+				m_pServer->GetUI()->GetModeLabel()->setText("Console");
+
+				QString sEdit = edit->toPlainText();
+
+				edit->clear();
+				edit->setText(m_pServer->GetUIText());
+
+				QTextCursor cursor = edit->textCursor();
+
+				cursor.movePosition(QTextCursor::End);
+
+				edit->setTextCursor(cursor);
+
+				edit->setTextColor(Qt::gray);
+				edit->setStyleSheet("background-color:rgb(0,0,0);");
+
+				m_pServer->PrintConsoleHeader(m_pServer->GetCurrentDir().string());
+
+
 				break;
 			}
 			default:
@@ -157,13 +219,6 @@ namespace RzLib
 			}
 			case InputMode::EDITOR:
 			{
-				if (sInput.toStdString() == QUIT)
-				{
-					m_pServer->SetInputMode(InputMode::CONSOLE);
-					m_pServer->GetUI()->GetModeLabel()->setText("Console");
-					return;
-				}
-
 				break;
 			}
 		}

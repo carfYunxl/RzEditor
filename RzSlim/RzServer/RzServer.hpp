@@ -53,6 +53,11 @@ namespace RzLib
 
         void PrintConsoleHeader(const std::string& path);
 
+        void SetUIText(const QString& sUI) { m_UiText = sUI; }
+        void SetUIText(QString&& sUI) { m_UiText = sUI; }
+
+        const QString GetUIText() const { return m_UiText; }
+
     private:
         bool Init();
         bool Listen();
@@ -60,7 +65,6 @@ namespace RzLib
         void AcceptClient(SOCKET socket, const char* CMD, int rtLen);
         void AcceptConnection();
         bool GetClientMsg(SOCKET socket, char* buf, int* rtlen);
-
 
         void AcceptRequest();
     private:
