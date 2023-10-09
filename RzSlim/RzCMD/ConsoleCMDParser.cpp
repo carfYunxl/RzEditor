@@ -213,7 +213,7 @@ namespace RzLib
 
 								edit->setStyleSheet("background-color:rgb(255,255,255);"
 									"color:rgb(0,0,0)");
-								edit->setText( QString::fromStdString(std::move(sRead)));
+								edit->setPlainText( QString::fromStdString(std::move(sRead)));
 
 								QTextCursor cursor = edit->textCursor();
 

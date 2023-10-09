@@ -16,7 +16,7 @@ namespace RzLib {
 
         m_server = new RzServer(this, "127.0.0.1", 8080);
 
-        m_pTextEdit = new RzTextEdit(m_server);
+        m_pTextEdit = new RzTextEdit(this, m_server);
         m_pTextEdit->setParent(this);
         m_pTextEdit->resize(this->width(), this->height() - HEIGHT);
         m_pTextEdit->setFont(QFont("Consolas", 11));
@@ -56,40 +56,42 @@ namespace RzLib {
 
     void RzSlim::SetTextColor(LogLevel level)
     {
+        QTextCharFormat fmt;
         switch (level)
         {
             case LogLevel::INFO:
             {
-                this->m_pTextEdit->setTextColor(Qt::green);
+                fmt.setForeground(Qt::green);
                 break;
             }
             case LogLevel::WARN:
             {
-                this->m_pTextEdit->setTextColor(Qt::yellow);
+                fmt.setForeground(Qt::yellow);
                 break;
             }
             case LogLevel::ERR:
             {
-                this->m_pTextEdit->setTextColor(Qt::red);
+                fmt.setForeground(Qt::red);
                 break;
             }
             case LogLevel::CONSOLE:
             {
-                this->m_pTextEdit->setTextColor(Qt::gray);
+                fmt.setForeground(Qt::gray);
                 break;
             }
             case LogLevel::NORMAL:
             {
-                this->m_pTextEdit->setTextColor(Qt::white);
+                fmt.setForeground(Qt::white);
                 break;
             }
         }
+        this->m_pTextEdit->mergeCurrentCharFormat(fmt);
     }
 
     void RzSlim::Log_NextLine(LogLevel level, const QString& list)
     {      
         SetTextColor(level);
-        this->m_pTextEdit->append(list);
+        this->m_pTextEdit->appendPlainText(list);
     }
 
     void RzSlim::Log_ThisLine(LogLevel level, const QString& list)
