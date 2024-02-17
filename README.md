@@ -1,4 +1,4 @@
-# RzLib
+# RzEditor
 - some personal like library for daily work
   - FileTraveler : a easy use file operation class
   - ScopeThread
